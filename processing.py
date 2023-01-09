@@ -1,5 +1,6 @@
 import tarfile
 import os
+import re
 from google.cloud import storage
 import subprocess
 
@@ -29,8 +30,38 @@ def untar (fpath):
         tar.close()
     return os.path.abspath('./source')
 
-def find_main_tex_source (path):
-    pass # TODO
+def find_main_tex_source(path):
+    # assuming path is a directory containing unzipped tex source etc
+    tex_files = [f for f in os.listdir(path) if f.endswith('.tex')]
+    if len(tex_files) == 1:
+        return(os.path.join(path, tex_files[0]))
+    else:
+        main_files = {}
+        for tf in tex_files:
+            file = open(os.path.join(path, tf), "r")
+            for line in file:
+                if re.search(r"^\s*\\document(?:style|class)", line):
+                    # https://arxiv.org/help/faq/mistakes#wrongtex
+                    # according to this page, there should only be one tex file with a \documentclass - the main file ?
+                    if tf == "paper.tex" or tf == "main.tex" or tf == "ms.tex" or tf == "article.tex":
+                        main_files[tf] = 1
+                    else:
+                        main_files[tf] = 0
+                    break
+            file.close
+        if len(main_files) == 1:
+           return(os.path.join(path, list(main_files)[0]))
+        else:
+            # account for the two main ways of creating multi-file submissions on overleaf (standalone, subfiles)
+            for mf in main_files:
+                file = open(os.path.join(path, mf), "r")
+                for line in file:
+                    if re.search(r"^\s*\\document(?:style|class).*(?:\{standalone\}|\{subfiles\})", line):
+                        del main_files[mf]
+                        break
+                        # document class of main should not be standalone or subfiles (the main file is just {article} or something else)
+                file.close
+            return(os.path.join(path, max(main_files, key=main_files.get)))
 
 def do_latexml (main_fpath, out_fpath):
     # TODO: the executable might be in a different place
@@ -52,6 +83,4 @@ def do_latexml (main_fpath, out_fpath):
         return None
 
 def upload_output (fpath, target):
-    
-    
-    
+    pass

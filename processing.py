@@ -7,22 +7,24 @@ import subprocess
 client = storage.Client()
 
 def process (payload):
-    # Outline
+    submission_id = payload['name']
     try:
         tar = get_file(payload)
         source = untar(tar)
         main = find_main_tex_source(source)
-        output = do_latexml(main, 'TODO') # need to get submissionId from somewhere; probably blob name
-        upload_output(output)
+        out_path = os.path.join(source, 'html')
+        os.mkdir(out_path)
+        output = do_latexml(main, os.path.join(out_path, submission_id)) # need to get submissionId from somewhere; probably blob name
+        upload_output(out_path, os.environ['OUT_BUCKET_NAME'], submission_id)
     except:
         return False
     return True
 
 def get_file(payload):
-    blob = client.bucket(payload.payload['bucket']) \
+    blob = client.bucket(payload['bucket']) \
         .blob(payload['name'])
-    blob.download_to_filename('tar')
-    return os.path.abspath('./tar')
+    blob.download_to_filename(payload['name'])
+    return os.path.abspath(f"./{payload['name']}")
 
 def untar (fpath):
     with tarfile.open(fpath) as tar:
@@ -76,11 +78,14 @@ def do_latexml (main_fpath, out_fpath):
         "--nodefaultresources", \
         "--css=https://cdn.jsdelivr.net/gh/dginev/ar5iv-css@0.7.4/css/ar5iv.min.css", \
         f"--source={main_fpath}", f"--dest={out_fpath}"] # TODO: will eventually need unique identifiers for the output files
-    try:
-        subprocess.run(config)
-        return os.path.abspath('./main.html')
-    except:
-        return None
+    subprocess.run(config)
 
-def upload_output (fpath, target):
-    pass
+def upload_output (path, bucket_name, destination_fname):
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(destination_fname)
+    with tarfile.open('output', "w:gz") as tar:
+        tar.add(path, arcname=os.path.basename(path))
+    blob.upload_from_filename('output')
+    
+    
+    

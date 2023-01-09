@@ -3,20 +3,21 @@ import os
 from google.cloud import storage
 import subprocess
 
+client = storage.Client()
+
 def process (payload):
     # Outline
     try:
         tar = get_file(payload)
         source = untar(tar)
         main = find_main_tex_source(source)
-        output = do_latexml(main)
+        output = do_latexml(main, 'TODO') # need to get submissionId from somewhere; probably blob name
         upload_output(output)
     except:
         return False
     return True
 
 def get_file(payload):
-    client = storage.Client()
     blob = client.bucket(payload.payload['bucket']) \
         .blob(payload['name'])
     blob.download_to_filename('tar')
@@ -31,7 +32,7 @@ def untar (fpath):
 def find_main_tex_source (path):
     pass # TODO
 
-def do_latexml (main_fpath):
+def do_latexml (main_fpath, out_fpath):
     # TODO: the executable might be in a different place
     # TODO: will probably want keep the css in the container
     #       to really limit incoming requests
@@ -43,7 +44,7 @@ def do_latexml (main_fpath):
         "--timeout=2700", \
         "--nodefaultresources", \
         "--css=https://cdn.jsdelivr.net/gh/dginev/ar5iv-css@0.7.4/css/ar5iv.min.css", \
-        f"--source={main_fpath}", "--dest=main.html"] # TODO: will eventually need unique identifiers for the output files
+        f"--source={main_fpath}", f"--dest={out_fpath}"] # TODO: will eventually need unique identifiers for the output files
     try:
         subprocess.run(config)
         return os.path.abspath('./main.html')
@@ -51,6 +52,6 @@ def do_latexml (main_fpath):
         return None
 
 def upload_output (fpath, target):
-    pass # TODO
+    
     
     

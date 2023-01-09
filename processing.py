@@ -57,7 +57,7 @@ def find_main_tex_source(path):
                 file = open(os.path.join(path, mf), "r")
                 for line in file:
                     if re.search(r"^\s*\\document(?:style|class).*(?:\{standalone\}|\{subfiles\})", line):
-                        del main_files[mf]
+                        main_files[mf] = -99999
                         break
                         # document class of main should not be standalone or subfiles (the main file is just {article} or something else)
                 file.close

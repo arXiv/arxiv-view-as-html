@@ -1,6 +1,7 @@
 import tarfile
 import os
 import re
+import config
 from google.cloud import storage
 import subprocess
 
@@ -15,7 +16,7 @@ def process (payload):
         out_path = os.path.join(source, 'html')
         os.mkdir(out_path)
         output = do_latexml(main, os.path.join(out_path, submission_id)) # need to get submissionId from somewhere; probably blob name
-        upload_output(out_path, os.environ['OUT_BUCKET_NAME'], submission_id)
+        upload_output(out_path, config.OUT_BUCKET_NAME, submission_id)
     except:
         return False
     return True
@@ -23,8 +24,11 @@ def process (payload):
 def get_file(payload):
     blob = client.bucket(payload['bucket']) \
         .blob(payload['name'])
-    blob.download_to_filename(payload['name'])
-    return os.path.abspath(f"./{payload['name']}")
+    with open(payload['name'], 'wb') as read_stream:
+        blob.download_to_filename(read_stream) # payload['name']
+        read_stream.close()
+        return os.path.abspath(f"./{payload['name']}")
+    return None
 
 def untar (fpath):
     with tarfile.open(fpath) as tar:
@@ -76,8 +80,8 @@ def do_latexml (main_fpath, out_fpath):
         "--pmml","--cmml","--mathtex", \
         "--timeout=2700", \
         "--nodefaultresources", \
-        "--css=https://cdn.jsdelivr.net/gh/dginev/ar5iv-css@0.7.4/css/ar5iv.min.css", \
-        f"--source={main_fpath}", f"--dest={out_fpath}"] # TODO: will eventually need unique identifiers for the output files
+        "--css=css/ar5iv.min.css", \
+        f"--source={main_fpath}", f"--dest={out_fpath}"]
     subprocess.run(config)
 
 def upload_output (path, bucket_name, destination_fname):

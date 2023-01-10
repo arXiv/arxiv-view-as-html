@@ -84,6 +84,7 @@ WORKDIR /arxiv
 
 RUN /usr/local/bin/python -m pip install --upgrade pip
 RUN pip install flask
+RUN pip install google-cloud-storage
 RUN pip install gunicorn
 
 COPY . .

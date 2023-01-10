@@ -27,8 +27,7 @@ def get_file(payload):
     with open(payload['name'], 'wb') as read_stream:
         blob.download_to_filename(read_stream) # payload['name']
         read_stream.close()
-        return os.path.abspath(f"./{payload['name']}")
-    return None
+    return os.path.abspath(f"./{payload['name']}")
 
 def untar (fpath):
     with tarfile.open(fpath) as tar:

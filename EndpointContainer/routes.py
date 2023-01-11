@@ -9,9 +9,12 @@ from factory import create_web_app
 from util import *
 import datetime
 from google.cloud import storage
+import google.auth
+from google.auth.transport import requests
 from authorize import authorize_user_for_submission
 
 blueprint = Blueprint('routes', __name__, '')
+credentials, project_id = google.auth.default()
 
 def authorize_for_submission(func: Callable) -> Callable:
     @wraps(func)
@@ -34,18 +37,22 @@ def download (request):
 @blueprint.route('/upload', methods=['POST'])
 @authorize_for_submission
 def upload (request):
-    """Generates a v4 signed URL for uploading a blob using HTTP PUT.
+    r = requests.Request()
+    credentials.refresh(r)
 
-    Note that this method requires a service account key file. You can not use
-    this if you are using Application Default Credentials from Google Compute
-    Engine or from the Google Cloud SDK.
-    """
     bucket_name = 'latexml_submission_source'
     blob_name = request.auth.user + "_submission"
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
+    
+    # """Generates a v4 signed URL for uploading a blob using HTTP PUT.
+
+    # Note that this method requires a service account key file. You can not use
+    # this if you are using Application Default Credentials from Google Compute
+    # Engine or from the Google Cloud SDK.
+    # """
 
     url = blob.generate_signed_url(
         version="v4",
@@ -53,6 +60,8 @@ def upload (request):
         expiration=datetime.timedelta(minutes=10),
         # Allow PUT requests using this URL.
         method="PUT",
+        # Use updated credentials (new token for signature is created by Google every 12 hours)
+        credentials=credentials
     )
 
     # print("Generated PUT signed URL:")
@@ -64,6 +73,6 @@ def upload (request):
     # )
     # The above snippet is how to use the URL
     # Needs to be sent to XML endpoint in 
-    return url
+    return url, 200
     # Do security things
     # We give them a signed write url

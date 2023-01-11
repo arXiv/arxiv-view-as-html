@@ -80,7 +80,7 @@ def do_latexml (main_fpath, out_fpath):
         "--timeout=2700", \
         "--nodefaultresources", \
         "--css=css/ar5iv.min.css", \
-        f"--source={main_fpath}", f"--dest={out_fpath}"]
+        f"--source={main_fpath}", f"--dest={out_fpath}.html"]
     subprocess.run(config)
 
 def upload_output (path, bucket_name, destination_fname):

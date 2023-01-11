@@ -62,6 +62,8 @@ def upload (request):
         method="PUT",
         # Use updated credentials (new token for signature is created by Google every 12 hours)
         credentials=credentials
+        # service_account_email=credentials.service_account_email,
+        # access_token=credentials.token,
     )
 
     # print("Generated PUT signed URL:")

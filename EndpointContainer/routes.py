@@ -25,14 +25,10 @@ def authorize_for_submission(func: Callable) -> Callable:
 
 @blueprint.route('/download', methods=['GET'])
 @authorize_for_submission
-def download ():
-    # Decrypt
-    # DB Query
-    # Authorize
-    # Then...
+def download (request):
     tar = get_file()
     source = untar(tar)
-    return render_template()
+    return render_template(f"{request.form['submission_id']}.html")
 
 
 @blueprint.route('/upload', methods=['POST'])

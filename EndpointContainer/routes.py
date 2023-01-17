@@ -1,11 +1,10 @@
-from flask import request, secure_filename, Blueprint, jsonify, render_template
+from flask import request, Blueprint, jsonify, render_template
 
 from functools import wraps
 
 from typing import Any, Callable
 
 import config
-from factory import create_web_app
 from util import *
 import datetime
 from google.cloud import storage
@@ -19,11 +18,11 @@ credentials, project_id = google.auth.default()
 def authorize_for_submission(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        if request.auth: # try hasattr(request, 'auth')
-            if request.auth.user and ('submission_id' in request.form):
-                if (authorize_user_for_submission(request.auth.user.user_id, request.form['submission_id'])):
+        if hasattr(request, 'auth') and request.auth:
+            if request.auth.user and ('submission_id' in request.form): # SEE WHAT IT'S LIKE AFTER TEMPLATE IS WRITTEN
+                if (authorize_user_for_submission(request.auth.user.user_id, request.form['submission_id'])): # Example for getting submission_id
                     return func(*args, **kwargs)
-        return jsonify ({"message": "You don't have permission to view this resource"}), 403
+        return jsonify ({"message": "You don't have permission to view this resource"}), 403 # do make_response
     return wrapper
 
 @blueprint.route('/download', methods=['GET'])
@@ -74,6 +73,6 @@ def upload (request):
     # )
     # The above snippet is how to use the URL
     # Needs to be sent to XML endpoint in 
-    return url, 200
+    return jsonify({"url": url}), 200
     # Do security things
     # We give them a signed write url

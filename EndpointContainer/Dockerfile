@@ -24,6 +24,8 @@ RUN python -m pip install flask google-cloud-storage gunicorn
 
 ########## COPY SOURCE ##########
 
+WORKDIR /source
+
 COPY . .
 
 ########## RUN ##########

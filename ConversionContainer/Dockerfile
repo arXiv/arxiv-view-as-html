@@ -49,7 +49,7 @@ RUN eval $(perl -I$HOME/perl5/lib -Mlocal::lib)
 RUN echo 'eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"' >> ~/.bashrc
 
 # Collect the extended arxmliv-bindings files
-ENV ARXMLIV_BINDINGS_COMMIT=ccbd5f96bfb28d25ee2625dbb1c96eaa1f0ebb8e
+ENV ARXMLIV_BINDINGS_COMMIT=cc02d684af394b3f413c825d752138a7fc0810d1
 RUN rm -rf /opt/arxmliv-bindings
 RUN git clone https://github.com/dginev/arxmliv-bindings /opt/arxmliv-bindings
 WORKDIR /opt/arxmliv-bindings
@@ -58,7 +58,7 @@ RUN git reset --hard $ARXMLIV_BINDINGS_COMMIT
 # Install LaTeXML, at a fixed commit, via cpanminus
 RUN mkdir -p /opt/latexml
 WORKDIR /opt/latexml
-ENV LATEXML_COMMIT=bd776d49f17cd805a9788f7b39dddf93b69ea45d
+ENV LATEXML_COMMIT=2bfdaf26ab73aea95e210f044762dd4891855b47
 RUN cpanm --notest --verbose https://github.com/brucemiller/LaTeXML/tarball/$LATEXML_COMMIT
 
 # Enable imagemagick policy permissions for work with arXiv PDF/EPS files
@@ -89,4 +89,4 @@ RUN pip install gunicorn
 
 COPY . .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "entry_point:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "entry_point:app"]

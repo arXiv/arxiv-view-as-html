@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from arix_auth.legacy.util import is_configured, current_session
+from arxiv_auth.legacy.util import is_configured, current_session
 
 import config
 from Submissions import Submissions

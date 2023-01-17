@@ -2,6 +2,7 @@ import tarfile
 import os
 import re
 import config
+import db
 from google.cloud import storage
 import subprocess
 
@@ -14,11 +15,17 @@ client = storage.Client()
 def process (payload):
     try:
         submission_id = payload['name']
+        if submission_id:
+            db.write_in_progress(submission_id)
+        else:
+            raise Exception('No submission_id')
         print ("Step 1: downloading")
         tar = get_file(payload)
         print (f"Step 2: untarring {tar}")
         source = untar(tar, payload['name'])
-        print ("Step 3: finding main tex source")
+        print ("Step 3: Removing .ltxml files")
+        remove_ltxml (source)
+        print ("Step 4: finding main tex source")
         main = find_main_tex_source(source)
         print (f"Main tex source is {main}")
         out_path = os.path.join(source, 'html')
@@ -29,12 +36,18 @@ def process (payload):
         print (f"Step 6: Upload html from {out_path}")
         upload_output(out_path, config.OUT_BUCKET_NAME, submission_id)
         print ("Uploaded successfully. Done!")
+        db.write_success(submission_id)
+    except:
+        if payload.get('name'):
+            db.write_failure(payload['name'])
+        else:
+            pass
+            # what to do if we got a bad submission_id?
     finally:
         try:
             os.rmdir(payload['name'])
         except:
             print (f"Failed to delete {payload.get('name')}")
-
     return True
 
 def get_file(payload):
@@ -45,7 +58,11 @@ def get_file(payload):
         read_stream.close()
     return os.path.abspath(f"./{payload['name']}")
 
-# Delete .ltxml files
+def remove_ltxml (path):
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if str(file).endswith('.ltxml'):
+                 os.remove(os.path.join(root, file))
 
 def untar (fpath, dir_name):
     # WE MAKE AN ASSUMPTION THAT WE ARE RECEIVING A tar gz file, with no file extension

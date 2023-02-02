@@ -29,4 +29,4 @@ WORKDIR /source
 COPY . .
 
 ########## RUN ##########
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "entry_point:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "entry_point:app"]

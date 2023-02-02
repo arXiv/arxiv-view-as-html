@@ -28,19 +28,21 @@ def authorize_for_submission(func: Callable) -> Callable:
 @blueprint.route('/download', methods=['GET'])
 @authorize_for_submission
 def download (request):
+    # add conversion completion verification here or in client side on button
     tar = get_file()
     source = untar(tar)
     return render_template(f"{request.form['submission_id']}.html")
 
 
 @blueprint.route('/upload', methods=['POST'])
-@authorize_for_submission
+#@authorize_for_submission
 def upload (request):
     r = requests.Request()
     credentials.refresh(r)
 
     bucket_name = 'latexml_submission_source'
-    blob_name = request.auth.user + "_submission"
+    # blob_name = request.auth.user + "_submission"
+    blob_name = 'testuser_submission'
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
@@ -64,15 +66,8 @@ def upload (request):
         access_token=credentials.token,
     )
 
-    # print("Generated PUT signed URL:")
-    # print(url)
-    # print("You can use this URL with any user agent, for example:")
-    # print(
-    #     "curl -X PUT -H 'Content-Type: application/octet-stream' "
-    #     "--upload-file my-file '{}'".format(url)
-    # )
-    # The above snippet is how to use the URL
+    # See test_signed_upload.txt for usage
     # Needs to be sent to XML endpoint in 
     return jsonify({"url": url}), 200
-    # Do security things
-    # We give them a signed write url
+
+    # add exception handling

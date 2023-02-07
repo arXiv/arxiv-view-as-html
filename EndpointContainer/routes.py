@@ -36,7 +36,7 @@ def download (request):
 
 @blueprint.route('/upload', methods=['POST'])
 #@authorize_for_submission
-def upload (request):
+def upload ():
     r = requests.Request()
     credentials.refresh(r)
 

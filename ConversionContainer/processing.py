@@ -5,6 +5,7 @@ import config
 import db
 from google.cloud import storage
 import subprocess
+import shutil
 
 # Change such that we can handle multiple requests
 # Raise max requests allowed on cloud run
@@ -29,7 +30,15 @@ def process (payload):
         main = find_main_tex_source(source)
         print (f"Main tex source is {main}")
         out_path = os.path.join(source, 'html')
-        os.mkdir(out_path)
+        try:
+            os.mkdir(out_path)
+        except FileExistsError:
+            for filename in os.listdir(out_path):
+                filepath = os.path.join(out_path, filename)
+                try:
+                    shutil.rmtree(filepath)
+                except OSError:
+                    os.remove(filepath)
         print (f"Out path is {out_path}")
         print ("Step 5: Do LaTeXML")
         do_latexml(main, os.path.join(out_path, submission_id))

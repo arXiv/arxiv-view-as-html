@@ -4,9 +4,7 @@ from google.cloud import storage
 
 OUT_BUCKET_NAME = "latexml_submission_converted"
 
-client = storage.Client()
-
-def get_file(bucket_name, blob_name):
+def get_file(bucket_name, blob_name, client):
     blob = client.bucket(bucket_name) \
         .blob(blob_name)
     with open(blob_name, 'wb') as read_stream:

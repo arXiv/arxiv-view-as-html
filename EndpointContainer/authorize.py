@@ -1,4 +1,3 @@
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from arxiv_auth.legacy.util import is_configured, current_session

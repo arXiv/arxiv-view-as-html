@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship
 
 from arxiv_auth.legacy.models import db
 
+
 class Submissions(db.Model):
     __tablename__ = 'arXiv_submissions'
 

@@ -10,4 +10,4 @@ SQLALCHEMY_DATABASE_URI = CLASSIC_DATABASE_URI
 # SQLALCHEMY_DATABASE_URI = "mysql://rfamro@mysql-rfam-public.ebi.ac.uk:4497/Rfam"
 
 STATIC_FOLDER = '/static'
-TEMPLATE_FOLDER = '/static'
+TEMPLATE_FOLDER = '/tmp'

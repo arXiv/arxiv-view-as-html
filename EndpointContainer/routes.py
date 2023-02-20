@@ -11,6 +11,11 @@ from google.cloud import storage
 import google.auth
 from google.auth.transport import requests
 from authorize import authorize_user_for_submission
+import logging
+
+import google.cloud.logging
+lclient = google.cloud.logging.Client()
+lclient.setup_logging()
 
 from arxiv_auth.domain import Session
 
@@ -54,6 +59,8 @@ def _get_url(req, credentials, client) -> str:
         access_token=credentials.token,
     )
 
+    return url
+
 
 def authorize_for_submission(func: Callable) -> Callable:
     @wraps(func)
@@ -65,14 +72,28 @@ def authorize_for_submission(func: Callable) -> Callable:
         return jsonify ({"message": "You don't have permission to view this resource"}), 403 # do make_response
     return wrapper
 
+def list_files(startpath):
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        logging.info('{}{}/'.format(indent, os.path.basename(root)))
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            logging.info('{}{}'.format(subindent, f))
 
 @blueprint.route('/download', methods=['GET'])
-@authorize_for_submission
+# @authorize_for_submission
 def download ():
+    credentials, _, client = _get_google_auth()
+    bucket_name = 'latexml_submission_converted'
+    # blob_name = request.auth.user + "_submission"
+    blob_name = 'testuser_submission'  # TODO This is just a test value
     # add conversion completion verification here or in client side on button
-    tar = get_file()
+    tar = get_file(bucket_name, blob_name, client)
     source = untar(tar)
-    return render_template(f"{request.form['submission_id']}.html")
+    # list_files(".")
+    return render_template("html/testuser_submission.html")
+    #return render_template(f"{request.form['submission_id']}.html")
 
 
 @blueprint.route('/upload', methods=['POST'])

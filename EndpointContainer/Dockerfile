@@ -20,7 +20,7 @@ RUN python -m pip install .
 
 ########## INSTALL OTHER DEPENDENCIES ##########
 
-RUN python -m pip install flask google-cloud-storage gunicorn
+RUN python -m pip install flask google-cloud-storage gunicorn google-cloud-logging
 
 ########## COPY SOURCE ##########
 

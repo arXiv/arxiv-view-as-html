@@ -20,20 +20,20 @@ def list_files(startpath):
 def get_file(bucket_name, blob_name, client):
     blob = client.bucket(bucket_name) \
         .blob(blob_name)
-    blob.download_to_filename('/source/converted')
+    # blob.download_to_filename('/source/converted')
     logging.info("get_file")
-    # with open(blob_name, 'wb') as read_stream:
-    #     blob.download_to_filename(read_stream)
-    #     read_stream.close()
-    # return os.path.abspath(f"./{blob_name}")
-    return '/source/converted'
+    with open(blob_name, 'wb') as read_stream:
+        blob.download_to_filename(read_stream)
+        read_stream.close()
+    return os.path.abspath(f"./{blob_name}")
+    # return '/source/converted'
 
-def untar (fpath):
+def untar (fpath, id):
     with tarfile.open(fpath) as tar:
         #tar.extractall('./static')
-        tar.extractall('/source/templates')
+        tar.extractall(f'/source/templates/{id}')
         tar.close()
     logging.info("untar")
-    list_files("/source/templates")
-    return os.path.abspath('/source/templates')
+    list_files(f"/source/templates/{id}")
+    return os.path.abspath(f'/source/templates/{id}/html/{id}.html')
     #return os.path.abspath('./static')

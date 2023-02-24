@@ -13,16 +13,18 @@ from google.auth.transport import requests
 from authorize import authorize_user_for_submission
 import logging
 
-import google.cloud.logging
+import google.cloud.logging 
 lclient = google.cloud.logging.Client()
 lclient.setup_logging()
 
 from arxiv_auth.domain import Session
 
+
 blueprint = Blueprint('routes', __name__, '')
 
 def _get_google_auth () -> tuple[google.auth.credentials.Credentials, str, storage.Client]:
-    return *google.auth.default(), storage.Client()
+    credentials, project_id = google.auth.default()
+    return (credentials, project_id, storage.Client(credentials=credentials))
 
 def _get_auth(req) -> Optional[Session]:
     if request and hasattr(request, 'auth') and request.auth:
@@ -30,13 +32,15 @@ def _get_auth(req) -> Optional[Session]:
     else:
         return None
 
-def _get_url(req, credentials, client) -> str:
+def _get_url(blob_name) -> str:
 
+    credentials, _, client = _get_google_auth()
+    request = requests.Request()
     credentials.refresh(request)
 
     bucket_name = 'latexml_submission_source'
-    # blob_name = request.auth.user + "_submission"
-    blob_name = 'testuser_submission'  # TODO This is just a test value
+    # blob_name = req.form['submission_id']
+    # blob_name = 'testuser_submission'  # TODO This is just a test value
 
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
@@ -81,31 +85,31 @@ def list_files(startpath):
         for f in files:
             logging.info('{}{}'.format(subindent, f))
 
-@blueprint.route('/download', methods=['GET'])
+@blueprint.route('/download', methods=['POST'])
 # @authorize_for_submission
 def download ():
     credentials, _, client = _get_google_auth()
     bucket_name = 'latexml_submission_converted'
-    # blob_name = request.auth.user + "_submission"
-    blob_name = 'testuser_submission'  # TODO This is just a test value
+    blob_name = request.form['submission_id']
+    # blob_name = 'testuser_submission'  # TODO This is just a test value
     # add conversion completion verification here or in client side on button
     tar = get_file(bucket_name, blob_name, client)
     source = untar(tar)
     # list_files(".")
-    return render_template("html/testuser_submission.html")
+    return render_template("html_template.html", html=source)
     #return render_template(f"{request.form['submission_id']}.html")
 
 
 @blueprint.route('/upload', methods=['POST'])
-@authorize_for_submission
+# @authorize_for_submission
 def upload ():
     print ('made it to upload')
-    #r = requests.Request()
-    credentials, _, client = _get_google_auth()
+    # r = requests.Request()
+    # credentials, _, client = _get_google_auth()
 
 
     # See test_signed_upload.txt for usage
     # Needs to be sent to XML endpoint in 
-    return jsonify({"url": _get_url(request, credentials, client)}), 200
+    return jsonify({"url": _get_url(request.form['submission_id'])}), 200
 
     # add exception handling

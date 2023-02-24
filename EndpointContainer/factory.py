@@ -37,7 +37,7 @@ def create_web_app(config_path: str=None) -> Flask:
     os.makedirs(template_folder)
     app.template_folder = template_folder 
     # app.root_path + app.config.get('TEMPLATE_FOLDER')
-    logging.info(app.template_folder)
+    # logging.info(app.template_folder)
 
     app.config['SERVER_NAME'] = None
 

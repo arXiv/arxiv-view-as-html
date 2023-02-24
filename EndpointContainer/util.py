@@ -21,7 +21,6 @@ def get_file(bucket_name, blob_name, client):
     blob = client.bucket(bucket_name) \
         .blob(blob_name)
     blob.download_to_filename('/source/converted')
-    logging.info("get_file")
     # with open(blob_name, 'wb') as read_stream:
     #     blob.download_to_filename(read_stream)
     #     read_stream.close()
@@ -33,7 +32,7 @@ def untar (fpath):
         #tar.extractall('./static')
         tar.extractall('/source/templates')
         tar.close()
-    logging.info("untar")
-    list_files("/source/templates")
+    # logging.info("untar")
+    #list_files("/source/templates")
     return os.path.abspath('/source/templates')
     #return os.path.abspath('./static')

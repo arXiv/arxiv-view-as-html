@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify, render_template
+from flask import request, Blueprint, jsonify, render_template, send_from_directory, current_app
 
 from functools import wraps
 
@@ -91,8 +91,9 @@ def download ():
     # add conversion completion verification here or in client side on button
     tar = get_file(bucket_name, blob_name, client)
     source = untar(tar)
-    # list_files(".")
-    return render_template("html/testuser_submission.html")
+    list_files(current_app.template_folder)
+    return send_from_directory(current_app.template_folder, "html/testuser_submission.html")
+    # return render_template("html/testuser_submission.html")
     #return render_template(f"{request.form['submission_id']}.html")
 
 

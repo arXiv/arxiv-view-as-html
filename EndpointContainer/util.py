@@ -3,6 +3,8 @@ import os
 from google.cloud import storage
 import logging
 import google.cloud.logging
+import io
+import jinja2
 client = google.cloud.logging.Client()
 client.setup_logging()
 
@@ -20,12 +22,21 @@ def list_files(startpath):
 def get_file(bucket_name, blob_name, client):
     blob = client.bucket(bucket_name) \
         .blob(blob_name)
-    # blob.download_to_filename('/source/converted')
+    try:
+        os.makedirs(f"/source/templates/{blob_name}/src/")
+    except:
+        logging.info(f"Directory /source/templates/{blob_name}/src/ already exists")
+    blob.download_to_filename(f"/source/templates/{blob_name}/src/{blob_name}")
     logging.info("get_file")
-    with open(blob_name, 'wb') as read_stream:
-        blob.download_to_filename(read_stream)
-        read_stream.close()
-    return os.path.abspath(f"./{blob_name}")
+    # file_obj = io.BytesIO()
+    # # with open(blob_name, 'wb') as read_stream:
+    # #     blob.download_to_filename(read_stream)
+    # #     read_stream.close()
+    # blob.download_to_filename(file_obj)
+    # file_obj.seek(0, 0)
+    # with open(blob_name, 'wb') as f:
+    #     f.write(file_obj.getbuffer())
+    return os.path.abspath(f"/source/templates/{blob_name}/src/{blob_name}")
     # return '/source/converted'
 
 def untar (fpath, id):
@@ -35,5 +46,5 @@ def untar (fpath, id):
         tar.close()
     logging.info("untar")
     list_files(f"/source/templates/{id}")
-    return os.path.abspath(f'/source/templates/{id}/html/{id}.html')
+    return f'{id}/html/{id}.html'
     #return os.path.abspath('./static')

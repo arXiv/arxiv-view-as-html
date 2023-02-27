@@ -33,4 +33,12 @@ if __name__ == '__main__':
     # Also assumes you run from that dir, because curl cares
     # do_whole_process('2302.11573')
     a = download('2302.11573')
+    with open('temp.html', 'wb') as f:
+        f.write(a)
     print (a)
+    subprocess.run(['firefox', 'temp.html'])
+    # import tarfile
+    # with tarfile.open('2302.11573') as tar:
+    #     #tar.extractall('./static')
+    #     tar.extractall('./')
+    #     tar.close()

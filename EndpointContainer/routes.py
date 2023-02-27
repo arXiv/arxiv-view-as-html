@@ -94,7 +94,7 @@ def download ():
     # blob_name = 'testuser_submission'  # TODO This is just a test value
     # add conversion completion verification here or in client side on button
     tar = get_file(bucket_name, blob_name, client)
-    source = untar(tar)
+    source = untar(tar, blob_name)
     # list_files(".")
     return render_template("html_template.html", html=source)
     #return render_template(f"{request.form['submission_id']}.html")

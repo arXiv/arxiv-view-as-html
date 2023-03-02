@@ -40,7 +40,10 @@ def create_web_app(config_path: str=None) -> Flask:
     else:
         app.config.from_pyfile('config.py')
 
+    # Add the include_raw function to the jinja environment
     app.jinja_env.globals['include_raw'] = lambda html_path : include_raw(app, html_path)
+
+
     # # set the absolute path to the static folder
     # app.static_folder = app.root_path + app.config.get('STATIC_FOLDER')
     # template_folder = os.path.join(app.root_path, 'templates')
@@ -48,6 +51,8 @@ def create_web_app(config_path: str=None) -> Flask:
     # app.template_folder = template_folder 
     # # app.root_path + app.config.get('TEMPLATE_FOLDER')
     # logging.info(app.template_folder)
+
+    app.static_folder = app.template_folder
 
     app.config['SERVER_NAME'] = None
 

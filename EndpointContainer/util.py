@@ -22,11 +22,14 @@ def list_files(startpath):
 def get_file(bucket_name, blob_name, client):
     blob = client.bucket(bucket_name) \
         .blob(blob_name)
+    
+    blob_hyphen = blob_name.replace('.', '-')
     try:
-        os.makedirs(f"/source/templates/{blob_name}/src/")
+        os.makedirs(f"/source/templates/{blob_hyphen}/src/")
     except:
-        logging.info(f"Directory /source/templates/{blob_name}/src/ already exists")
-    blob.download_to_filename(f"/source/templates/{blob_name}/src/{blob_name}")
+        logging.info(f"Directory /source/templates/{blob_hyphen}/src/ already exists")
+
+    blob.download_to_filename(f"/source/templates/{blob_hyphen}/src/{blob_name}")
     logging.info("get_file")
     # file_obj = io.BytesIO()
     # # with open(blob_name, 'wb') as read_stream:
@@ -36,15 +39,16 @@ def get_file(bucket_name, blob_name, client):
     # file_obj.seek(0, 0)
     # with open(blob_name, 'wb') as f:
     #     f.write(file_obj.getbuffer())
-    return os.path.abspath(f"/source/templates/{blob_name}/src/{blob_name}")
+    return os.path.abspath(f"/source/templates/{blob_hyphen}/src/{blob_name}")
     # return '/source/converted'
 
 def untar (fpath, id):
+    id_hyphen = id.replace(".", "-")
     with tarfile.open(fpath) as tar:
         #tar.extractall('./static')
-        tar.extractall(f'/source/templates/{id}')
+        tar.extractall(f'/source/templates/{id_hyphen}')
         tar.close()
     logging.info("untar")
-    list_files(f"/source/templates/{id}")
-    return f'{id}/html/{id}.html'
+    # list_files(f"/source/templates/{id}")
+    return f'{id_hyphen}/html/{id}.html'
     #return os.path.abspath('./static')

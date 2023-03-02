@@ -22,16 +22,16 @@ def download (fname):
 def do_whole_process (fname):
     signed_url = get_signed_url(fname)
     upload_to_signed_url(signed_url, fname)
-    for i in range(120):
-        print (f"Processing... {120 - i} seconds left")
+    for i in range(90):
+        print (f"Processing... {90 - i} seconds left")
         sleep(1)
-    print (download(fname))
+    return download(fname)
 
 
 if __name__ == '__main__':
     # Right now, this assumed that this file and the other file are in the same dir
     # Also assumes you run from that dir, because curl cares
-    # do_whole_process('2302.11573')
+    # a = do_whole_process('2302.11573')
     a = download('2302.11573')
     with open('temp.html', 'wb') as f:
         f.write(a)

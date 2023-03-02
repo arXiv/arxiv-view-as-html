@@ -4,6 +4,7 @@ from functools import wraps
 
 from typing import Any, Callable, Optional
 
+import os
 import config
 from util import *
 import datetime
@@ -14,6 +15,9 @@ from authorize import authorize_user_for_submission
 import logging
 
 import google.cloud.logging 
+
+from bs4 import BeautifulSoup
+
 lclient = google.cloud.logging.Client()
 lclient.setup_logging()
 
@@ -65,6 +69,18 @@ def _get_url(blob_name) -> str:
 
     return url
 
+# TODO: Add error handling
+def _inject_base_tag (html_path, base_path):
+    list_files('templates')
+    with open(f'/source/templates/{html_path}', 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        logging.info(str(soup))
+        base = soup.new_tag('base')
+        base['href'] = base_path
+        soup.find('head').append(base)
+        html.seek(0)
+        html.write(str(soup))
+
 
 def authorize_for_submission(func: Callable) -> Callable:
     @wraps(func)
@@ -96,6 +112,7 @@ def download ():
     tar = get_file(bucket_name, blob_name, client)
     source = untar(tar, blob_name)
     # list_files(".")
+    _inject_base_tag(source, f"https://endpoint-gp2ubwi5mq-uc.a.run.app/{blob_name.replace('.', '-')}/html/") # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
     #return render_template(f"{request.form['submission_id']}.html")
 

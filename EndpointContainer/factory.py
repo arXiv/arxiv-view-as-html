@@ -11,6 +11,8 @@ import logging
 
 import routes
 
+from jinja2.utils import markupsafe
+
 import google.cloud.logging
 client = google.cloud.logging.Client()
 client.setup_logging()
@@ -24,6 +26,13 @@ def list_files(startpath):
         for f in files:
             logging.info('{}{}'.format(subindent, f))
 
+# This function is a jinja plugin that stops jinja from
+# trying to parse jinja syntax in a block. It can be called
+# from any template by typing:
+# {{ include_raw ('path_to_html.html') }}
+def include_raw (app: Flask, html_path: str):
+    return markupsafe.Markup(app.jinja_loader.get_source(app.jinja_env, html_path)[0])
+
 def create_web_app(config_path: str=None) -> Flask:
     app = Flask(__name__)
     if config_path:
@@ -31,13 +40,19 @@ def create_web_app(config_path: str=None) -> Flask:
     else:
         app.config.from_pyfile('config.py')
 
-    # set the absolute path to the static folder
-    app.static_folder = app.root_path + app.config.get('STATIC_FOLDER')
-    template_folder = os.path.join(app.root_path, 'templates')
-    os.makedirs(template_folder)
-    app.template_folder = template_folder 
-    # app.root_path + app.config.get('TEMPLATE_FOLDER')
+    # Add the include_raw function to the jinja environment
+    app.jinja_env.globals['include_raw'] = lambda html_path : include_raw(app, html_path)
+
+
+    # # set the absolute path to the static folder
+    # app.static_folder = app.root_path + app.config.get('STATIC_FOLDER')
+    # template_folder = os.path.join(app.root_path, 'templates')
+    # #os.makedirs(template_folder)
+    # app.template_folder = template_folder 
+    # # app.root_path + app.config.get('TEMPLATE_FOLDER')
     # logging.info(app.template_folder)
+
+    app.static_folder = app.template_folder
 
     app.config['SERVER_NAME'] = None
 

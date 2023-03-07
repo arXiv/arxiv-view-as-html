@@ -71,7 +71,8 @@ def _get_url(blob_name) -> str:
 
 # TODO: Add error handling
 def _inject_base_tag (html_path, base_path):
-    list_files('templates')
+    # list_files('templates')
+    list_files(".")
     with open(f'/source/templates/{html_path}', 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         logging.info(str(soup))
@@ -111,12 +112,12 @@ def download ():
     # add conversion completion verification here or in client side on button
     tar = get_file(bucket_name, blob_name, client)
     source = untar(tar, blob_name)
-    # list_files(".")
-    _inject_base_tag(source, f"https://endpoint-gp2ubwi5mq-uc.a.run.app/{blob_name.replace('.', '-')}/html/") # This corrects the paths for static assets in the html
+    #_inject_base_tag(source, f"https://endpoint-gp2ubwi5mq-uc.a.run.app/{blob_name.replace('.', '-')}/html/") # This corrects the paths for static assets in the html
+    _inject_base_tag(source, f"/templates/{blob_name.replace('.', '-')}/html/")
     return render_template("html_template.html", html=source)
     #return render_template(f"{request.form['submission_id']}.html")
 
-
+# add exception handling
 @blueprint.route('/upload', methods=['POST'])
 # @authorize_for_submission
 def upload ():
@@ -128,5 +129,3 @@ def upload ():
     # See test_signed_upload.txt for usage
     # Needs to be sent to XML endpoint in 
     return jsonify({"url": _get_url(request.form['submission_id'])}), 200
-
-    # add exception handling

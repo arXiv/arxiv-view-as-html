@@ -45,10 +45,7 @@ def get_file(bucket_name, blob_name, client):
 def untar (fpath, id):
     id_hyphen = id.replace(".", "-")
     with tarfile.open(fpath) as tar:
-        #tar.extractall('./static')
         tar.extractall(f'/source/templates/{id_hyphen}')
         tar.close()
     logging.info("untar")
-    # list_files(f"/source/templates/{id}")
     return f'{id_hyphen}/html/{id}.html'
-    #return os.path.abspath('./static')

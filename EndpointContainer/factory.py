@@ -17,15 +17,6 @@ import google.cloud.logging
 client = google.cloud.logging.Client()
 client.setup_logging()
 
-def list_files(startpath):
-    for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
-        logging.info('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
-        for f in files:
-            logging.info('{}{}'.format(subindent, f))
-
 # This function is a jinja plugin that stops jinja from
 # trying to parse jinja syntax in a block. It can be called
 # from any template by typing:

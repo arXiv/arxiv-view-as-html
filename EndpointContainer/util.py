@@ -40,12 +40,10 @@ def get_file(bucket_name, blob_name, client):
     # with open(blob_name, 'wb') as f:
     #     f.write(file_obj.getbuffer())
     return os.path.abspath(f"/source/templates/{blob_hyphen}/src/{blob_name}")
-    # return '/source/converted'
 
 def untar (fpath, id):
     id_hyphen = id.replace(".", "-")
     with tarfile.open(fpath) as tar:
         tar.extractall(f'/source/templates/{id_hyphen}')
         tar.close()
-    logging.info("untar")
     return f'{id_hyphen}/html/{id}.html'

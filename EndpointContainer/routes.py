@@ -43,19 +43,11 @@ def _get_url(blob_name) -> str:
     credentials.refresh(request)
 
     bucket_name = 'latexml_submission_source'
-    # blob_name = req.form['submission_id']
-    # blob_name = 'testuser_submission'  # TODO This is just a test value
 
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
     
     # """Generates a v4 signed URL for uploading a blob using HTTP PUT.
-
-    # Note that this method requires a service account key file. You can not use
-    # this if you are using Application Default Credentials from Google Compute
-    # Engine or from the Google Cloud SDK.
-    # """
-
     url = blob.generate_signed_url(
         version="v4",
         # This URL is valid for 10 minutes
@@ -108,24 +100,16 @@ def download ():
     credentials, _, client = _get_google_auth()
     bucket_name = 'latexml_submission_converted'
     blob_name = request.form['submission_id']
-    # blob_name = 'testuser_submission'  # TODO This is just a test value
     # add conversion completion verification here or in client side on button
     tar = get_file(bucket_name, blob_name, client)
     source = untar(tar, blob_name)
-    #_inject_base_tag(source, f"https://endpoint-gp2ubwi5mq-uc.a.run.app/{blob_name.replace('.', '-')}/html/") # This corrects the paths for static assets in the html
+    # This corrects the paths for static assets in the html
     _inject_base_tag(source, f"/templates/{blob_name.replace('.', '-')}/html/")
     return render_template("html_template.html", html=source)
-    #return render_template(f"{request.form['submission_id']}.html")
 
 # add exception handling
 @blueprint.route('/upload', methods=['POST'])
 # @authorize_for_submission
 def upload ():
-    print ('made it to upload')
-    # r = requests.Request()
-    # credentials, _, client = _get_google_auth()
-
-
     # See test_signed_upload.txt for usage
-    # Needs to be sent to XML endpoint in 
     return jsonify({"url": _get_url(request.form['submission_id'])}), 200

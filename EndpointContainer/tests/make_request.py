@@ -3,7 +3,7 @@ import subprocess
 from time import sleep
 
 def get_signed_url (fname):
-    url = "https://endpoint-gp2ubwi5mq-uc.a.run.app/upload"
+    url = "https://html-endpoint-6lhtms3oua-uc.a.run.app/upload"
     form = {'submission_id' : fname}
     req = requests.post(url, data=form)
     print (req.content)
@@ -14,7 +14,7 @@ def upload_to_signed_url (url, fname):
     subprocess.run(command)
 
 def download (fname):
-    url = "https://endpoint-gp2ubwi5mq-uc.a.run.app/download"
+    url = "https://html-endpoint-6lhtms3oua-uc.a.run.app/download"
     form = {'submission_id' : fname}
     req = requests.post(url, data=form)
     return req.content
@@ -31,8 +31,8 @@ def do_whole_process (fname):
 if __name__ == '__main__':
     # Right now, this assumed that this file and the other file are in the same dir
     # Also assumes you run from that dir, because curl cares
-    # a = do_whole_process('2302.11573')
-    a = download('2302.11573')
+    a = do_whole_process('2302.11573')
+    # a = download('2302.11573')
     with open('temp.html', 'wb') as f:
         f.write(a)
     print (a)

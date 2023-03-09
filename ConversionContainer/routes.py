@@ -7,6 +7,8 @@ from threading import Thread
 
 app = Flask(__name__)
 
+# The post request from the eventarc trigger that queries this route will come in this format: 
+# https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto 
 @app.route('/process', methods=['POST'])
 def main ():
     print (request.json)

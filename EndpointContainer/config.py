@@ -1,6 +1,6 @@
 import os
 
-CLASSIC_SESSION_HASH = 'classic_session_hash'
+CLASSIC_SESSION_HASH = os.environ.get('CLASSIC_SESSION_HASH')
 
 CLASSIC_DATABASE_URI = os.environ.get('CLASSIC_DATABASE_URI')
 """If not set, legacy database integrations will not be available."""

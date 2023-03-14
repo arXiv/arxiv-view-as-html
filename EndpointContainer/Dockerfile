@@ -28,5 +28,8 @@ WORKDIR /source
 
 COPY . .
 
+# /source/routes.py calls open
+# /source/templates/submission_id
+
 ########## RUN ##########
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "entry_point:app"]

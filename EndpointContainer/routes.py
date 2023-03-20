@@ -103,7 +103,7 @@ def list_files(startpath):
         for f in files:
             logging.info('{}{}'.format(subindent, f))
 
-@blueprint.route('/download', methods=['POST'])
+@blueprint.route('/download', methods=['GET'])
 #@authorize_for_submission
 def download ():
     credentials, _, client = _get_google_auth()

@@ -31,12 +31,12 @@ def do_whole_process (fname):
 if __name__ == '__main__':
     # Right now, this assumed that this file and the other file are in the same dir
     # Also assumes you run from that dir, because curl cares
-    a = do_whole_process('2302.11573')
+    a = do_whole_process('./2302.11573')
     # a = download('2302.11573')
-    with open('temp.html', 'wb') as f:
+    with open('temp1.html', 'wb') as f:
         f.write(a)
     print (a)
-    subprocess.run(['firefox', 'temp.html'])
+    # subprocess.run(['firefox', 'temp.html'])
     # import tarfile
     # with tarfile.open('2302.11573') as tar:
     #     #tar.extractall('./static')

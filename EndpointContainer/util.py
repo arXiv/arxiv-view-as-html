@@ -8,8 +8,6 @@ import jinja2
 client = google.cloud.logging.Client()
 client.setup_logging()
 
-OUT_BUCKET_NAME = "latexml_submission_converted"
-
 def list_files(startpath):
     for root, dirs, files in os.walk(startpath):
         level = root.replace(startpath, '').count(os.sep)
@@ -47,3 +45,4 @@ def untar (fpath, id):
         tar.extractall(f'/source/templates/{id_hyphen}')
         tar.close()
     return f'{id_hyphen}/html/{id}.html'
+    #return os.path.abspath('./static')

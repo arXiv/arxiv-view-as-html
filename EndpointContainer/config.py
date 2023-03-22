@@ -11,3 +11,6 @@ SQLALCHEMY_DATABASE_URI = CLASSIC_DATABASE_URI
 
 STATIC_FOLDER = '/templates'
 TEMPLATE_FOLDER = '/templates'
+
+SOURCE_BUCKET = 'latexml_submission_source'
+CONVERTED_BUCKET = 'latexml_submission_converted'

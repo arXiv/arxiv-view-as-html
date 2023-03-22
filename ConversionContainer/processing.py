@@ -60,12 +60,17 @@ def process (payload):
     return True
 
 def get_file(payload):
+    if payload['name'].endswith('.gz'):
+        fname = payload['name'].split['/'][1].split['.'][0]
+    else:
+        raise Exception ("Not a tar")
+
     blob = client.bucket(payload['bucket']) \
         .blob(payload['name'])
-    with open(payload['name'], 'wb') as read_stream:
+    with open(fname, 'wb') as read_stream:
         blob.download_to_file(read_stream) # payload['name']
         read_stream.close()
-    return os.path.abspath(f"./{payload['name']}")
+    return os.path.abspath(f"./{fname}")
 
 def remove_ltxml (path):
     for root, dirs, files in os.walk(path):

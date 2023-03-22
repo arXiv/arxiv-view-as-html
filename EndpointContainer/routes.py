@@ -78,11 +78,11 @@ def _inject_base_tag (html_path, base_path):
 def authorize_for_submission(func: Callable) -> Callable:
     @wraps(func)
     def wrapper(*args: Any, **kwargs: Any):
-        if request and 'submission_id' in request.form and submission_published(request.form['submission_id']):
+        if request and 'submission_id' in request.args and submission_published(request.args.get('submission_id')):
             return func(*args, **kwargs)
         auth = _get_auth(request)
-        if (auth and auth.user and ('submission_id' in request.form)
-            and authorize_user_for_submission(auth.user.user_id, request.form['submission_id'])):
+        if (auth and auth.user and ('submission_id' in request.args)
+            and authorize_user_for_submission(auth.user.user_id, request.args.get('submission_id'))):
             return func(*args, **kwargs)
         return jsonify ({"message": "You don't have permission to view this resource"}), 403 # do make_response
     return wrapper
@@ -96,15 +96,19 @@ def list_files(startpath):
         for f in files:
             logging.info('{}{}'.format(subindent, f))
 
-@blueprint.route('/download', methods=['POST'])
+@blueprint.route('/download', methods=['GET'])
 #@authorize_for_submission
 def download ():
     credentials, _, client = _get_google_auth()
     bucket_name = 'latexml_submission_converted'
-    blob_name = request.form['submission_id']
+    blob_name = request.args.get('submission_id')
+    # blob_name = 'testuser_submission'  # TODO This is just a test value
     # add conversion completion verification here or in client side on button
-    tar = get_file(bucket_name, blob_name, client)
-    source = untar(tar, blob_name)
+    try:
+        tar = get_file(bucket_name, blob_name, client)
+        source = untar(tar, blob_name)
+    except:
+        return {'status': False}, 404
     # list_files(".")
     _inject_base_tag(source, f"/templates/{blob_name.replace('.', '-')}/html/") # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
@@ -114,4 +118,5 @@ def download ():
 #@authorize_for_submission
 def upload ():
     # See test_signed_upload.txt for usage
-    return jsonify({"url": _get_url(request.form['submission_id'])}), 200
+    # Needs to be sent to XML endpoint in 
+    return jsonify({"url": _get_url(request.args.get('submission_id'))}), 200

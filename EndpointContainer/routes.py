@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify, render_template
+from flask import request, Blueprint, jsonify, render_template, current_app
 
 from functools import wraps
 
@@ -42,11 +42,10 @@ def _get_url(blob_name) -> str:
     request = requests.Request()
     credentials.refresh(request)
 
-    bucket_name = 'latexml_submission_source'
     # blob_name = req.form['submission_id']
     # blob_name = 'testuser_submission'  # TODO This is just a test value
 
-    bucket = client.bucket(bucket_name)
+    bucket = client.bucket(current_app.config['SOURCE_BUCKET'])
     blob = bucket.blob(blob_name)
     
     # """Generates a v4 signed URL for uploading a blob using HTTP PUT.
@@ -107,12 +106,11 @@ def list_files(startpath):
 #@authorize_for_submission
 def download ():
     credentials, _, client = _get_google_auth()
-    bucket_name = 'latexml_submission_converted'
     blob_name = request.args.get('submission_id')
     # blob_name = 'testuser_submission'  # TODO This is just a test value
     # add conversion completion verification here or in client side on button
     try:
-        tar = get_file(bucket_name, blob_name, client)
+        tar = get_file(current_app.config['CONVERTED_BUCKET'], blob_name, client)
         source = untar(tar, blob_name)
     except:
         return {'status': False}, 404
@@ -135,3 +133,15 @@ def upload ():
     return jsonify({"url": _get_url(request.args.get('submission_id'))}), 200
 
     # add exception handling
+
+@blueprint.route('/poll_submission', methods=['GET'])
+#@authorize_for_submission
+def poll ():
+    credentials, _, client = _get_google_auth()
+    submission_id = request.args.get('submission_id')
+    if submission_id and \
+        client.bucket(current_app.config['CONVERTED_BUCKET']) \
+        .blob(submission_id).exists():
+        return {'exists': True}, 200
+    return {'exists': False}, 200
+        

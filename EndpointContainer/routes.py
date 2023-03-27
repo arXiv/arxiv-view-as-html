@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify, render_template, current_app
-
+from flask_cors import cross_origin
 from functools import wraps
 
 from typing import Any, Callable, Optional
@@ -124,6 +124,7 @@ def upload ():
     # add exception handling
 
 @blueprint.route('/poll_submission', methods=['GET'])
+@cross_origin()
 #@authorize_for_submission
 def poll ():
     credentials, _, client = _get_google_auth()

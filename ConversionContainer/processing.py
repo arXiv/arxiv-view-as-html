@@ -60,7 +60,11 @@ def process (payload):
     return True
 
 def get_file(payload):
-    """_summary_
+    """
+    Checks if the payload contains a .tar.gz file
+    and if so it downloads the file to "fpath".
+    Otherwise, it throws an Exception, ending the process
+    and logging the non .tar.gz file.
 
     Parameters
     ----------
@@ -94,6 +98,8 @@ def get_file(payload):
 
 def remove_ltxml (path):
     """
+    Remove files with the .ltxml extension from the
+    directory "path".
 
     Parameters
     ----------
@@ -111,6 +117,8 @@ def remove_ltxml (path):
 
 def untar (fpath, dir_name):
     """
+    Extracts the .tar.gz at "fpath" into directory
+    "dir_name".
 
     Parameters
     ----------
@@ -137,6 +145,13 @@ def untar (fpath, dir_name):
 
 def find_main_tex_source(path):
     """
+    Looks inside the directory at "path" and determines the
+    main .tex source. Assumes that the main .tex file
+    must start with "\documentclass". To account for
+    common Overleaf templates that have multiple .tex
+    files that start with "\documentclass", assumes that
+    the main .tex file is not of class "standalone"
+    or "subfiles".
 
     Parameters
     ----------
@@ -185,7 +200,9 @@ def find_main_tex_source(path):
 
 
 def do_latexml (main_fpath, out_fpath):
-    """_summary_
+    """
+    Runs latexml on the .tex file at main_fpath and
+    outputs the html at out_fpath.
 
     Parameters
     ----------

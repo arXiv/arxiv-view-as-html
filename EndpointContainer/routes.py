@@ -13,17 +13,12 @@ import google.auth
 from google.auth.transport import requests
 from authorize import authorize_user_for_submission, submission_published
 import logging
-
 import google.cloud.logging 
-
+from arxiv_auth.domain import Session
 from bs4 import BeautifulSoup
 
 lclient = google.cloud.logging.Client()
 lclient.setup_logging()
-
-from arxiv_auth.domain import Session
-
-
 blueprint = Blueprint('routes', __name__, '')
 
 def _get_google_auth () -> tuple[google.auth.credentials.Credentials, str, storage.Client]:
@@ -37,14 +32,9 @@ def _get_auth(req) -> Optional[Session]:
         return None
 
 def _get_url(blob_name) -> str:
-
     credentials, _, client = _get_google_auth()
     request = requests.Request()
     credentials.refresh(request)
-
-    # blob_name = req.form['submission_id']
-    # blob_name = 'testuser_submission'  # TODO This is just a test value
-
     bucket = client.bucket(current_app.config['SOURCE_BUCKET'])
     blob = bucket.blob(blob_name)
     
@@ -62,18 +52,19 @@ def _get_url(blob_name) -> str:
 
     return url
 
-# TODO: Add error handling
 def _inject_base_tag (html_path, base_path):
-    # list_files('templates')
-    list_files(".")
-    with open(f'/source/templates/{html_path}', 'r+') as html:
-        soup = BeautifulSoup(html.read(), 'html.parser')
-        logging.info(str(soup))
-        base = soup.new_tag('base')
-        base['href'] = base_path
-        soup.find('head').append(base)
-        html.seek(0)
-        html.write(str(soup))
+    try:
+        with open(f'/source/templates/{html_path}', 'r+') as html:
+            soup = BeautifulSoup(html.read(), 'html.parser')
+            logging.info(str(soup))
+            base = soup.new_tag('base')
+            base['href'] = base_path
+            soup.find('head').append(base)
+            html.seek(0)
+            html.write(str(soup))
+    except Exception as e:
+        print(e)
+        print(f"Failed to inject base tag into {html_path}")
 
 
 def authorize_for_submission(func: Callable) -> Callable:
@@ -102,14 +93,11 @@ def list_files(startpath):
 def download ():
     credentials, _, client = _get_google_auth()
     blob_name = request.args.get('submission_id')
-    # blob_name = 'testuser_submission'  # TODO This is just a test value
-    # add conversion completion verification here or in client side on button
     try:
         tar = get_file(current_app.config['CONVERTED_BUCKET'], blob_name, client)
         source = untar(tar, blob_name)
     except:
         return {'status': False}, 404
-    # list_files(".")
     _inject_base_tag(source, f"/templates/{blob_name.replace('.', '-')}/html/") # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
 
@@ -120,8 +108,6 @@ def upload ():
     # See test_signed_upload.txt for usage
     # Needs to be sent to XML endpoint in 
     return jsonify({"url": _get_url(request.args.get('submission_id'))}), 200
-
-    # add exception handling
 
 @blueprint.route('/poll_submission', methods=['GET'])
 @cross_origin()

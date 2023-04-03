@@ -89,7 +89,7 @@ def list_files(startpath):
             logging.info('{}{}'.format(subindent, f))
 
 @blueprint.route('/download', methods=['GET'])
-#@authorize_for_submission
+@authorize_for_submission
 def download ():
     credentials, _, client = _get_google_auth()
     blob_name = request.args.get('submission_id')
@@ -103,7 +103,7 @@ def download ():
 
 # add exception handling
 @blueprint.route('/upload', methods=['POST'])
-#@authorize_for_submission
+@authorize_for_submission
 def upload ():
     # See test_signed_upload.txt for usage
     # Needs to be sent to XML endpoint in 
@@ -111,7 +111,7 @@ def upload ():
 
 @blueprint.route('/poll_submission', methods=['GET'])
 @cross_origin()
-#@authorize_for_submission
+@authorize_for_submission
 def poll ():
     credentials, _, client = _get_google_auth()
     submission_id = request.args.get('submission_id')

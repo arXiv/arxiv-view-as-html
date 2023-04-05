@@ -6,6 +6,8 @@ import google.cloud.logging
 import io
 import jinja2
 import shutil
+from bs4 import BeautifulSoup
+
 client = google.cloud.logging.Client()
 client.setup_logging()
 
@@ -84,3 +86,54 @@ def untar (fpath, id):
         tar.extractall(f'/source/templates/{id_hyphen}')
         tar.close()
     return f'{id_hyphen}/html/{id}.html'
+
+def inject_base_tag (html_path: str, base_path: str) -> None: 
+    """
+    Appends a <base> html tag to the end of the head 
+    section of a given html file
+
+    Parameters
+    ----------
+    html_path : String
+        File path to the html files, relative to the
+        /source/templates dir, where all the html 
+        should live
+    base_path : String
+        The value that should be assigned to the href
+        attribute of the <base> element. Like...
+        <base href=[base_path]>
+
+    Returns
+    -------
+    None
+    """
+    _inject_into_head(html_path, 'base', { 'href' : base_path })
+
+def _inject_into_head (html_path: str, tag: str, attribs: dict) -> None:
+    
+    try:
+        with open(f'/source/templates/{html_path}', 'r+') as html:
+            soup = BeautifulSoup(html.read(), 'html.parser')
+            new_tag = soup.new_tag(tag)
+            for k, v in attribs:
+                new_tag[k] = v
+            soup.find('head').append(new_tag)
+            html.seek(0)
+            html.write(str(soup))
+    except Exception as e:
+        print (f'Failed to inject {tag} into head of {html_path} with {e}')
+        raise
+
+def _inject_into_body (html_path: str, tag: str, attribs: dict) -> None:
+    try:
+        with open(f'/source/templates/{html_path}', 'r+') as html:
+            soup = BeautifulSoup(html.read(), 'html.parser')
+            new_tag = soup.new_tag(tag)
+            for k, v in attribs:
+                new_tag[k] = v
+            soup.find('body').append(new_tag)
+            html.seek(0)
+            html.write(str(soup))
+    except Exception as e:
+        print (f'Failed to inject {tag} into body of {html_path} with {e}')
+        raise

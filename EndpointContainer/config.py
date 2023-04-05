@@ -13,4 +13,5 @@ STATIC_FOLDER = '/templates'
 TEMPLATE_FOLDER = '/templates'
 
 SOURCE_BUCKET = 'latexml_submission_source'
-CONVERTED_BUCKET = 'latexml_submission_converted'
+CONVERTED_BUCKET_SUB_ID = 'latexml_submission_converted'
+CONVERTED_BUCKET_ARXIV_ID = None

@@ -1,11 +1,12 @@
 import tarfile
 import os
 import re
+import subprocess
+import shutil
+from typing import Any, Union, Optional, AnyStr
 import config
 import db
 from google.cloud import storage
-import subprocess
-import shutil
 
 # Change such that we can handle multiple requests
 # Raise max requests allowed on cloud run
@@ -13,7 +14,7 @@ import shutil
 
 client = storage.Client()
 
-def process (payload):
+def process(payload: dict[str, Any]) -> bool:
     """
     Runs latexml on the blob in the payload and uploads
     the results to the output bucket in the config
@@ -68,7 +69,8 @@ def process (payload):
         upload_output(out_path, config.OUT_BUCKET_NAME, submission_id)
         print ("Uploaded successfully. Done!")
         db.write_success(submission_id)
-    except:
+    except Exception as e:
+        print(e)
         if payload.get('name'):
             db.write_failure(payload['name'])
         else:
@@ -77,11 +79,12 @@ def process (payload):
     finally:
         try:
             os.rmdir(payload['name'])
-        except:
+        except Exception as e:
+            print(e)
             print (f"Failed to delete {payload.get('name')}")
     return True
 
-def get_file(payload):
+def get_file(payload: dict[str, Any]) -> str:
     """
     Checks if the payload contains a .tar.gz file
     and if so it downloads the file to "fpath".
@@ -90,82 +93,68 @@ def get_file(payload):
 
     Parameters
     ----------
-    payload : JSON
+    payload : dict[str, Any]
         https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
     
     Returns
     -------
-    fpath : String
+    fpath : str
         File path to the .tar.gz object
     """
-    try:
-        if payload['name'].endswith('.gz'):
-            fname = payload['name'].split['/'][1].split['.'][0]
-        else:
-            raise Exception ("Not a tar")
-    except Exception as e:
+    if payload['name'].endswith('.gz'):
+        fname = payload['name'].split['/'][1].split['.'][0]
+    else:
         print(f"{payload['name']} was not a .tar.gz")
+        raise Exception("Not a tar")
 
-    try:
-        blob = client.bucket(payload['bucket']) \
-            .blob(payload['name'])
-        with open(fname, 'wb') as read_stream:
-            blob.download_to_file(read_stream)
-            read_stream.close()
-        return os.path.abspath(f"./{fname}")
-    except Exception as e:
-        print(e)
-        print(f"Downloading {payload['name']} failed")
+    blob = client.bucket(payload['bucket']) \
+        .blob(payload['name'])
+    with open(fname, 'wb') as read_stream:
+        blob.download_to_file(read_stream)
+        read_stream.close()
+    return os.path.abspath(f"./{fname}")
 
-
-def remove_ltxml (path):
-    """
-    Remove files with the .ltxml extension from the
-    directory "path".
-
-    Parameters
-    ----------
-    path : String
-        File path to the directory containing unzipped .tex source
-    """
-    try:
-        for root, dirs, files in os.walk(path):
-            for file in files:
-                if str(file).endswith('.ltxml'):
-                    os.remove(os.path.join(root, file))
-    except Exception as e:
-        print(e)
-        print(f"Removing .ltxml files from {path} failed")
-
-def untar (fpath, dir_name):
+def untar(fpath: str, dir_name: str) -> str:
     """
     Extracts the .tar.gz at "fpath" into directory
     "dir_name".
 
     Parameters
     ----------
-    fpath : String
+    fpath : str
         File path to the .tar.gz object
-    dir_name : String
+    dir_name : str
         Name that we want to give to the directory
         that contains the extracted files
 
     Returns
     -------
-    extracted_directory : String
+    extracted_directory : str
         File path of the directory that contains the
         extracted files
     """
-    try:
-        with tarfile.open(fpath) as tar:
-            tar.extractall(f"extracted/{dir_name}") # Assuming they protect us from files with ../ or / in the name
-            tar.close()
-        return os.path.abspath(f"extracted/{dir_name}")
-    except Exception as e:
-        print(e)
-        print(f"Untarring {fpath} failed")
+    with tarfile.open(fpath) as tar:
+        tar.extractall(f"extracted/{dir_name}") # Assuming they protect us from files with ../ or / in the name
+        tar.close()
+    return os.path.abspath(f"extracted/{dir_name}")
 
-def find_main_tex_source(path):
+def remove_ltxml(path: str) -> None:
+    """
+    Remove files with the .ltxml extension from the
+    directory "path".
+
+    Parameters
+    ----------
+    path : AnyStr
+        File path to the directory containing unzipped .tex source
+        or None if untarring failed.
+    """
+    for root, _, files in os.walk(path):
+        for file in files:
+            if str(file).endswith('.ltxml'):
+                os.remove(os.path.join(root, file))
+
+def find_main_tex_source(path: str) -> str:
     """
     Looks inside the directory at "path" and determines the
     main .tex source. Assumes that the main .tex file
@@ -177,63 +166,59 @@ def find_main_tex_source(path):
 
     Parameters
     ----------
-    path : String
+    path : str
         File path to a directory containing unzipped .tex source
 
     Returns
     -------
-    main_tex_source : String
+    main_tex_source : str
         File path to the main .tex source in the directory
     """
-    try:
-        tex_files = [f for f in os.listdir(path) if f.endswith('.tex')]
-        if len(tex_files) == 1:
-            return(os.path.join(path, tex_files[0]))
+    tex_files = [f for f in os.listdir(path) if f.endswith('.tex')]
+    if len(tex_files) == 1:
+        return(os.path.join(path, tex_files[0]))
+    else:
+        main_files = {}
+        for tf in tex_files:
+            file = open(os.path.join(path, tf), "r")
+            for line in file:
+                if re.search(r"^\s*\\document(?:style|class)", line):
+                    # https://arxiv.org/help/faq/mistakes#wrongtex
+                    # according to this page, there should only be one tex file with a \documentclass - the main file ?
+                    if tf == "paper.tex" or tf == "main.tex" or tf == "ms.tex" or tf == "article.tex":
+                        main_files[tf] = 1
+                    else:
+                        main_files[tf] = 0
+                    break
+            # file.close
+        if len(main_files) == 1:
+            return(os.path.join(path, list(main_files)[0]))
         else:
-            main_files = {}
-            for tf in tex_files:
-                file = open(os.path.join(path, tf), "r")
+            # account for the two main ways of creating multi-file submissions on overleaf (standalone, subfiles)
+            for mf in main_files:
+                file = open(os.path.join(path, mf), "r")
                 for line in file:
-                    if re.search(r"^\s*\\document(?:style|class)", line):
-                        # https://arxiv.org/help/faq/mistakes#wrongtex
-                        # according to this page, there should only be one tex file with a \documentclass - the main file ?
-                        if tf == "paper.tex" or tf == "main.tex" or tf == "ms.tex" or tf == "article.tex":
-                            main_files[tf] = 1
-                        else:
-                            main_files[tf] = 0
+                    if re.search(r"^\s*\\document(?:style|class).*(?:\{standalone\}|\{subfiles\})", line):
+                        main_files[mf] = -99999
                         break
-                file.close
-            if len(main_files) == 1:
-                return(os.path.join(path, list(main_files)[0]))
-            else:
-                # account for the two main ways of creating multi-file submissions on overleaf (standalone, subfiles)
-                for mf in main_files:
-                    file = open(os.path.join(path, mf), "r")
-                    for line in file:
-                        if re.search(r"^\s*\\document(?:style|class).*(?:\{standalone\}|\{subfiles\})", line):
-                            main_files[mf] = -99999
-                            break
-                            # document class of main should not be standalone or subfiles (the main file is just {article} or something else)
-                    file.close
-                return(os.path.join(path, max(main_files, key=main_files.get)))
-    except Exception as e:
-        print(e)
-        print(f"Finding main .tex source of {path} failed")
+                        # document class of main should not be standalone or subfiles (the main file is just {article} or something else)
+                # file.close
+            return(os.path.join(path, max(main_files, key=main_files.__getitem__)))
 
 
-def do_latexml (main_fpath, out_fpath):
+def do_latexml(main_fpath: str, out_fpath: str) -> None:
     """
     Runs latexml on the .tex file at main_fpath and
     outputs the html at out_fpath.
 
     Parameters
     ----------
-    main_fpath : String
+    main_fpath : str
         Main .tex file path
-    out_fpath : String
+    out_fpath : str
         Output directory file path
     """
-    config = ["latexmlc", \
+    latexml_config = ["latexmlc", \
         "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty", \
         "--path=/opt/arxmliv-bindings/bindings", \
         "--path=/opt/arxmliv-bindings/supported_originals", \
@@ -242,9 +227,9 @@ def do_latexml (main_fpath, out_fpath):
         "--nodefaultresources", \
         "--css=css/ar5iv.min.css", \
         f"--source={main_fpath}", f"--dest={out_fpath}.html"]
-    subprocess.run(config)
+    subprocess.run(latexml_config)
 
-def upload_output (path, bucket_name, destination_fname):
+def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
     """
     Uploads a .tar.gz object named {destination_fname}
     containing a folder called "html" located at {path}
@@ -252,12 +237,12 @@ def upload_output (path, bucket_name, destination_fname):
 
     Parameters
     ----------
-    path : String
+    path : str
         Directory path in format .../.../sub_id/html
         containing the static files for article html.
-    bucket_name : String
+    bucket_name : str
         The name of the bucket to upload the object to.
-    destination_fname : String
+    destination_fname : str
         What to name the .tar.gz object, should be the
         submission id.
     """

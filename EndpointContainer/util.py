@@ -110,7 +110,24 @@ def inject_base_tag (html_path: str, base_path: str) -> None:
     _inject_into_head(html_path, 'base', { 'href' : base_path })
 
 def _inject_into_head (html_path: str, tag: str, attribs: dict) -> None:
-    
+    """
+    Injects a tag into the "head" element of the HTML file with
+    attributes 'attribs'. Tag is placed at the end of the "head"
+    element after all existing tags.
+
+    Parameters
+    ----------
+    html_path : String
+        File path to the html files, relative to the
+        /source/templates dir, where all the html 
+        should live
+    tag : String
+        A valid BeautifulSoup tag
+        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
+    attribs : dict
+        Valid BeautifulSoup tag "attrs"
+        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
+    """
     try:
         with open(f'/source/templates/{html_path}', 'r+') as html:
             soup = BeautifulSoup(html.read(), 'html.parser')
@@ -125,6 +142,23 @@ def _inject_into_head (html_path: str, tag: str, attribs: dict) -> None:
         raise
 
 def _inject_into_body (html_path: str, tag: str, attribs: dict) -> None:
+    """Injects a tag into the "body" element of the HTML file with
+    attributes 'attribs'. Tag is placed at the end of the "body"
+    element after all existing tags.
+
+    Parameters
+    ----------
+    html_path : String
+        File path to the html files, relative to the
+        /source/templates dir, where all the html 
+        should live
+    tag : String
+        A valid BeautifulSoup tag
+        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
+    attribs : dict
+        Valid BeautifulSoup tag "attrs"
+        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
+    """
     try:
         with open(f'/source/templates/{html_path}', 'r+') as html:
             soup = BeautifulSoup(html.read(), 'html.parser')

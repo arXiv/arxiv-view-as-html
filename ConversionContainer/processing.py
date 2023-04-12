@@ -14,6 +14,28 @@ import shutil
 client = storage.Client()
 
 def process (payload):
+    """
+    Runs latexml on the blob in the payload and uploads
+    the results to the output bucket in the config
+    file.
+
+    Parameters
+    ----------
+    payload : JSON
+        https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
+
+    Returns
+    -------
+    Boolean
+        Returns true unless an exception occurs
+
+    Raises
+    ------
+    Exception
+        'No submission_id': No submission id (payload.name)
+            contained in the payload. Likely the entire
+            payload is invalid/malformed.
+    """
     try:
         submission_id = payload['name']
         if submission_id:

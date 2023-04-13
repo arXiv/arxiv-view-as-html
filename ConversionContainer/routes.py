@@ -8,8 +8,8 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# The post request from the eventarc trigger that queries this route will come in this format: 
-# https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto 
+# The post request from the eventarc trigger that queries this route will come in this format:
+# https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
 @app.route('/process', methods=['POST'])
 def main () -> tuple[str, int]:
     """
@@ -37,7 +37,7 @@ def health() -> tuple[flask.Response, int]:
     tuple[flask.Response, int]
         List of current cloud run tasks and the current time.
     """
-    data = {   
+    data = {
         "time": datetime.now(),
         "CLOUD_RUN_TASK_INDEX": list(os.environ.items())
     }

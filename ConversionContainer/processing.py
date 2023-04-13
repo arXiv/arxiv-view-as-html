@@ -1,3 +1,5 @@
+"""Module that handles the conversion process from LaTeX to HTML"""
+
 import tarfile
 import os
 import re
@@ -165,9 +167,9 @@ def find_main_tex_source(path: str) -> str:
     """
     Looks inside the directory at "path" and determines the
     main .tex source. Assumes that the main .tex file
-    must start with "\documentclass". To account for
+    must start with "documentclass". To account for
     common Overleaf templates that have multiple .tex
-    files that start with "\documentclass", assumes that
+    files that start with "documentclass", assumes that
     the main .tex file is not of class "standalone"
     or "subfiles".
 
@@ -201,6 +203,8 @@ def find_main_tex_source(path: str) -> str:
                 file.close()
             if len(main_files) == 1:
                 return(os.path.join(path, list(main_files)[0]))
+            elif len(main_files) == 0:
+                raise exceptions.MainTeXError(f"No main .tex found file in f{path}")
             else:
                 # account for the two main ways of creating multi-file
                 # submissions on overleaf (standalone, subfiles)
@@ -215,7 +219,7 @@ def find_main_tex_source(path: str) -> str:
                     file.close()
                 return(os.path.join(path, max(main_files, key=main_files.__getitem__)))
     except Exception as exc:
-        raise exceptions.MainTeXError(f"Failed to find main .tex file in f{path}") from exc
+        raise exceptions.MainTeXError(f"Process to find main .tex file in f{path} failed") from exc
 
 
 def do_latexml(main_fpath: str, out_fpath: str) -> None:

@@ -6,6 +6,7 @@ import shutil
 from typing import Any, Union, Optional, AnyStr
 import config
 import db
+import exceptions
 from google.cloud import storage
 
 # Change such that we can handle multiple requests
@@ -33,7 +34,7 @@ def process(payload: dict[str, Any]) -> bool:
     Raises
     ------
     Exception
-        'No submission_id': No submission id (payload.name)
+        'PayloadError': No submission id (payload.name)
             contained in the payload. Likely the entire
             payload is invalid/malformed.
     """
@@ -42,7 +43,7 @@ def process(payload: dict[str, Any]) -> bool:
         if submission_id:
             db.write_in_progress(submission_id)
         else:
-            raise Exception('No submission_id')
+            raise exceptions.PayloadError('No submission_id')
         print ("Step 1: downloading")
         tar = get_file(payload)
         print (f"Step 2: untarring {tar}")
@@ -104,15 +105,16 @@ def get_file(payload: dict[str, Any]) -> str:
     if payload['name'].endswith('.gz'):
         fname = payload['name'].split['/'][1].split['.'][0]
     else:
-        print(f"{payload['name']} was not a .tar.gz")
-        raise Exception("Not a tar")
-
-    blob = client.bucket(payload['bucket']) \
-        .blob(payload['name'])
-    with open(fname, 'wb') as read_stream:
-        blob.download_to_file(read_stream)
-        read_stream.close()
-    return os.path.abspath(f"./{fname}")
+        raise exceptions.FileTypeError(f"{payload['name']} was not a .tar.gz")
+    try:
+        blob = client.bucket(payload['bucket']) \
+            .blob(payload['name'])
+        with open(fname, 'wb') as read_stream:
+            blob.download_to_file(read_stream)
+            read_stream.close()
+        return os.path.abspath(f"./{fname}")
+    except Exception as exc:
+        raise exceptions.GCPBlobError(f"Download of {payload['name']} from {payload['bucket']} failed") from exc
 
 def untar(fpath: str, dir_name: str) -> str:
     """
@@ -133,10 +135,13 @@ def untar(fpath: str, dir_name: str) -> str:
         File path of the directory that contains the
         extracted files
     """
-    with tarfile.open(fpath) as tar:
-        tar.extractall(f"extracted/{dir_name}") # Assuming they protect us from files with ../ or / in the name
-        tar.close()
-    return os.path.abspath(f"extracted/{dir_name}")
+    try:
+        with tarfile.open(fpath) as tar:
+            tar.extractall(f"extracted/{dir_name}") # Assuming they protect us from files with ../ or / in the name
+            tar.close()
+        return os.path.abspath(f"extracted/{dir_name}")
+    except Exception as exc:
+        raise exceptions.TarError(f"Tarfile at {fpath} failed to extract in untar()") from exc
 
 def remove_ltxml(path: str) -> None:
     """
@@ -145,14 +150,16 @@ def remove_ltxml(path: str) -> None:
 
     Parameters
     ----------
-    path : AnyStr
+    path : str
         File path to the directory containing unzipped .tex source
-        or None if untarring failed.
     """
-    for root, _, files in os.walk(path):
-        for file in files:
-            if str(file).endswith('.ltxml'):
-                os.remove(os.path.join(root, file))
+    try:
+        for root, _, files in os.walk(path):
+            for file in files:
+                if str(file).endswith('.ltxml'):
+                    os.remove(os.path.join(root, file))
+    except Exception as exc:
+        raise exceptions.LaTeXMLRemoveError(f".ltxml file at {path} failed to be removed") from exc
 
 def find_main_tex_source(path: str) -> str:
     """
@@ -174,36 +181,41 @@ def find_main_tex_source(path: str) -> str:
     main_tex_source : str
         File path to the main .tex source in the directory
     """
-    tex_files = [f for f in os.listdir(path) if f.endswith('.tex')]
-    if len(tex_files) == 1:
-        return(os.path.join(path, tex_files[0]))
-    else:
-        main_files = {}
-        for tf in tex_files:
-            file = open(os.path.join(path, tf), "r")
-            for line in file:
-                if re.search(r"^\s*\\document(?:style|class)", line):
-                    # https://arxiv.org/help/faq/mistakes#wrongtex
-                    # according to this page, there should only be one tex file with a \documentclass - the main file ?
-                    if tf == "paper.tex" or tf == "main.tex" or tf == "ms.tex" or tf == "article.tex":
-                        main_files[tf] = 1
-                    else:
-                        main_files[tf] = 0
-                    break
-            # file.close
-        if len(main_files) == 1:
-            return(os.path.join(path, list(main_files)[0]))
+    try:
+        tex_files = [f for f in os.listdir(path) if f.endswith('.tex')]
+        if len(tex_files) == 1:
+            return os.path.join(path, tex_files[0])
         else:
-            # account for the two main ways of creating multi-file submissions on overleaf (standalone, subfiles)
-            for mf in main_files:
-                file = open(os.path.join(path, mf), "r")
+            main_files = {}
+            for tf in tex_files:
+                file = open(os.path.join(path, tf), "r")
                 for line in file:
-                    if re.search(r"^\s*\\document(?:style|class).*(?:\{standalone\}|\{subfiles\})", line):
-                        main_files[mf] = -99999
+                    if re.search(r"^\s*\\document(?:style|class)", line):
+                        # https://arxiv.org/help/faq/mistakes#wrongtex
+                        # according to this page, there should only be one tex file with a \documentclass
+                        if tf == "paper.tex" or tf == "main.tex" or tf == "ms.tex" or tf == "article.tex":
+                            main_files[tf] = 1
+                        else:
+                            main_files[tf] = 0
                         break
-                        # document class of main should not be standalone or subfiles (the main file is just {article} or something else)
-                # file.close
-            return(os.path.join(path, max(main_files, key=main_files.__getitem__)))
+                file.close()
+            if len(main_files) == 1:
+                return(os.path.join(path, list(main_files)[0]))
+            else:
+                # account for the two main ways of creating multi-file
+                # submissions on overleaf (standalone, subfiles)
+                for mf in main_files:
+                    file = open(os.path.join(path, mf), "r")
+                    for line in file:
+                        if re.search(r"^\s*\\document(?:style|class).*(?:\{standalone\}|\{subfiles\})", line):
+                            main_files[mf] = -99999
+                            break
+                            # document class of main should not be standalone or subfiles
+                            # #the main file is just {article} or something else
+                    file.close()
+                return(os.path.join(path, max(main_files, key=main_files.__getitem__)))
+    except Exception as exc:
+        raise exceptions.MainTeXError(f"Failed to find main .tex file in f{path}") from exc
 
 
 def do_latexml(main_fpath: str, out_fpath: str) -> None:
@@ -227,7 +239,7 @@ def do_latexml(main_fpath: str, out_fpath: str) -> None:
         "--nodefaultresources", \
         "--css=css/ar5iv.min.css", \
         f"--source={main_fpath}", f"--dest={out_fpath}.html"]
-    subprocess.run(latexml_config)
+    subprocess.run(latexml_config, check=True)
 
 def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
     """
@@ -256,13 +268,10 @@ def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
         blob = bucket.blob(destination_fname)
         print (f"Blob info: {blob.name}")
         blob.upload_from_filename(destination_fname)
-    except Exception as e:
-        print(e)
-        print("Uploading output failed")
+    except Exception as exc:
+        raise exceptions.GCPBlobError(f"Upload of {destination_fname} to {bucket_name} failed") from exc
     finally:
         try:
             os.remove(destination_fname)
-        except:
-            print (f"Failed to delete {destination_fname} in upload_output()")
-    
-    
+        except Exception as exc:
+            raise exceptions.CleanupError(f"Failed to remove {destination_fname} in upload_output()") from exc

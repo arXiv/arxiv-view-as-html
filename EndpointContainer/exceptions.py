@@ -20,4 +20,10 @@ class PayloadError(RuntimeError):
 
 class HTMLInjectionError(RuntimeError):
     """Raised when there is an error injecting a HTML tag into the HTML file.""" """USED"""
+
+class DBConnectionError(RuntimeError):
+    """Raised when there is an error connecting to the database.""" """USED"""
+
+class DBConfigError(RuntimeError):
+    """Raised when the database is not configured.""" """USED"""
     

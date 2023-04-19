@@ -13,7 +13,7 @@ import google.auth
 from google.auth.transport import requests
 from authorize import authorize_user_for_submission, submission_published
 import logging
-import google.cloud.logging 
+import google.cloud.logging
 from arxiv_auth.domain import Session
 from bs4 import BeautifulSoup, Tag
 
@@ -59,17 +59,23 @@ def authorize_for_submission(func: Callable) -> Callable: # This decorators need
             if request and 'submission_id' in request.args and submission_published(request.args.get('submission_id')):
                 logging.info(f"Submission {request.args['submission_id']} authorized because it's already published")
                 return func(*args, **kwargs)
+            logging.info("Submission is not published (try)")
         except:
-            pass
+            logging.info(f"Submission is not published")
             # What to do if DB isn't configured?
         auth = _get_auth(request)
-        print ("We have auth")
         try:
             if (auth and auth.user and ('submission_id' in request.args)
                 and authorize_user_for_submission(auth.user.user_id, request.args.get('submission_id'))):
-                print(f"Submission {request.args['submission_id']} authorized for user {auth.user.user_id} because they are the submitter")
+                logging.info(f"Submission {request.args['submission_id']} authorized for user {auth.user.user_id} because they are the submitter")
                 return func(*args, **kwargs)
+            else:
+                logging.info(f"Auth failed: \nIs auth None: {auth is None}\nIs user None: {hasattr(auth, 'user')}")
+                if hasattr(auth, 'user'):
+                    logging.info(f'User Id: {auth.user.user_id}')
+                return jsonify ({"message": "You don't have permission to view this resource"}), 403 # do make_response
         except:
+            logging.info("user denied")
             return jsonify ({"message": "You don't have permission to view this resource"}), 403 # do make_response
     return wrapper
 
@@ -82,9 +88,10 @@ def list_files(startpath):
         for f in files:
             logging.info('{}{}'.format(subindent, f))
 
-@authorize_for_submission
 @blueprint.route('/download', methods=['GET'])
+@authorize_for_submission
 def download ():
+    logging.info("Logging works in routes.py file")
     credentials, _, client = _get_google_auth()
     blob_name = request.args.get('arxiv_id') or request.args.get('submission_id')
     if blob_name is None:
@@ -103,19 +110,19 @@ def download ():
     return render_template("html_template.html", html=source)
 
 # add exception handling
-@authorize_for_submission
 @blueprint.route('/upload', methods=['POST'])
+@authorize_for_submission
 def upload ():
     # See test_signed_upload.txt for usage
     # Needs to be sent to XML endpoint in 
     return jsonify({"url": _get_url(request.args.get('submission_id'))}), 200
 
-@authorize_for_submission
 @blueprint.route('/poll_submission', methods=['GET'])
+@authorize_for_submission
 @cross_origin()
 def poll ():
     try:
-        credentials, _, client = _get_google_auth()
+        _, _, client = _get_google_auth()
     except:
         logging.critical ("Failed to get GCP credentials")
         return {'exists': False}, 500

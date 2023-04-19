@@ -132,7 +132,7 @@ def _inject_into_head (html_path: str, tag: str, attribs: dict) -> None:
         with open(f'/source/templates/{html_path}', 'r+') as html:
             soup = BeautifulSoup(html.read(), 'html.parser')
             new_tag = soup.new_tag(tag)
-            for k, v in attribs:
+            for k, v in attribs.items():
                 new_tag[k] = v
             soup.find('head').append(new_tag)
             html.seek(0)

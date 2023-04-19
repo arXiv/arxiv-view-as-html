@@ -191,7 +191,7 @@ def find_main_tex_source(path: str) -> str:
         else:
             main_files = {}
             for tf in tex_files:
-                with tarfile.open(os.path.join(path, tf), "r") as file:
+                with open(os.path.join(path, tf), "r") as file:
                 # file = open(os.path.join(path, tf), "r")
                     for line in file:
                         if re.search(r"^\s*\\document(?:style|class)", line):

@@ -1,6 +1,7 @@
-import requests
 import subprocess
 from time import sleep
+import requests
+
 
 def get_signed_url (fname):
     url = "https://html-endpoint-6lhtms3oua-uc.a.run.app/upload"

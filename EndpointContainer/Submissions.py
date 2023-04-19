@@ -1,9 +1,9 @@
 from typing import Optional, List
-
-from sqlalchemy.dialects.mysql import BIGINT, CHAR, DECIMAL, INTEGER, MEDIUMINT, MEDIUMTEXT, SMALLINT, TINYINT, VARCHAR
-from sqlalchemy import BINARY, CHAR, Column, Date, DateTime, Enum, ForeignKey, ForeignKeyConstraint, Index, String, TIMESTAMP, Table, Text, text
+from sqlalchemy.dialects.mysql import BIGINT, CHAR, DECIMAL, INTEGER, \
+    MEDIUMINT, MEDIUMTEXT, SMALLINT, TINYINT, VARCHAR
+from sqlalchemy import BINARY, CHAR, Column, Date, DateTime, Enum, \
+    ForeignKey, ForeignKeyConstraint, Index, String, TIMESTAMP, Table, Text, text
 from sqlalchemy.orm import relationship
-
 from arxiv_auth.legacy.models import db
 
 class Submissions(db.Model):

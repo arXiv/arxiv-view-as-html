@@ -1,3 +1,4 @@
+"""Config that specifies arxiv database address through GCP and html template directory"""
 CLASSIC_SESSION_HASH = 'classic_session_hash'
 
 CLASSIC_DATABASE_URI = 'sqlite:///db.sqlite'

@@ -67,4 +67,3 @@ def submission_published(submission_id) -> bool:
             raise exceptions.DBConnectionError("DB Connection Failed") from exc
     else:
         raise exceptions.DBConfigError("db not configured")
-        

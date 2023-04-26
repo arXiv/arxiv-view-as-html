@@ -1,17 +1,24 @@
+"""Authorization module for submission"""
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
-
 from arxiv_auth.legacy.util import is_configured, current_session
+import exceptions
 
-import config
+def authorize_user_for_submission(user_id, submission_id) -> bool:
+    """
+    Checks if the user is authorized to submit.
 
-import logging
-import google.cloud.logging
+    Parameters
+    ----------
+    user_id : int
+    submission_id : int
 
-client = google.cloud.logging.Client()
-client.setup_logging()
-
-def authorize_user_for_submission (user_id, submission_id) -> bool:
+    
+    Raises
+    ------
+    exceptions.DBConnectionError
+    exceptions.DBConfigError
+    """
     if is_configured():
         try:
             conn = current_session().connection()
@@ -21,12 +28,28 @@ def authorize_user_for_submission (user_id, submission_id) -> bool:
             if submitter_id and int(submitter_id) == int(user_id):
                 return True
             return False
-        except:
-            raise Exception ("DB Connection failed")
+        except Exception as exc:
+            raise exceptions.DBConnectionError("DB Connection failed") from exc
     else:
-        raise Exception ("db not configured")
+        raise exceptions.DBConfigError("db not configured")
 
-def submission_published (submission_id) -> bool:
+def submission_published(submission_id) -> bool:
+    """
+    Checks if the submission has been published before
+
+    Parameters
+    ----------
+    submission_id : int
+
+    Returns
+    -------
+    bool
+
+    Raises
+    ------
+    exceptions.DBConnectionError
+    exceptions.DBConfigError
+    """
     if is_configured():
         try:
             conn = current_session().connection()
@@ -37,8 +60,7 @@ def submission_published (submission_id) -> bool:
             if int(status) == 7:
                 return True
             return False # This probably shouldn't be an exception
-        except:
-            raise Exception("DB Connection Failed")
+        except Exception as exc:
+            raise exceptions.DBConnectionError("DB Connection Failed") from exc
     else:
-        raise Exception ("db not configured")
-        
+        raise exceptions.DBConfigError("db not configured")

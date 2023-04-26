@@ -206,7 +206,7 @@ def find_main_tex_source(path: str) -> str:
             if len(main_files) == 1:
                 return(os.path.join(path, list(main_files)[0]))
             elif len(main_files) == 0:
-                raise exceptions.MainTeXError(f"No main .tex found file in f{path}")
+                raise exceptions.MainTeXError(f"No main .tex found file in {path}")
             else:
                 # account for the two main ways of creating multi-file
                 # submissions on overleaf (standalone, subfiles)
@@ -222,7 +222,7 @@ def find_main_tex_source(path: str) -> str:
                     #file.close()
                 return(os.path.join(path, max(main_files, key=main_files.__getitem__)))
     except Exception as exc:
-        raise exceptions.MainTeXError(f"Process to find main .tex file in f{path} failed") from exc
+        raise exceptions.MainTeXError(f"Process to find main .tex file in {path} failed") from exc
 
 
 def do_latexml(main_fpath: str, out_fpath: str) -> None:

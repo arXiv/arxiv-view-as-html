@@ -36,7 +36,10 @@ def create_web_app(config_path: str=None) -> Flask:
     app.static_folder = app.template_folder
     app.config['SERVER_NAME'] = None
     app.register_blueprint(routes.blueprint)
+
     auth.Auth(app)
     wrap(app, [AuthMiddleware])
     
+    logging.getLogger('arxiv.users.auth').setLevel(logging.DEBUG)
+
     return app

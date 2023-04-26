@@ -9,7 +9,7 @@ RUN python -m pip install --upgrade pip
 
 WORKDIR /lib
 
-ENV ARXIV_AUTH_COMMIT=25cdee422a668f72f0163d6a041d1ed9f390b67a
+ENV ARXIV_AUTH_COMMIT=6f5b3e7a61cceb35483badd3901056004ea3aa66
 RUN rm -rf /lib/arxiv-auth
 RUN git clone https://github.com/arXiv/arxiv-auth.git
 WORKDIR /lib/arxiv-auth

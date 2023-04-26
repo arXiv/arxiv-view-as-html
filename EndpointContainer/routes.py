@@ -26,6 +26,8 @@ def _get_google_auth () -> tuple[google.auth.credentials.Credentials, str, stora
     return (credentials, project_id, storage.Client(credentials=credentials))
 
 def _get_auth(req) -> Optional[Session]:
+    logging.info(f"request: {'None' if request is None else 'Not None'}")
+    logging.info(f"hasattr(request, 'auth'): {'True' if hasattr(request, 'auth') else 'False'}")
     if request and hasattr(request, 'auth') and request.auth:
         return req.auth
     else:
@@ -70,13 +72,11 @@ def authorize_for_submission(func: Callable) -> Callable: # This decorators need
                 logging.info(f"Submission {request.args['submission_id']} authorized for user {auth.user.user_id} because they are the submitter")
                 return func(*args, **kwargs)
             else:
-                logging.info(f"Auth failed: \nIs auth None: {auth is None}\nIs user None: {hasattr(auth, 'user')}")
-                if hasattr(auth, 'user'):
-                    logging.info(f'User Id: {auth.user.user_id}')
-                return jsonify ({"message": "You don't have permission to view this resource"}), 403 # do make_response
-        except:
+                return jsonify ({"message": "You don't have permission to view this resource"}), 404 # do make_response
+        except Exception as e:
+            logging.info(str(e))
             logging.info("user denied")
-            return jsonify ({"message": "You don't have permission to view this resource"}), 403 # do make_response
+            return jsonify ({"message": "You don't have permission to view this resource"}), 404 # do make_response
     return wrapper
 
 def list_files(startpath):
@@ -89,6 +89,7 @@ def list_files(startpath):
             logging.info('{}{}'.format(subindent, f))
 
 @blueprint.route('/download', methods=['GET'])
+@cross_origin(supports_credentials=True)
 @authorize_for_submission
 def download ():
     logging.info("Logging works in routes.py file")
@@ -111,16 +112,18 @@ def download ():
 
 # add exception handling
 @blueprint.route('/upload', methods=['POST'])
+@cross_origin(supports_credentials=True)
 @authorize_for_submission
 def upload ():
     # See test_signed_upload.txt for usage
     # Needs to be sent to XML endpoint in 
     return jsonify({"url": _get_url(request.args.get('submission_id'))}), 200
 
-@blueprint.route('/poll_submission', methods=['GET'])
+@blueprint.route('/poll_submission', methods=['GET', 'OPTIONS'])
+@cross_origin(supports_credentials=True)
 @authorize_for_submission
-@cross_origin()
 def poll ():
+    logging.info(f"CHECKING FOR AUTH IN POLL: {hasattr(request, 'auth')}")
     try:
         _, _, client = _get_google_auth()
     except:

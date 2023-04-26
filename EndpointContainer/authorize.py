@@ -4,15 +4,14 @@ from sqlalchemy.sql import text
 from arxiv_auth.legacy.util import is_configured, current_session
 import exceptions
 
-def authorize_user_for_submission(user_id, submission_id) -> bool:
+def authorize_user_for_submission(user_id: str, submission_id: str) -> bool:
     """
     Checks if the user is authorized to submit.
 
     Parameters
     ----------
-    user_id : int
-    submission_id : int
-
+    user_id : str
+    submission_id : str
     
     Raises
     ------
@@ -33,13 +32,13 @@ def authorize_user_for_submission(user_id, submission_id) -> bool:
     else:
         raise exceptions.DBConfigError("db not configured")
 
-def submission_published(submission_id) -> bool:
+def submission_published(submission_id: str) -> bool:
     """
     Checks if the submission has been published before
 
     Parameters
     ----------
-    submission_id : int
+    submission_id : str
 
     Returns
     -------
@@ -63,4 +62,4 @@ def submission_published(submission_id) -> bool:
         except Exception as exc:
             raise exceptions.DBConnectionError("DB Connection Failed") from exc
     else:
-        raise exceptions.DBConfigError("db not configured")
+        raise exceptions.DBConfigError("DB Not Configured")

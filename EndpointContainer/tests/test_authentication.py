@@ -43,7 +43,8 @@ class TestAuthenticationController(TestCase):
 
 
     @mock.patch.multiple('routes', _get_auth=mock.DEFAULT,
-        _get_google_auth=mock.MagicMock(return_value=(None, None, None)), _get_url=mock.MagicMock(return_value="test"))
+        _get_google_auth=mock.MagicMock(return_value=(None, None, None)),
+        _get_url=mock.MagicMock(return_value="test"))
     def test_logged_in_upload_good_sub(self, **mocks):
         """A logged in client for a submission they own"""
         mocks['_get_auth'].return_value = self.mock_auth
@@ -54,7 +55,8 @@ class TestAuthenticationController(TestCase):
 
 
     @mock.patch.multiple('routes', _get_auth=mock.DEFAULT,
-        _get_google_auth=mock.MagicMock(return_value=(None, None, None)), _get_url=mock.MagicMock(return_value="test"))
+        _get_google_auth=mock.MagicMock(return_value=(None, None, None)),
+        _get_url=mock.MagicMock(return_value="test"))
     def test_logged_in_upload_bad_sub(self, **mocks):
         """A logged in client for a submission they do not own"""
         mocks['_get_auth'].return_value = self.mock_auth

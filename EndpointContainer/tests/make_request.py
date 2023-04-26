@@ -1,25 +1,27 @@
+"""Integration testing"""
 import subprocess
 from time import sleep
+from typing import Any, Union, Optional, AnyStr
 import requests
 
 
-def get_signed_url (fname):
+def get_signed_url(fname: str) -> str:
     url = "https://html-endpoint-6lhtms3oua-uc.a.run.app/upload"
     form = {'submission_id' : fname}
     req = requests.post(url, data=form)
     print (req.content)
     return req.json()['url']
 
-def upload_to_signed_url (url, fname):
+def upload_to_signed_url(url: str, fname: str):
     command = ["curl", "-X", "PUT", "-H", "'Content-Type: application/octet-stream'", "--upload-file", fname, url]
     subprocess.run(command)
 
-def download (fname):
+def download(fname: str):
     url = f"https://html-endpoint-6lhtms3oua-uc.a.run.app/download?submission_id={fname}"
     req = requests.get(url)
     return req.content
 
-def do_whole_process (fname):
+def do_whole_process(fname: str):
     signed_url = get_signed_url(fname)
     upload_to_signed_url(signed_url, fname)
     for i in range(90):

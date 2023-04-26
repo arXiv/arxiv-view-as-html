@@ -1,5 +1,4 @@
 """Module that handles the conversion process from LaTeX to HTML"""
-
 import tarfile
 import os
 import re

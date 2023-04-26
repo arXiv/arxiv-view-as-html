@@ -95,7 +95,7 @@ def download ():
         source = untar(tar, blob_name)
     except:
         return {'status': False}, 404
-    inject_base_tag(source, f"/templates/{blob_name.replace('.', '-')}/html/") 
+    inject_base_tag(source, f"/conversion/templates/{blob_name.replace('.', '-')}/html/") 
     # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
 

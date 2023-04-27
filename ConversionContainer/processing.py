@@ -245,7 +245,18 @@ def do_latexml(main_fpath: str, out_fpath: str) -> None:
         "--nodefaultresources", \
         "--css=css/ar5iv.min.css", \
         f"--source={main_fpath}", f"--dest={out_fpath}.html"]
-    subprocess.run(latexml_config, check=True)
+    completed_process = subprocess.run(latexml_config, capture_output=True, check=True, text=True)
+    with open(f"{out_fpath}_stderr.txt", "w") as f:
+        f.write(completed_process.stderr)
+    with open(f"{out_fpath}_stdout.txt", "w") as f:
+        f.write(completed_process.stdout)
+    bucket = client.bucket(config.QA_BUCKET_NAME)
+    errblob = bucket.blob(f"{out_fpath}_stderr.txt")
+    outblob = bucket.blob(f"{out_fpath}_stdout.txt")
+    errblob.upload_from_filename(f"{out_fpath}_stderr.txt")
+    outblob.upload_from_filename(f"{out_fpath}_stdout.txt")
+    os.remove(f"{out_fpath}_stderr.txt")
+    os.remove(f"{out_fpath}_stdout.txt")
 
 def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
     """

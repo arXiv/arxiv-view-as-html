@@ -6,7 +6,6 @@ from processing import process
 import flask
 from flask import Flask, request, jsonify
 
-
 app = Flask(__name__)
 
 # The post request from the eventarc trigger that queries this route will come in this format:

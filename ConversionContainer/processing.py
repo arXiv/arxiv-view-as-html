@@ -108,8 +108,8 @@ def get_file(payload: dict[str, Any]) -> tuple[str, str]:
     """
     if payload['name'].endswith('.gz'):
         sub_id = payload['name'].split('/')[1].split('.')[0]
-    # else:
-    #     raise exceptions.FileTypeError(f"{payload['name']} was not a .tar.gz")
+    else:
+        raise exceptions.FileTypeError(f"{payload['name']} was not a .tar.gz")
     try:
         blob = client.bucket(payload['bucket']) \
             .blob(payload['name'])
@@ -246,20 +246,22 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         "--nodefaultresources", \
         "--css=css/ar5iv.min.css", \
         f"--source={main_fpath}", f"--dest={out_dpath}.html"]
-    completed_process = subprocess.run(latexml_config, stdout = subprocess.PIPE, stderr=subprocess.STDOUT, check=True, text=True)
+    completed_process = subprocess.run(
+        latexml_config,
+        stdout = subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=True,
+        text=True)
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
-    # with open(f"{submission_id}_stdout.txt", "w") as f:
-    #     f.write(completed_process.stdout)
-    # print("stdout written")
-    bucket = client.bucket(config.QA_BUCKET_NAME)
-    errblob = bucket.blob(f"{sub_id}_stdout.txt")
-    # outblob = bucket.blob(f"{out_fpath}_stdout.txt")
-    errblob.upload_from_filename(f"{sub_id}_stdout.txt")
-    # outblob.upload_from_filename(f"{out_fpath}_stdout.txt")
+    try:
+        bucket = client.bucket(config.QA_BUCKET_NAME)
+        errblob = bucket.blob(f"{sub_id}_stdout.txt")
+        errblob.upload_from_filename(f"{sub_id}_stdout.txt")
+    except Exception as exc:
+        raise exceptions.GCPBlobError(f"Uploading {sub_id}_stdout.txt to {config.QA_BUCKET_NAME} failed in do_latexml") from exc
     os.remove(errpath)
-    # os.remove(f"{out_fpath}_stdout.txt")
 
 def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
     """

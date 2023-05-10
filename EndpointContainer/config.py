@@ -16,9 +16,11 @@ AUTH_UPDATED_SESSION_REF = True
 
 SQLALCHEMY_DATABASE_URI = CLASSIC_DATABASE_URI
 
-STATIC_FOLDER = '/templates'
+STATIC_FOLDER = '/static'
+# STATIC_FOLDER = '/templates'
 TEMPLATE_FOLDER = '/templates'
 
 SOURCE_BUCKET = 'latexml_submission_source'
 CONVERTED_BUCKET_SUB_ID = 'latexml_submission_converted'
 CONVERTED_BUCKET_ARXIV_ID = None
+QA_BUCKET_NAME = "latexml_qa"

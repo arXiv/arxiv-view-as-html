@@ -51,7 +51,7 @@ def create_web_app(config_path: str=None) -> Flask:
         app.config.from_pyfile('config.py')
     # Add the include_raw function to the jinja environment
     app.jinja_env.globals['include_raw'] = lambda html_path : include_raw(app, html_path)
-    app.static_folder = app.template_folder
+    # app.static_folder = app.template_folder
     app.config['SERVER_NAME'] = None
     app.register_blueprint(routes.blueprint)
     auth.Auth(app)

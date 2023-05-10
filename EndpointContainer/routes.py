@@ -113,6 +113,7 @@ def download():
     blob_name = request.args.get('arxiv_id') or request.args.get('submission_id')
     if blob_name is None:
         return {'status': False}, 404
+        # return arxiv failure 404 template
     try:
         tar = get_file(
             current_app.config[
@@ -124,9 +125,34 @@ def download():
     except (exceptions.GCPBlobError, exceptions.TarError) as exc:
         logging.info("Download failed due to %s", exc)
         return {'status': False}, 404
+    # except exceptions.GCPBlobError as exc:
+        # now check if QA bucket has a file with appropriate name. If so, display latexml failure template
+    # else, display arxiv failure 404 template
     inject_base_tag(source, f"/conversion/templates/{blob_name.replace('.', '-')}/html/")
     # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
+
+@blueprint.route('/test404', methods=['GET'])
+def test404():
+    _, _, client = _get_google_auth()
+    blob_name = '3966965_stdout.txt'
+    blob_dir = "/source/errors/"
+    bucket_name = config.QA_BUCKET_NAME
+    try:
+        os.makedirs(blob_dir)
+    except Exception as exc:
+        print(exc)
+        print(f"Directory {blob_dir} already exists, remaking directory")
+        os.makedirs(blob_dir)
+    try:
+        blob = client.bucket(bucket_name).blob(blob_name)
+        blob.download_to_filename(f"/source/errors/{blob_name}")
+    except Exception as exc:
+        raise exceptions.GCPBlobError(f"Download of {blob_name} from {bucket_name} failed") from exc
+    with open(f"/source/errors/{blob_name}", "r") as f:
+        log = f.read()
+    return render_template("400.html", error = exceptions.GCPBlobError("Test Description"), log = log)
+
 
 # add exception handling
 @blueprint.route('/upload', methods=['POST'])

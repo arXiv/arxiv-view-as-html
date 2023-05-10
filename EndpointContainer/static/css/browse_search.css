@@ -1,0 +1,116 @@
+.search-block.level-right {
+  display: flex;
+  justify-content: flex-end;
+  clear: right;
+}
+
+@media screen and (max-width: 768px) {
+  .search-block.level-right {
+    justify-content: center;
+    clear: left;
+  }
+  .search-block form.level-item {
+    margin-left:12px !important;
+  }
+}
+
+.search-block form.level-item,
+.field.has-addons {
+  display: flex;
+}
+
+.search-block p.help {
+  margin-bottom: 0;
+}
+
+.search-block .input,
+.search-block select,
+.search-block .button {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  height: 2.25em;
+  border-radius: 2px;
+  border: 1px solid transparent;
+}
+
+.search-block .button {
+  margin-left:0;
+}
+
+.search-block .input {
+  border-color: transparent;
+  box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+  border: 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 0.5em;
+}
+
+.search-block .control {
+  position: relative;
+}
+
+/* creates downward caret */
+ .search-block .select::after {
+  position: absolute;
+  display: block;
+  z-index: 4;
+  top: 50%;
+  right: .65em;
+  width: 0.5em;
+  height: 0.5em;
+  content: " ";
+  border: 3px solid #0068AC;
+  border-radius: 2px;
+  border-right: 0;
+  border-top: 0;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  pointer-events: none;
+  margin-top: -1.125em;
+}
+/*hide default caret, style select*/
+.search-block .select.is-small select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  height: 27px;
+  float: right;
+  margin: 0px;
+  padding: 0px;
+  background-color: #ffffff;
+  background-image: none;
+  -ms-word-break: normal;
+  word-break: normal;
+  border-color: #ccc;
+  box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+  border-radius: 0;
+}
+/*fix caret in IE 11*/
+.search-block .select.is-small select::-ms-expand {
+     display: none;
+}
+
+
+
+
+.search-block .button {
+  background-color: #711111;
+  color: #FFF;
+  border-color: transparent;
+}
+
+.search-block .button:hover,
+.search-block .button:focus {
+  background-color: #440A0A;
+  color: #FFF;
+}
+
+#header form select, #header form input {
+  padding: 0 0.5em;
+}

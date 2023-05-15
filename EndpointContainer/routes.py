@@ -1,11 +1,13 @@
 """HTTPS routes for the Flask app"""
 import logging
 from functools import wraps
+import datetime as dt
+import shutil
 from typing import Any, Callable, Optional
 import os
 import datetime
 import config
-from util import get_file, untar, inject_base_tag
+from util import get_file, get_log, untar, inject_base_tag
 import exceptions
 from bs4 import BeautifulSoup, Tag
 import google.cloud.logging
@@ -111,9 +113,10 @@ def download():
     logging.info("Logging works in routes.py file")
     _, _, client = _get_google_auth()
     blob_name = request.args.get('arxiv_id') or request.args.get('submission_id')
+    print(f"request blob name is {blob_name}")
     if blob_name is None:
-        return {'status': False}, 404
-        # return arxiv failure 404 template
+        return render_template("400.html", error = exceptions.PayloadError("Missing arxiv or submission id"))
+        # Malformed request with no ID
     try:
         tar = get_file(
             current_app.config[
@@ -122,12 +125,20 @@ def download():
             blob_name,
             client)
         source = untar(tar, blob_name)
-    except (exceptions.GCPBlobError, exceptions.TarError) as exc:
+    except exceptions.GCPBlobError as exc:
         logging.info("Download failed due to %s", exc)
-        return {'status': False}, 404
-    # except exceptions.GCPBlobError as exc:
-        # now check if QA bucket has a file with appropriate name. If so, display latexml failure template
-    # else, display arxiv failure 404 template
+        try:
+            logpath = get_log(config.QA_BUCKET_NAME, blob_name, client)
+            with open(logpath, "r") as f:
+                log = f.read()
+            return render_template("404.html", error = exc, log = log)
+            # No HTML found, conversion log file found
+        except Exception as e:
+            return render_template("500.html", error = e)
+            # No HTML or conversion log file found
+    except Exception as exc:
+        return render_template("500.html", error = exc)
+        # File download or untarring went wrong
     inject_base_tag(source, f"/conversion/templates/{blob_name.replace('.', '-')}/html/")
     # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
@@ -143,6 +154,7 @@ def test404():
     except Exception as exc:
         print(exc)
         print(f"Directory {blob_dir} already exists, remaking directory")
+        shutil.rmtree(blob_dir)
         os.makedirs(blob_dir)
     try:
         blob = client.bucket(bucket_name).blob(blob_name)
@@ -151,8 +163,15 @@ def test404():
         raise exceptions.GCPBlobError(f"Download of {blob_name} from {bucket_name} failed") from exc
     with open(f"/source/errors/{blob_name}", "r") as f:
         log = f.read()
-    return render_template("400.html", error = exceptions.GCPBlobError("Test Description"), log = log)
+    return render_template("404.html", error = exceptions.GCPBlobError("404 Description"), log = log)
 
+@blueprint.route('/test400', methods=['GET'])
+def test400():
+    return render_template("400.html", error = exceptions.GCPBlobError("400 Description"))
+
+@blueprint.route('/test500', methods=['GET'])
+def test500():
+    return render_template("500.html", error = exceptions.GCPBlobError("500 Description"))
 
 # add exception handling
 @blueprint.route('/upload', methods=['POST'])
@@ -189,14 +208,24 @@ def poll():
         logging.critical("Failed to get GCP credentials or create storage client")
         return {'exists': False}, 500
     arxiv_id = request.args.get('arxiv_id')
-    if arxiv_id and \
-        client.bucket(current_app.config['CONVERTED_BUCKET_ARXIV_ID']) \
-        .blob(arxiv_id).exists():
+    arxiv_conv_bucket = client.bucket(current_app.config['CONVERTED_BUCKET_ARXIV_ID'])
+    if arxiv_id and arxiv_conv_bucket.blob(arxiv_id).exists():
         return {'exists': True}, 200
     submission_id = request.args.get('submission_id')
-    if submission_id and \
-        client.bucket(current_app.config['CONVERTED_BUCKET_SUB_ID']) \
-        .blob(submission_id).exists():
+    sub_conv_bucket = client.bucket(current_app.config['CONVERTED_BUCKET_SUB_ID'])
+    if submission_id and sub_conv_bucket.blob(submission_id).exists():
         return {'exists': True}, 200
+    qa_bucket = client.bucket(current_app.config['QA_BUCKET_NAME'])
+    if arxiv_id and qa_bucket.blob(arxiv_id + "_stdout.txt").exists():
+        logblob = qa_bucket.get_blob(arxiv_id + "_stdout.txt")
+        logblob.reload(client, 'full')
+        if (dt.datetime.now(dt.timezone.utc) - logblob.time_created).total_seconds() > 90:
+            return {'exists': True}, 200
+    if submission_id and qa_bucket.blob(submission_id + "_stdout.txt").exists():
+        logblob = qa_bucket.blob(submission_id + "_stdout.txt")
+        logblob.reload(client, 'full')
+        if (dt.datetime.now(dt.timezone.utc) - logblob.time_created).total_seconds() > 90:
+            print(f"{submission_id} log found with no converted html")
+            return {'exists': True}, 200
     return {'exists': False}, 200
         

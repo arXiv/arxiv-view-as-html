@@ -56,19 +56,46 @@ def get_file(bucket_name: str, blob_name: str, client: storage.Client) -> str:
         shutil.rmtree(blob_dir)
         os.makedirs(blob_dir)
     try:
-        blob = client.bucket(bucket_name) \
-            .blob(blob_name)
+        blob = client.bucket(bucket_name).blob(blob_name)
         blob.download_to_filename(f"/source/templates/{blob_hyphen}/src/{blob_name}")
-        # file_obj = io.BytesIO()
-        # # with open(blob_name, 'wb') as read_stream:
-        # #     blob.download_to_filename(read_stream)
-        # #     read_stream.close()
-        # blob.download_to_filename(file_obj)
-        # file_obj.seek(0, 0)
-        # with open(blob_name, 'wb') as f:
-        #     f.write(file_obj.getbuffer())
         return os.path.abspath(f"/source/templates/{blob_hyphen}/src/{blob_name}")
     except Exception as exc:
+        raise exceptions.GCPBlobError(f"Download of {blob_name} from {bucket_name} failed") from exc
+
+def get_log(bucket_name: str, blob_name: str, client: storage.Client) -> str:
+    """
+    Downloads the log .txt file for "blob_name" to "fpath" and returns "fpath".
+
+    Parameters
+    ----------
+    bucket_name : str
+        Name of bucket to download from.
+    blob_name : str
+        Name of blob to download which should be the submission id.
+    client : google.cloud.storage.Client
+        Google Storage client with access to the desired bucket.
+        Created by _get_google_auth()
+
+    Returns
+    -------
+    fpath : str
+        File path to the .txt object that was downloaded
+    """
+    blob_name = blob_name + '_stdout.txt'
+    blob_dir = "/source/errors/"
+    try:
+        os.makedirs(blob_dir)
+    except Exception as exc:
+        print(exc)
+        print(f"Directory {blob_dir} already exists, remaking directory")
+        shutil.rmtree(blob_dir)
+        os.makedirs(blob_dir)
+    try:
+        blob = client.bucket(bucket_name).blob(blob_name)
+        blob.download_to_filename(f"/source/errors/{blob_name}")
+        return os.path.abspath(f"/source/errors/{blob_name}")
+    except Exception as exc:
+        print(exc)
         raise exceptions.GCPBlobError(f"Download of {blob_name} from {bucket_name} failed") from exc
 
 def untar(fpath: str, id: str) -> str:

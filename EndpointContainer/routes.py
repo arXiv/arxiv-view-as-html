@@ -167,7 +167,15 @@ def upload():
     JSON
         JSON formatted string with the upload url for a particular article.
     """
-    return jsonify({"url": _get_url(request.args.get('submission_id'))}), 200
+    if request.args.get('arxiv_id'):
+        url = _get_url(request.args.get('arxiv_id'))
+        out_bucket = config.CONVERTED_BUCKET_ARXIV_ID
+    elif request.args.get('submission_id'):
+        url = _get_url(request.args.get('submission_id'))
+        out_bucket = config.CONVERTED_BUCKET_SUB_ID
+    else:
+        return {"message": "No arxiv_id or submission_id specified"}, 400
+    return jsonify({"url": url, "out_bucket": out_bucket}), 200
 
 @blueprint.route('/poll_submission', methods=['GET', 'OPTIONS'])
 @cross_origin(supports_credentials=True)

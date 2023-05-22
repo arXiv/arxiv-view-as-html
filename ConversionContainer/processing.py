@@ -16,6 +16,7 @@ from google.cloud import storage
 
 client = storage.Client()
 
+
 def process(payload: dict[str, Any]) -> bool:
     """
     Runs latexml on the blob in the payload and uploads
@@ -48,9 +49,9 @@ def process(payload: dict[str, Any]) -> bool:
         else:
             raise exceptions.PayloadError('No submission_id')
         print("Step 1: downloading")
-        tar, sub_id = get_file(payload)
+        tar, id = get_file(payload)
         print(f"Step 2: untarring {tar}")
-        source = untar(tar, sub_id)
+        source = untar(tar, id)
         print("Step 3: Removing .ltxml files")
         remove_ltxml(source)
         print("Step 4: finding main tex source")
@@ -68,9 +69,12 @@ def process(payload: dict[str, Any]) -> bool:
                     os.remove(filepath)
         print(f"Out path is {out_path}")
         print("Step 5: Do LaTeXML")
-        do_latexml(main, os.path.join(out_path, sub_id), sub_id)
-        print(f"Step 6: Upload html from {out_path}")
-        upload_output(out_path, config.OUT_BUCKET_NAME, sub_id)
+        do_latexml(main, os.path.join(out_path, id), id)
+        print(f"Step 6: Upload html from {out_path}, {payload['bucket']}")
+        if payload['bucket'] == config.IN_BUCKET_ARXIV_ID:
+            upload_output(out_path, config.OUT_BUCKET_ARXIV_ID, id)
+        else:
+            upload_output(out_path, config.OUT_BUCKET_SUB_ID, id)
         print("Uploaded successfully. Done!")
         db.write_success(payload_name)
     except Exception as e:
@@ -86,8 +90,9 @@ def process(payload: dict[str, Any]) -> bool:
                 shutil.rmtree(out_path)
             except Exception as e:
                 print(e)
-                print (f"Failed to delete {out_path}")
+                print(f"Failed to delete {out_path}")
     return True
+
 
 def get_file(payload: dict[str, Any]) -> tuple[str, str]:
     """
@@ -100,25 +105,28 @@ def get_file(payload: dict[str, Any]) -> tuple[str, str]:
     ----------
     payload : dict[str, Any]
         https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
-    
+
     Returns
     -------
     fpath : str
         File path to the .tar.gz object
     """
     if payload['name'].endswith('.gz'):
-        sub_id = payload['name'].split('/')[1].split('.')[0]
+        fname = payload['name'].split('/')[1]
+        id = fname.split('.')[0]
     else:
         raise exceptions.FileTypeError(f"{payload['name']} was not a .tar.gz")
     try:
         blob = client.bucket(payload['bucket']) \
             .blob(payload['name'])
-        with open(sub_id, 'wb') as read_stream:
+        with open(fname, 'wb') as read_stream:
             blob.download_to_file(read_stream)
             read_stream.close()
-        return os.path.abspath(f"./{sub_id}"), sub_id
+        return os.path.abspath(f"./{fname}"), id
     except Exception as exc:
-        raise exceptions.GCPBlobError(f"Download of {payload['name']} from {payload['bucket']} failed") from exc
+        raise exceptions.GCPBlobError(
+            f"Download of {payload['name']} from {payload['bucket']} failed") from exc
+
 
 def untar(fpath: str, dir_name: str) -> str:
     """
@@ -141,11 +149,14 @@ def untar(fpath: str, dir_name: str) -> str:
     """
     try:
         with tarfile.open(fpath) as tar:
-            tar.extractall(f"extracted/{dir_name}") # Assuming they protect us from files with ../ or / in the name
+            # Assuming they protect us from files with ../ or / in the name
+            tar.extractall(f"extracted/{dir_name}")
             tar.close()
         return os.path.abspath(f"extracted/{dir_name}")
     except Exception as exc:
-        raise exceptions.TarError(f"Tarfile at {fpath} failed to extract in untar()") from exc
+        raise exceptions.TarError(
+            f"Tarfile at {fpath} failed to extract in untar()") from exc
+
 
 def remove_ltxml(path: str) -> None:
     """
@@ -163,7 +174,9 @@ def remove_ltxml(path: str) -> None:
                 if str(file).endswith('.ltxml'):
                     os.remove(os.path.join(root, file))
     except Exception as exc:
-        raise exceptions.LaTeXMLRemoveError(f".ltxml file at {path} failed to be removed") from exc
+        raise exceptions.LaTeXMLRemoveError(
+            f".ltxml file at {path} failed to be removed") from exc
+
 
 def find_main_tex_source(path: str) -> str:
     """
@@ -198,15 +211,16 @@ def find_main_tex_source(path: str) -> str:
                         if re.search(r"^\s*\\document(?:style|class)", line):
                             # https://arxiv.org/help/faq/mistakes#wrongtex
                             # according to this page, there should only be one tex file with a \documentclass
-                            if tf in ["paper.tex","main.tex","ms.tex","article.tex"]:
+                            if tf in ["paper.tex", "main.tex", "ms.tex", "article.tex"]:
                                 main_files[tf] = 1
                             else:
                                 main_files[tf] = 0
                             break
             if len(main_files) == 1:
-                return(os.path.join(path, list(main_files)[0]))
+                return (os.path.join(path, list(main_files)[0]))
             elif len(main_files) == 0:
-                raise exceptions.MainTeXError(f"No main .tex found file in {path}")
+                raise exceptions.MainTeXError(
+                    f"No main .tex found file in {path}")
             else:
                 # account for the two main ways of creating multi-file
                 # submissions on overleaf (standalone, subfiles)
@@ -218,9 +232,10 @@ def find_main_tex_source(path: str) -> str:
                                 break
                                 # document class of main should not be standalone or subfiles
                                 # #the main file is just {article} or something else
-                return(os.path.join(path, max(main_files, key=main_files.__getitem__)))
+                return (os.path.join(path, max(main_files, key=main_files.__getitem__)))
     except Exception as exc:
-        raise exceptions.MainTeXError(f"Process to find main .tex file in {path} failed") from exc
+        raise exceptions.MainTeXError(
+            f"Process to find main .tex file in {path} failed") from exc
 
 
 def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
@@ -237,18 +252,18 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     sub_id: str
         submission id of the article
     """
-    latexml_config = ["latexmlc", \
-        "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty", \
-        "--path=/opt/arxmliv-bindings/bindings", \
-        "--path=/opt/arxmliv-bindings/supported_originals", \
-        "--pmml","--cmml","--mathtex", \
-        "--timeout=2700", \
-        "--nodefaultresources", \
-        "--css=css/ar5iv.min.css", \
-        f"--source={main_fpath}", f"--dest={out_dpath}.html"]
+    latexml_config = ["latexmlc",
+                      "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
+                      "--path=/opt/arxmliv-bindings/bindings",
+                      "--path=/opt/arxmliv-bindings/supported_originals",
+                      "--pmml", "--cmml", "--mathtex",
+                      "--timeout=2700",
+                      "--nodefaultresources",
+                      "--css=css/ar5iv.min.css",
+                      f"--source={main_fpath}", f"--dest={out_dpath}.html"]
     completed_process = subprocess.run(
         latexml_config,
-        stdout = subprocess.PIPE,
+        stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=True,
         text=True)
@@ -260,8 +275,10 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         errblob = bucket.blob(f"{sub_id}_stdout.txt")
         errblob.upload_from_filename(f"{sub_id}_stdout.txt")
     except Exception as exc:
-        raise exceptions.GCPBlobError(f"Uploading {sub_id}_stdout.txt to {config.QA_BUCKET_NAME} failed in do_latexml") from exc
+        raise exceptions.GCPBlobError(
+            f"Uploading {sub_id}_stdout.txt to {config.QA_BUCKET_NAME} failed in do_latexml") from exc
     os.remove(errpath)
+
 
 def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
     """
@@ -286,17 +303,19 @@ def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
             tar.add(path, arcname=os.path.basename(path))
         with open(destination_fpath, 'r') as temp:
             temp.seek(0, os.SEEK_END)
-            print (f"Tar size: {temp.tell()}")
+            print(f"Tar size: {temp.tell()}")
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(destination_fname)
-        print (f"Blob info: {blob.name}")
+        print(f"Blob info: {blob.name}")
         blob.upload_from_filename(destination_fpath)
     except Exception as exc:
         print(exc)
-        raise exceptions.GCPBlobError(f"Upload of {destination_fname} to {bucket_name} failed") from exc
+        raise exceptions.GCPBlobError(
+            f"Upload of {destination_fname} to {bucket_name} failed") from exc
     finally:
         try:
             os.remove(destination_fpath)
         except Exception as exc:
             print(exc)
-            raise exceptions.CleanupError(f"Failed to remove {destination_fpath} in upload_output()") from exc
+            raise exceptions.CleanupError(
+                f"Failed to remove {destination_fpath} in upload_output()") from exc

@@ -20,7 +20,8 @@ STATIC_FOLDER = '/static'
 # STATIC_FOLDER = '/templates'
 TEMPLATE_FOLDER = '/templates'
 
-SOURCE_BUCKET = 'latexml_submission_source'
+SUB_SOURCE_BUCKET = 'latexml_submission_source'
+ARXIV_ID_SOURCE_BUCKET = 'latexml_arxiv_id_source'
 CONVERTED_BUCKET_SUB_ID = 'latexml_submission_converted'
-CONVERTED_BUCKET_ARXIV_ID = None
+CONVERTED_BUCKET_ARXIV_ID = 'latexml_arxiv_id_converted'
 QA_BUCKET_NAME = "latexml_qa"

@@ -8,3 +8,4 @@ OUT_BUCKET_SUB_ID = 'latexml_submission_converted'
 QA_BUCKET_NAME = 'latexml_qa'
 
 LATEXML_DB_URI = os.environ.get('LATEXML_DB_URI')
+SQLALCHEMY_DATABASE_URI = LATEXML_DB_URI

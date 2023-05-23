@@ -15,7 +15,12 @@ class DBLaTeXML(db.Model):
 
     document_id = Column(Integer, primary_key=True)
     document_version = Column(Integer, primary_key=True)
+    # conversion_status codes: 
+    #   - 0 = in progress
+    #   - 1 = success
+    #   - 2 = failure
     conversion_status = Column(Integer, nullable=False)
-    conversion_start_time = Column(DateTime, nullable=False)
-    latexml_version = Column(String(10), nullable=False)
+    latexml_version = Column(String(40), nullable=False)
+    tex_checksum = Column(String)
+    conversion_start_time = Column(DateTime)
     conversion_end_time = Column(DateTime)

@@ -6,7 +6,7 @@ import subprocess
 import shutil
 from typing import Any, Union, Optional, AnyStr
 import config
-import db
+from models.db import db
 import exceptions
 from google.cloud import storage
 
@@ -45,7 +45,8 @@ def process(payload: dict[str, Any]) -> bool:
         out_path = None
         # Looking for subid/subid.tar.gz
         if payload_name:
-            db.write_in_progress(payload_name)
+            # db.write_in_progress(payload_name)
+            pass
         else:
             raise exceptions.PayloadError('No submission_id')
         print("Step 1: downloading")
@@ -76,13 +77,14 @@ def process(payload: dict[str, Any]) -> bool:
         else:
             upload_output(out_path, config.OUT_BUCKET_SUB_ID, id)
         print("Uploaded successfully. Done!")
-        db.write_success(payload_name)
+        
+        # db.write_success(payload_name)
     except Exception as e:
         print(e)
-        if payload.get('name'):
-            db.write_failure(payload['name'])
-        else:
-            pass
+        # if payload.get('name'):
+        #     db.write_failure(payload['name'])
+        # else:
+        #     pass
             # what to do if we got a bad submission_id?
     finally:
         if out_path:
@@ -114,6 +116,10 @@ def get_file(payload: dict[str, Any]) -> tuple[str, str]:
     if payload['name'].endswith('.gz'):
         fname = payload['name'].split('/')[1]
         id = fname.split('.')[0]
+        try:
+            os.remove(f"./{fname}")
+        except:
+            pass
     else:
         raise exceptions.FileTypeError(f"{payload['name']} was not a .tar.gz")
     try:
@@ -290,9 +296,8 @@ def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
     ----------
     path : str
         Directory path in format /.../.../sub_id/html
-        containing the static files for article html.
-    bucket_name : str
-        The name of the bucket to upload the object to.
+        containing the static files for ar        # Read and update hash in chunks of 4K
+the object to.
     destination_fname : str
         What to name the .tar.gz object, should be the
         submission id.

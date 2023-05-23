@@ -10,14 +10,8 @@ from flask import Flask
 from sqlalchemy import text
 from sqlalchemy.orm.session import Session
 
-from arxiv.base import logging
-from arxiv.base.globals import get_application_config
+from models.db import db
 
-from db import db
-
-EASTERN = timezone('US/Eastern')
-logger = logging.getLogger(__name__)
-logger.propagate = False
 
 def now() -> int:
     """Get the current epoch/unix time."""
@@ -26,13 +20,13 @@ def now() -> int:
 
 def epoch(t: datetime) -> int:
     """Convert a :class:`.datetime` to UNIX time."""
-    delta = t - datetime.fromtimestamp(0, tz=EASTERN)
+    delta = t - datetime.fromtimestamp(0, tz=UTC)
     return int(round((delta).total_seconds()))
 
 
 def from_epoch(t: int) -> datetime:
     """Get a :class:`datetime` from an UNIX timestamp."""
-    return datetime.fromtimestamp(t, tz=EASTERN)
+    return datetime.fromtimestamp(t, tz=UTC)
 
 
 @contextmanager
@@ -46,7 +40,7 @@ def transaction() -> Generator:
         if db.session.new or db.session.dirty or db.session.deleted:
             db.session.commit()
     except Exception as e:
-        logger.warning('Commit failed, rolling back: %s', str(e))
+        # logger.warning('Commit failed, rolling back: %s', str(e))
         db.session.rollback()
         raise
 

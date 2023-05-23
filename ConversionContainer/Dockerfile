@@ -15,7 +15,7 @@ RUN set -ex && apt-get update -qq && apt-get install -qy \
   texlive-science \
   texlive-pictures \
   texlive-pstricks \
-  texlive-publishers
+  texlive-publishers 
 
 # latexml dependencies
 RUN set -ex && apt-get update -qq && apt-get install -qy \
@@ -82,10 +82,10 @@ ENV TMPDIR=/dev/shm
 
 WORKDIR /arxiv
 
+RUN apt install python3-psycopg2
+
 RUN /usr/local/bin/python -m pip install --upgrade pip
-RUN pip install flask
-RUN pip install google-cloud-storage
-RUN pip install gunicorn
+RUN pip install flask google-cloud-storage gunicorn Flask-SQLAlchemy pytz psycopg2
 
 COPY . .
 

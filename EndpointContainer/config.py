@@ -14,7 +14,11 @@ AUTH_UPDATED_SESSION_REF = True
 
 """If not set, legacy database integrations will not be available."""
 
+# LEGACY DB URI
 SQLALCHEMY_DATABASE_URI = CLASSIC_DATABASE_URI
+
+#LATEXML DB URI
+LATEXML_DB_URI = os.environ.get('LATEXML_DB_URI')
 
 STATIC_FOLDER = '/static'
 # STATIC_FOLDER = '/templates'

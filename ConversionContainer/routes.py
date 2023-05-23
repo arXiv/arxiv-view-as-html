@@ -4,13 +4,13 @@ import os
 from threading import Thread
 from processing import process
 import flask
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 
-app = Flask(__name__)
+blueprint = Blueprint('routes', __name__)
 
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
-@app.route('/process', methods=['POST'])
+@blueprint.route('/process', methods=['POST'])
 def main () -> tuple[str, int]:
     """
     Takes in the eventarc trigger payload and creates a thread
@@ -27,7 +27,7 @@ def main () -> tuple[str, int]:
     thread.start()
     return '', 202
 
-@app.route('/health', methods=['GET'])
+@blueprint.route('/health', methods=['GET'])
 def health() -> tuple[flask.Response, int]:
     """
     Returns the latexml statuses and current time.

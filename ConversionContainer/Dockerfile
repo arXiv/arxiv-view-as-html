@@ -82,10 +82,8 @@ ENV TMPDIR=/dev/shm
 
 WORKDIR /arxiv
 
-RUN apt install python3-psycopg2
-
 RUN /usr/local/bin/python -m pip install --upgrade pip
-RUN pip install flask google-cloud-storage gunicorn Flask-SQLAlchemy pytz psycopg2
+RUN pip install flask google-cloud-storage gunicorn Flask-SQLAlchemy pytz pg8000 google-cloud-logging
 
 COPY . .
 

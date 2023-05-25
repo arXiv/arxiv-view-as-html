@@ -11,6 +11,12 @@ from sqlalchemy import text
 from sqlalchemy.orm.session import Session
 
 from models.db import db
+import logging
+import google.cloud.logging
+
+client = google.cloud.logging.Client()
+client.setup_logging()
+
 
 
 def now() -> int:
@@ -40,7 +46,7 @@ def transaction() -> Generator:
         if db.session.new or db.session.dirty or db.session.deleted:
             db.session.commit()
     except Exception as e:
-        # logger.warning('Commit failed, rolling back: %s', str(e))
+        logging.warn(f'{now()}: Commit failed, rolling back: {str(e)}')
         db.session.rollback()
         raise
 

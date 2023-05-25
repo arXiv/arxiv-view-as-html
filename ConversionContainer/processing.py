@@ -9,6 +9,7 @@ import config
 from models.db import db
 import exceptions
 from google.cloud import storage
+from concurrency_control import write_start, write_success
 
 # Change such that we can handle multiple requests
 # Raise max requests allowed on cloud run
@@ -51,6 +52,7 @@ def process(payload: dict[str, Any]) -> bool:
             raise exceptions.PayloadError('No submission_id')
         print("Step 1: downloading")
         tar, id = get_file(payload)
+        write_start(int(id), tar)
         print(f"Step 2: untarring {tar}")
         source = untar(tar, id)
         print("Step 3: Removing .ltxml files")
@@ -75,7 +77,9 @@ def process(payload: dict[str, Any]) -> bool:
         if payload['bucket'] == config.IN_BUCKET_ARXIV_ID:
             upload_output(out_path, config.OUT_BUCKET_ARXIV_ID, id)
         else:
-            upload_output(out_path, config.OUT_BUCKET_SUB_ID, id)
+            tar, id = get_file(payload)
+            if write_success(int(id), tar):
+                upload_output(out_path, config.OUT_BUCKET_SUB_ID, id)
         print("Uploaded successfully. Done!")
         
         # db.write_success(payload_name)

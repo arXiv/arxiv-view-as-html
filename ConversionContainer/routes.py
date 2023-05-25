@@ -4,7 +4,17 @@ import os
 from threading import Thread
 from processing import process
 import flask
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
+
+# FlaskThread inherits Thread and also pushes the Flask applcation context
+class FlaskThread(Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.app = current_app._get_current_object()
+
+    def run(self):
+        with self.app.app_context():
+            super().run()
 
 blueprint = Blueprint('routes', __name__)
 
@@ -23,7 +33,7 @@ def main () -> tuple[str, int]:
         Returns empty string and 202
     """
     print (request.json)
-    thread = Thread(target = process, args = (request.json, ))
+    thread = FlaskThread(target = process, args = (request.json, ))
     thread.start()
     return '', 202
 

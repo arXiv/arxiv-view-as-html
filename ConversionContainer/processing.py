@@ -4,26 +4,28 @@ import os
 import re
 import subprocess
 import shutil
-from typing import Any, Union, Optional, AnyStr, Tuple
-import config
-from models.db import db
-import exceptions
-from google.cloud import storage
-from concurrency_control import write_start, write_success
+from typing import Any, Tuple, Dict
 import logging
-import google.cloud.logging
 
-logging_client = google.cloud.logging.Client()
-logging_client.setup_logging()
+from .config import (
+    OUT_BUCKET_ARXIV_ID,
+    OUT_BUCKET_SUB_ID,
+    QA_BUCKET_NAME
+)
+from .util import get_google_storage_client
+from .models.db import db
+from .exceptions import *
+from .concurrency_control import \
+    write_start, write_success
+
+
 
 # Change such that we can handle multiple requests
 # Raise max requests allowed on cloud run
 # Error handling try/catch - send event maybe
 
-client = storage.Client()
 
-
-def process(payload: dict[str, Any]) -> bool:
+def process(payload: Dict[str, str]) -> bool:
     """
     Runs latexml on the blob in the payload and uploads
     the results to the output bucket in the config
@@ -54,7 +56,7 @@ def process(payload: dict[str, Any]) -> bool:
             # db.write_in_progress(payload_name)
             pass
         else:
-            raise exceptions.PayloadError('No submission_id')
+            raise PayloadError('No submission_id')
         logging.info("Step 1: downloading")
         tar, id = get_file(payload)
         write_start(id, tar)
@@ -82,9 +84,9 @@ def process(payload: dict[str, Any]) -> bool:
         tar, id = get_file(payload)
         if write_success(id, tar):
             upload_output(out_path, 
-                          config.OUT_BUCKET_ARXIV_ID 
+                          OUT_BUCKET_ARXIV_ID 
                             if payload['bucket'] == 'latexml_arxiv_id_source' 
-                            else config.OUT_BUCKET_SUB_ID,
+                            else OUT_BUCKET_SUB_ID,
                           id)
             logging.info("Uploaded successfully. Done!")
         else:
@@ -137,16 +139,16 @@ def get_file(payload: dict[str, Any]) -> Tuple[str, str]:
         except:
             pass
     else:
-        raise exceptions.FileTypeError(f"{payload['name']} was not a .tar.gz")
+        raise FileTypeError(f"{payload['name']} was not a .tar.gz")
     try:
-        blob = client.bucket(payload['bucket']) \
+        blob = get_google_storage_client().bucket(payload['bucket']) \
             .blob(payload['name'])
         with open(fname, 'wb') as read_stream:
             blob.download_to_file(read_stream)
             read_stream.close()
         return os.path.abspath(f"./{fname}"), id
     except Exception as exc:
-        raise exceptions.GCPBlobError(
+        raise GCPBlobError(
             f"Download of {payload['name']} from {payload['bucket']} failed") from exc
 
 
@@ -176,7 +178,7 @@ def untar(fpath: str, dir_name: str) -> str:
             tar.close()
         return os.path.abspath(f"extracted/{dir_name}")
     except Exception as exc:
-        raise exceptions.TarError(
+        raise TarError(
             f"Tarfile at {fpath} failed to extract in untar()") from exc
 
 
@@ -196,7 +198,7 @@ def remove_ltxml(path: str) -> None:
                 if str(file).endswith('.ltxml'):
                     os.remove(os.path.join(root, file))
     except Exception as exc:
-        raise exceptions.LaTeXMLRemoveError(
+        raise LaTeXMLRemoveError(
             f".ltxml file at {path} failed to be removed") from exc
 
 
@@ -241,7 +243,7 @@ def find_main_tex_source(path: str) -> str:
             if len(main_files) == 1:
                 return (os.path.join(path, list(main_files)[0]))
             elif len(main_files) == 0:
-                raise exceptions.MainTeXError(
+                raise MainTeXError(
                     f"No main .tex found file in {path}")
             else:
                 # account for the two main ways of creating multi-file
@@ -256,7 +258,7 @@ def find_main_tex_source(path: str) -> str:
                                 # #the main file is just {article} or something else
                 return (os.path.join(path, max(main_files, key=main_files.__getitem__)))
     except Exception as exc:
-        raise exceptions.MainTeXError(
+        raise MainTeXError(
             f"Process to find main .tex file in {path} failed") from exc
 
 
@@ -293,12 +295,12 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
     try:
-        bucket = client.bucket(config.QA_BUCKET_NAME)
+        bucket = get_google_storage_client().bucket(QA_BUCKET_NAME)
         errblob = bucket.blob(f"{sub_id}_stdout.txt")
         errblob.upload_from_filename(f"{sub_id}_stdout.txt")
     except Exception as exc:
-        raise exceptions.GCPBlobError(
-            f"Uploading {sub_id}_stdout.txt to {config.QA_BUCKET_NAME} failed in do_latexml") from exc
+        raise GCPBlobError(
+            f"Uploading {sub_id}_stdout.txt to {QA_BUCKET_NAME} failed in do_latexml") from exc
     os.remove(errpath)
 
 
@@ -325,18 +327,18 @@ the object to.
         with open(destination_fpath, 'r') as temp:
             temp.seek(0, os.SEEK_END)
             logging.info(f"Tar size: {temp.tell()}")
-        bucket = client.bucket(bucket_name)
+        bucket = get_google_storage_client().bucket(bucket_name)
         blob = bucket.blob(destination_fname)
         logging.info(f"Blob info: {blob.name}")
         blob.upload_from_filename(destination_fpath)
     except Exception as exc:
         logging.info(exc)
-        raise exceptions.GCPBlobError(
+        raise GCPBlobError(
             f"Upload of {destination_fname} to {bucket_name} failed") from exc
     finally:
         try:
             os.remove(destination_fpath)
         except Exception as exc:
             logging.info(exc)
-            raise exceptions.CleanupError(
+            raise CleanupError(
                 f"Failed to remove {destination_fpath} in upload_output()") from exc

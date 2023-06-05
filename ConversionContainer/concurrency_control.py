@@ -1,21 +1,14 @@
 from typing import Any, Optional
 import hashlib
 import os
-from flask import current_app
 import gzip
+import logging
 
-from models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
-from models.util import transaction, now, current_session
-
-from sqlalchemy import cast
 
 from google.cloud.storage.blob import Blob
 
-import logging
-import google.cloud.logging
-
-client = google.cloud.logging.Client()
-client.setup_logging()
+from .models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
+from .models.util import transaction, now
 
 # TODO: Separate check to write from writing success
 
@@ -76,7 +69,7 @@ def _write_start_sub (submission_id: int, tar_fpath: str):
             rec.latexml_version = os.environ.get('LATEXML_COMMIT'),
             rec.tex_checksum = _get_checksum(tar_fpath),
             rec.conversion_start_time = now()
-            
+
     logging.info(f"{now()}: Conversion started for submission {submission_id}")
 
 

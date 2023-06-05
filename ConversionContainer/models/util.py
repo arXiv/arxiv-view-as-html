@@ -1,23 +1,17 @@
 """Helpers and Flask application integration."""
-
 from contextlib import contextmanager
 
 from typing import Generator, List, Any
 from datetime import datetime
 from pytz import timezone, UTC
+import logging
+
 
 from flask import Flask
 from sqlalchemy import text
 from sqlalchemy.orm.session import Session
 
-from models.db import db
-import logging
-import google.cloud.logging
-
-client = google.cloud.logging.Client()
-client.setup_logging()
-
-
+from .db import db
 
 def now() -> int:
     """Get the current epoch/unix time."""

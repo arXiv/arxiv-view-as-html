@@ -1,6 +1,6 @@
 """Initializes the Flask app"""
 from factory import create_web_app
-from models.util import create_all, transaction
+from models.util import create_all, drop_all, transaction
 
 app = create_web_app()
 with app.app_context():

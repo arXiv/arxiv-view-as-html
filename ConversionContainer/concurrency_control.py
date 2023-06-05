@@ -2,6 +2,7 @@ from typing import Any, Optional
 import hashlib
 import os
 from flask import current_app
+import gzip
 
 from models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
 from models.util import transaction, now, current_session
@@ -20,50 +21,83 @@ client.setup_logging()
 
 def _get_checksum (abs_fname: str) -> str:
     md5_hash = hashlib.md5()
-    with open(abs_fname,"rb") as f:
-        for byte_block in iter(lambda: f.read(4096),b""):
+    with gzip.open(abs_fname,"rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
             md5_hash.update(byte_block)
     return md5_hash.hexdigest()
 
-def _write_start_doc (document_id: int, document_version: int, tar_fpath: str):
+def _write_start_doc (paper_idv: str, tar_fpath: str):
+    if 'v' in paper_idv:
+        paper_id = paper_idv.split('v')[0]
+        document_version = int(paper_idv.split('v')[1])
+    else:
+        paper_id = paper_idv
+        document_version = 1
     with transaction() as session:
-        rec = DBLaTeXMLDocuments (
-            document_id=document_id,
-            document_version=document_version,
-            conversion_status=0, # 0 for in progress, 1 for success, 2 for failure
-            latexml_version=os.environ.get('LATEXML_COMMIT'),
-            tex_checksum=_get_checksum(tar_fpath),
-            conversion_start_time=now()
-        )
-        session.add(rec)
-    logging.info(f"Conversion started for document {document_id}v{document_version}")
+        rec = session.query(DBLaTeXMLDocuments) \
+                .filter(DBLaTeXMLDocuments.paper_id == paper_id) \
+                .filter(DBLaTeXMLDocuments.document_version == document_version) \
+                .first()
+        if not rec:
+            rec = DBLaTeXMLDocuments (
+                paper_id=paper_id,
+                document_version=document_version,
+                conversion_status=0, # 0 for in progress, 1 for success, 2 for failure
+                latexml_version=os.environ.get('LATEXML_COMMIT'),
+                tex_checksum=_get_checksum(tar_fpath),
+                conversion_start_time=now()
+            )
+            session.add(rec)
+        else:
+            rec.conversion_status = 0
+            rec.latexml_version = os.environ.get('LATEXML_COMMIT'),
+            rec.tex_checksum = _get_checksum(tar_fpath),
+            rec.conversion_start_time = now()
+
+    logging.info(f"Conversion started for document {paper_id}v{document_version}")
 
 
 def _write_start_sub (submission_id: int, tar_fpath: str):
     with transaction() as session:
-        rec = DBLaTeXMLSubmissions (
-            submission_id=submission_id,
-            conversion_status=0, # 0 for in progress, 1 for success, 2 for failure
-            latexml_version=os.environ.get('LATEXML_COMMIT'),
-            tex_checksum=_get_checksum(tar_fpath),
-            conversion_start_time=now()
-        )
-        session.add(rec)
+        rec = session.query(DBLaTeXMLSubmissions) \
+                .filter(DBLaTeXMLDocuments.submission_id == submission_id) \
+                .first()
+        if not rec:
+            rec = DBLaTeXMLSubmissions (
+                submission_id=submission_id,
+                conversion_status=0, # 0 for in progress, 1 for success, 2 for failure
+                latexml_version=os.environ.get('LATEXML_COMMIT'),
+                tex_checksum=_get_checksum(tar_fpath),
+                conversion_start_time=now()
+            )
+            session.add(rec)
+        else:
+            rec.conversion_status = 0
+            rec.latexml_version = os.environ.get('LATEXML_COMMIT'),
+            rec.tex_checksum = _get_checksum(tar_fpath),
+            rec.conversion_start_time = now()
+            
     logging.info(f"{now()}: Conversion started for submission {submission_id}")
 
 
-def write_start (id: int, tar_fpath: str, version: Optional[int] = None):
+def write_start (id: Any, tar_fpath: str, version: int = 1):
     logging.info(f"{now()}: Trying write start for {tar_fpath}")
-    if version is not None:
-        _write_start_doc(id, version, tar_fpath)
+    if type(id) == str:
+        _write_start_doc(id, tar_fpath)
     else:
         _write_start_sub(id, tar_fpath)
 
-def _write_success_doc (document_id: int, document_version: int, tar_fpath: str) -> bool:
+def _write_success_doc (paper_idv: str, tar_fpath: str) -> bool:
+    if 'v' in paper_idv:
+        paper_id = paper_idv.split('v')[0]
+        document_version = int(paper_idv.split('v')[1])
+    else:
+        paper_id = paper_idv
+        document_version = 1
     success = False
     with transaction() as session:
         obj = session.query(DBLaTeXMLDocuments) \
-                .filter(DBLaTeXMLDocuments.document_id == document_id) \
+                .filter(DBLaTeXMLDocuments.paper_id == paper_id) \
                 .filter(DBLaTeXMLDocuments.document_version == document_version) \
                 .all()
         if len(obj) > 0:
@@ -74,9 +108,9 @@ def _write_success_doc (document_id: int, document_version: int, tar_fpath: str)
                     obj.conversion_status = 1
                     obj.conversion_end_time = now()
                     success = True
-                    logging.info(f"{now()}: document {document_id}v{document_version} successfully written")
+                    logging.info(f"{now()}: document {paper_id}v{document_version} successfully written")
     if not success:
-        logging.info(f"{now()}: document {document_id}v{document_version} failed to write")
+        logging.info(f"{now()}: document {paper_id}v{document_version} failed to write")
     return success
 
 def _write_success_sub (submission_id: int, tar_fpath: str) -> bool:
@@ -100,8 +134,8 @@ def _write_success_sub (submission_id: int, tar_fpath: str) -> bool:
     return success
 
 def write_success (id: int, tar_fpath: str, version: Optional[int] = None):
-    if version is not None:
-        return _write_success_doc(id, version, tar_fpath)
+    if type(id) == str:
+        return _write_success_doc(id, tar_fpath)
     else:
         return _write_success_sub(id, tar_fpath)
 

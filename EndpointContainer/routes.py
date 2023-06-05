@@ -97,12 +97,12 @@ def authorize_for_submission(func: Callable) -> Callable:
             return jsonify ({"message": "You don't have permission to view this resource"}), 404 # do make_response
     return wrapper
 
-@blueprint.route('/download', methods=['GET'])
+@blueprint.route('/download/submission', methods=['GET'])
 @cross_origin(supports_credentials=True)
 @authorize_for_submission
-def download():
+def download_for_sub_id():
     """
-    Downloads the targeted article via arxiv_id or submission_id (prioritizes arxiv_id) in html format
+    Downloads the targeted article via submission_id in html format
     and processes it by adding base tags for static assets.
 
     Returns
@@ -112,16 +112,14 @@ def download():
     """
     logging.info("Logging works in routes.py file")
     _, _, client = _get_google_auth()
-    blob_name = request.args.get('arxiv_id') or request.args.get('submission_id')
+    blob_name = request.args.get('submission_id')
     print(f"request blob name is {blob_name}")
     if blob_name is None:
-        return render_template("400.html", error = exceptions.PayloadError("Missing arxiv or submission id"))
+        return render_template("400.html", error = exceptions.PayloadError("Missing submission id"))
         # Malformed request with no ID
     try:
         tar = get_file(
-            current_app.config[
-                'CONVERTED_BUCKET_ARXIV_ID' if request.args.get('arxiv_id')
-                else 'CONVERTED_BUCKET_SUB_ID'],
+            current_app.config['CONVERTED_BUCKET_SUB_ID'],
             blob_name,
             client)
         source = untar(tar, blob_name)
@@ -142,6 +140,50 @@ def download():
     inject_base_tag(source, f"/conversion/templates/{blob_name.replace('.', '-')}/html/")
     # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
+
+@blueprint.route('/download/paper', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def download_for_paper_id():
+    """
+    Downloads the targeted article via arxiv_id in html format
+    and processes it by adding base tags for static assets.
+
+    Returns
+    -------
+    _type_
+        Renders the article in html format.
+    """
+    logging.info("Logging works in routes.py file")
+    _, _, client = _get_google_auth()
+    blob_name = request.args.get('arxiv_id')
+    print(f"request blob name is {blob_name}")
+    if blob_name is None:
+        return render_template("400.html", error = exceptions.PayloadError("Missing arxiv id"))
+        # Malformed request with no ID
+    try:
+        tar = get_file(
+            current_app.config['CONVERTED_BUCKET_ARXIV_ID'],
+            blob_name,
+            client)
+        source = untar(tar, blob_name)
+    except exceptions.GCPBlobError as exc:
+        logging.info("Download failed due to %s", exc)
+        try:
+            logpath = get_log(config.QA_BUCKET_NAME, blob_name, client)
+            with open(logpath, "r") as f:
+                log = f.read()
+            return render_template("404.html", error = exc, log = log)
+            # No HTML found, conversion log file found
+        except Exception as e:
+            return render_template("500.html", error = e)
+            # No HTML or conversion log file found
+    except Exception as exc:
+        return render_template("500.html", error = exc)
+        # File download or untarring went wrong
+    inject_base_tag(source, f"/conversion/templates/{blob_name.replace('.', '-')}/html/")
+    # This corrects the paths for static assets in the html
+    return render_template("html_template.html", html=source)
+
 
 @blueprint.route('/test404', methods=['GET'])
 def test404():

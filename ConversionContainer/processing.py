@@ -4,12 +4,17 @@ import os
 import re
 import subprocess
 import shutil
-from typing import Any, Union, Optional, AnyStr
+from typing import Any, Union, Optional, AnyStr, Tuple
 import config
 from models.db import db
 import exceptions
 from google.cloud import storage
 from concurrency_control import write_start, write_success
+import logging
+import google.cloud.logging
+
+logging_client = google.cloud.logging.Client()
+logging_client.setup_logging()
 
 # Change such that we can handle multiple requests
 # Raise max requests allowed on cloud run
@@ -50,16 +55,16 @@ def process(payload: dict[str, Any]) -> bool:
             pass
         else:
             raise exceptions.PayloadError('No submission_id')
-        print("Step 1: downloading")
+        logging.info("Step 1: downloading")
         tar, id = get_file(payload)
-        write_start(int(id), tar)
-        print(f"Step 2: untarring {tar}")
+        write_start(id, tar)
+        logging.info(f"Step 2: untarring {tar}")
         source = untar(tar, id)
-        print("Step 3: Removing .ltxml files")
+        logging.info("Step 3: Removing .ltxml files")
         remove_ltxml(source)
-        print("Step 4: finding main tex source")
+        logging.info("Step 4: finding main tex source")
         main = find_main_tex_source(source)
-        print(f"Main tex source is {main}")
+        logging.info(f"Main tex source is {main}")
         out_path = os.path.join(source, 'html')
         try:
             os.mkdir(out_path)
@@ -70,21 +75,24 @@ def process(payload: dict[str, Any]) -> bool:
                     shutil.rmtree(filepath)
                 except OSError:
                     os.remove(filepath)
-        print(f"Out path is {out_path}")
-        print("Step 5: Do LaTeXML")
+        logging.info(f"Out path is {out_path}")
+        logging.info("Step 5: Do LaTeXML")
         do_latexml(main, os.path.join(out_path, id), id)
-        print(f"Step 6: Upload html from {out_path}, {payload['bucket']}")
-        if payload['bucket'] == config.IN_BUCKET_ARXIV_ID:
-            upload_output(out_path, config.OUT_BUCKET_ARXIV_ID, id)
+        logging.info(f"Step 6: Upload html from {out_path}, {payload['bucket']}")
+        tar, id = get_file(payload)
+        if write_success(id, tar):
+            upload_output(out_path, 
+                          config.OUT_BUCKET_ARXIV_ID 
+                            if payload['bucket'] == 'latexml_arxiv_id_source' 
+                            else config.OUT_BUCKET_SUB_ID,
+                          id)
+            logging.info("Uploaded successfully. Done!")
         else:
-            tar, id = get_file(payload)
-            if write_success(int(id), tar):
-                upload_output(out_path, config.OUT_BUCKET_SUB_ID, id)
-        print("Uploaded successfully. Done!")
+            logging.info("Upload success without write")
         
         # db.write_success(payload_name)
     except Exception as e:
-        print(e)
+        logging.info(e)
         # if payload.get('name'):
         #     db.write_failure(payload['name'])
         # else:
@@ -95,12 +103,17 @@ def process(payload: dict[str, Any]) -> bool:
             try:
                 shutil.rmtree(out_path)
             except Exception as e:
-                print(e)
-                print(f"Failed to delete {out_path}")
+                logging.info(e)
+                logging.info(f"Failed to delete {out_path}")
     return True
 
 
-def get_file(payload: dict[str, Any]) -> tuple[str, str]:
+def _unwrap_payload (payload_name: str) -> Tuple[str, str]:
+    fname = payload_name.split('/')[1]
+    idv = fname.replace('.tar.gz', '')
+    return fname, idv
+
+def get_file(payload: dict[str, Any]) -> Tuple[str, str]:
     """
     Checks if the payload contains a .tar.gz file
     and if so it downloads the file to "fpath".
@@ -118,8 +131,7 @@ def get_file(payload: dict[str, Any]) -> tuple[str, str]:
         File path to the .tar.gz object
     """
     if payload['name'].endswith('.gz'):
-        fname = payload['name'].split('/')[1]
-        id = fname.split('.')[0]
+        fname, id = _unwrap_payload(payload['name'])
         try:
             os.remove(f"./{fname}")
         except:
@@ -312,19 +324,19 @@ the object to.
             tar.add(path, arcname=os.path.basename(path))
         with open(destination_fpath, 'r') as temp:
             temp.seek(0, os.SEEK_END)
-            print(f"Tar size: {temp.tell()}")
+            logging.info(f"Tar size: {temp.tell()}")
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(destination_fname)
-        print(f"Blob info: {blob.name}")
+        logging.info(f"Blob info: {blob.name}")
         blob.upload_from_filename(destination_fpath)
     except Exception as exc:
-        print(exc)
+        logging.info(exc)
         raise exceptions.GCPBlobError(
             f"Upload of {destination_fname} to {bucket_name} failed") from exc
     finally:
         try:
             os.remove(destination_fpath)
         except Exception as exc:
-            print(exc)
+            logging.info(exc)
             raise exceptions.CleanupError(
                 f"Failed to remove {destination_fpath} in upload_output()") from exc

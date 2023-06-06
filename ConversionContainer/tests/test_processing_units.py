@@ -6,9 +6,14 @@ from ..processing import *
 from ..exceptions import FileTypeError
 
 @pytest.fixture(autouse=True)
+def change_test_dir(request, monkeypatch):
+    monkeypatch.chdir(request.fspath.dirname)
+
+@pytest.fixture(autouse=True)
 def mock_google_storage_client (mocker):
     mocker.patch('ConversionContainer.processing.get_google_storage_client', 
                  return_value=MagicMock())
+    
 @pytest.fixture 
 def payload_arxiv_id (): return {'name': '2012.02205/2012.02205.tar.gz', 'bucket': 'latexml_arxiv_id_source'}
 @pytest.fixture
@@ -53,12 +58,9 @@ def test_get_file_source_log (payload_bad):
 ******************************
 """
 
-def _clean_up ():
-    shutil.rmtree('extracted')
-
 @pytest.mark.processing_unit_tests
 def test_untar_success1 ():
-    os.chdir('ConversionContainer/tests/ancillary_files')
+    os.chdir('ancillary_files')
     assert os.path.exists('2012.02205.tar'), \
         'This test depends on tests/ancillary_files/2012.02205.tar'
     assert not os.path.exists('extracted/2012.02205'), \
@@ -67,11 +69,11 @@ def test_untar_success1 ():
     untar ('2012.02205.tar', '2012.02205')
     assert os.path.exists('extracted/2012.02205'), \
         'Failed to extract the tar to tests/ancillary_files/extracted/2012.02205'
-    _clean_up()
+    shutil.rmtree('extracted')
     
 @pytest.mark.processing_unit_tests
 def test_untar_success2 ():
-    os.chdir('ConversionContainer/tests/ancillary_files')
+    os.chdir('ancillary_files')
     assert os.path.exists('3966840.tar'), \
         'This test depends on tests/ancillary_files/3966840.tar'
     assert not os.path.exists('extracted/3966840.tar'), \
@@ -80,7 +82,7 @@ def test_untar_success2 ():
     untar ('3966840.tar', '3966840')
     assert os.path.exists('extracted/3966840'), \
         'Failed to extract the tar to tests/ancillary_files/extracted/3966840'
-    _clean_up()
+    shutil.rmtree('extracted')
     
 
 """
@@ -91,7 +93,7 @@ def test_untar_success2 ():
 
 @pytest.mark.processing_unit_tests
 def test_remove_ltxml_true_pos ():
-    os.chdir('ConversionContainer/tests/ancillary_files')
+    os.chdir('ancillary_files')
     assert os.path.exists('malicious.ltxml'), \
         'This test depends on tests/ancillary_files/malicious.ltxml'
     assert os.path.exists('./ltxml'), \
@@ -103,7 +105,7 @@ def test_remove_ltxml_true_pos ():
 
 @pytest.mark.processing_unit_tests
 def test_remove_ltxml_true_neg ():
-    os.chdir('ConversionContainer/tests/ancillary_files')
+    os.chdir('ancillary_files')
     assert os.path.exists('ltxml/non_malicious.tar.gz'), \
         'This test depends on tests/ancillary_files/ltxml/non_malicious.tar.gz'
     remove_ltxml('ltxml')
@@ -120,7 +122,7 @@ def test_remove_ltxml_true_neg ():
 
 @pytest.mark.processing_unit_tests
 def test_find_main_tex_source_single_source ():
-    os.chdir('ConversionContainer/tests/ancillary_files')
+    os.chdir('ancillary_files')
     assert os.path.exists('single_tex'), \
         'This test depends on tests/ancillary_files/single_tex'
     main_tex = find_main_tex_source ('single_tex') 
@@ -130,7 +132,7 @@ def test_find_main_tex_source_single_source ():
 
 @pytest.mark.processing_unit_tests
 def test_find_main_text_source_multiple_sources ():
-    os.chdir('ConversionContainer/tests/ancillary_files')
+    os.chdir('ancillary_files')
     assert os.path.exists('multiple_tex'), \
         'This test depends on tests/ancillary_files/multiple_tex'
     main_tex = find_main_tex_source ('multiple_tex') 

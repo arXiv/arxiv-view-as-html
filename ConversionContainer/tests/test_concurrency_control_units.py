@@ -131,7 +131,7 @@ def test_write_start_sub_overlap (app, select_from_sub):
             f'Start timestamp is not later on second write: \
             {row.conversion_start_time} ≯ {old_ts}'
 
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_start_doc_no_version_simple (app, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -145,7 +145,7 @@ def test_write_start_doc_no_version_simple (app, select_from_doc):
         assert row.tex_checksum == '5a67f1a2f9b1b436f2bd604e0131cf3a', \
             f'Incorrect checksum: {row.tex_checksum}'
         
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_start_doc_with_version_simple (app, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -159,7 +159,7 @@ def test_write_start_doc_with_version_simple (app, select_from_doc):
         assert row.tex_checksum == '5a67f1a2f9b1b436f2bd604e0131cf3a', \
             f'Incorrect checksum: {row.tex_checksum}'
         
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_start_doc_multiple_versions (app, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -181,7 +181,7 @@ def test_write_start_doc_multiple_versions (app, select_from_doc):
         assert row_v2.tex_checksum == '7fba16945d97c8828f6f7c255bd1ab10', \
             f'Incorrect checksum: {row_v2.tex_checksum}'
         
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_start_doc_overlap (app, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -201,7 +201,7 @@ def test_write_start_doc_overlap (app, select_from_doc):
             f'Start timestamp is not later on second write: \
             {row.conversion_start_time} ≯ {old_ts}'
         
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_start_doc_overlap_with_version (app, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -229,7 +229,7 @@ def test_write_start_doc_overlap_with_version (app, select_from_doc):
 ******************************
 """
 
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_success_sub_simple (app, insert_into_sub, select_from_sub):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -258,7 +258,7 @@ def test_write_success_sub_simple (app, insert_into_sub, select_from_sub):
             {row.conversion_end_time} ≯ {row.conversion_start_time}'
         assert result, 'write_success should return True'
         
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_success_sub_overlap (app, insert_into_sub, select_from_sub):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -304,7 +304,7 @@ def test_write_success_sub_overlap (app, insert_into_sub, select_from_sub):
             {row.conversion_end_time} ≯ {row.conversion_start_time}'
         assert new_version_result, 'write_success should return True'
 
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_success_sub_overlap_out_of_order (app, insert_into_sub, select_from_sub):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -353,7 +353,7 @@ def test_write_success_sub_overlap_out_of_order (app, insert_into_sub, select_fr
         assert not old_version_result, 'write_success should return False'
 
 
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_success_doc_simple (app, insert_into_doc, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -383,7 +383,7 @@ def test_write_success_doc_simple (app, insert_into_doc, select_from_doc):
             {row.conversion_end_time} ≯ {row.conversion_start_time}'
         assert result, 'write_success should return True'
         
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_success_doc_overlap (app, insert_into_doc, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
@@ -430,7 +430,7 @@ def test_write_success_doc_overlap (app, insert_into_doc, select_from_doc):
             {row.conversion_end_time} ≯ {row.conversion_start_time}'
         assert new_version_result, 'write_success should return True'
 
-@pytest.mark.cc_unit_test
+@pytest.mark.cc_unit_tests
 def test_write_success_doc_overlap_out_of_order (app, insert_into_doc, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'

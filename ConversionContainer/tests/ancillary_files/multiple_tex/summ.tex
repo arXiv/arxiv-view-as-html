@@ -1,0 +1,80 @@
+\section{Conclusion and Discussion}
+\label{sec:summary}
+
+We examine a design of a fully-automated network-based Internet censorship
+detection system. There are primarily three challenges we must address: to
+process an overwhelmingly large quantity of structured network measurement data for
+censorship detection, to extract high quality features from this data, 
+and to address the challenge of the lack of training
+data for the proposed supervised learning approach.  Our contributions are
+therefore as follows. 
+
+First, we engineer an iterative data processing Python library that allows us
+stream the network measurement data directly from its cloud storage. Second,
+recognizing the importance of the structure and the order of elements in the
+network measurement data, we design an unsupervised sequence-to-sequence deep
+learning model to infer latent feature represents in embedding space from the
+data. Third, we prepare a training dataset using known fingerprints of
+network-based Internet censorship. Fourth, due to the lack of machine learning
+approaches of network-based Internet censorship detection in the literature, we
+build two complete censorship detection models, one based on feature
+representation learning, and the other based on image classification, and
+compare the predictive performance of the two models. As a result, the work
+resulted in an ``end-to-end'' network-based Internet censorship detection
+pipeline accompanied by a replication package publicly available for adoption
+and extension.
+
+\paragraph{Discussion} A worthy lesson is that there is a cyclic dependency or chicken-egg problem
+when it comes to the design of the ``end-to-end'' censorship detection system.
+Such a system shall be based on a supervised learning algorithm that requires a
+large set of training network measurement test records labeled as ``censored''
+or ``uncensored'' to learn to detect censorship; however, we need to be able
+to recognize what constitutes censorship by examining these data records. As
+a result, the cyclic dependency problem emerges. 
+
+In this work, we leverage a set of censorship fingerprints in the form of
+regular expressions and the censorship scanning scripts available by Censored
+Planet.  The scripts use regular expressions to match received block page
+responses, which requires discovering and analyzing such responses, then
+designing a regular expression based on that analysis. This limits censorship
+detection to patterns already discovered. However, our work indicates that the
+labeled data set generated in this process is more than appropriate to serve as
+the required training dataset. Indeed, our research affirms that a machine
+learning model can learn to detect previously unseen block pages.  Both of our
+two experimental models (E2ECD and DenseNetCD) detected block page responses
+that do not match any of the regular expressions provided in the scanning
+scripts from Censored Planet.  Further, our E2ECD model with
+sequence-to-sequence latent feature representation learning identified as
+probable censorship several types of responses that do not correlate to simple
+textual patterns and therefore would be very difficult if not impossible to
+detect using regular expression based scripts. Additionally, There is
+a striking difference between the number of responses that the two deep
+learning methods (E2ECD and DenseNetCD) identify as probable censorship. We
+conclude that a sequence-to-sequence autoencoder enhanced with an attention 
+mechanism as proposed is far
+more effective at discovering censorship than the simple image feature
+representation method used by DenseNetCD.
+
+An added benefit of our research is that our results show that useful latent feature
+representation of censorship measurement in embedding space can be identified
+by deep neural networks. We expect that the embeddings should be sufficient to
+identify new and known network-based censorship events. This is evident, as
+shown in our evaluation, the two experimental networks displayed an accuracy
+better than 98\% when processing responses that are already categorized by the
+scanning scripts.  More significantly, both of our networks
+discovered censorship missed by these scripts, showing that deep neural
+networks can detect features not readily apparent.  Although machine learning
+is no panacea, we are convinced that these deep learning networks have the
+potential to be a powerful tool to understand the constantly changing landscape
+of Internet censorship.
+
+
+In addition, we only evaluate our model using the Censored Planet data set.  As
+discussed in Section~\ref{sec:related}, there are now several complementary
+prominent large scale network measurement platforms for Internet censorship.
+Our future work includes the extension of the current model to handle and correlate
+both ordinary network traffic measurement and network side-channel measurement
+data from these complementary platforms. Additionally, there is significant and continuous
+development in modeling techniques. We expect that our models can be improved using these
+developments.
+

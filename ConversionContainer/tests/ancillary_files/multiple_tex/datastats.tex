@@ -1,0 +1,88 @@
+% Two disjoint data sets
+%
+% For feature learning
+% 
+% We used the Censored Planet collection of regular expressions de-
+% scribed in Section 2.2 to determine if an anomalous response was
+% censorship or a false positive [22]. The result was a large dataset
+% of 1,711,339 anomalous responses containing 215,016 censored,
+% 653,481 uncensored, and 842,842 undetermined items. The labeled
+% data is unbalanced since there are 3 times as many responses iden-
+% tified as uncensored as those censored. We applied an approach of
+% under-sampling the majority class to balance the training dataset
+% whenever labeled data was needed.
+%
+%
+%
+
+% For censorship detection evaluation
+%
+% We trained this model using a randomly selected dataset of 1,197,937 items
+% with an additional 171,134 randomly selected items reserved in a validation
+% dataset. 
+%
+% The training was conducted on CPU using a batch size of 2 across a cluster of
+% 8 computing nodes, producing an effective batch size of 16. A large amount of
+% data is an asset for a machine learning network but it is also a challenge if
+% the network is computationally expensive to train. 
+%
+% We balanced this asset and constraint by randomly selecting 119,794 items
+% from the training set for use on each epoch. 
+%
+% The learning rate varied smoothly between 0.003 and 0.0001. The network was
+% checked against the validation data following each epoch and the results are
+% shown in Figure 9.
+%
+%
+% We continued by using the trained autoencoder to produce two new datasets
+% from our flattened dataset. We first processed the labeled data through the
+% model, under-sampling the uncensored items, to produce a balanced set of
+% labeled lightweight numerical embeddings with 215,016 censored items and
+% 214,846 uncensored items. We then randomly partitioned this data reserving
+% 0.1 of the data for valdiation, 0.2 for testing and the remaining 0.7 for
+% training. We also processed the undetermined items from our flattened dataset
+% as a set of lightweight numerical embeddings for later use as an evaluation
+% dataset.
+%
+% 1197937+171134 -> 1369071
+
+% Feature learning
+\newcommand\FLnrecords{1,369,071\xspace} 
+\newcommand\FLntrain{1,197,937\xspace} 
+\newcommand\FLnvalid{171,134\xspace}   
+\newcommand\FLsamplingratio{10\%\xspace}
+\newcommand\FLbatchsize{16\xspace}
+\newcommand\FLlrbegin{0.003\xspace}
+\newcommand\FLlrend{0.0001\xspace}
+
+
+
+\newcommand\FLseqlen{7,069\xspace}
+\newcommand\FLxmlrlen{6,813\xspace}
+\newcommand\FLmetalen{256\xspace}
+\newcommand\FLembsize{96\xspace}
+\newcommand\FLembsizemin{96\xspace}
+\newcommand\FLembsizemax{128\xspace}
+\newcommand\FLenchidden{128\xspace}
+\newcommand\FLencoutput{96\xspace}
+\newcommand\FLdechidden{128\xspace}
+\newcommand\FLdecinput{96\xspace}
+\newcommand\FLdecoutput{7,069\xspace}
+\newcommand\FLlossthreshold{20\%\xspace}
+
+% Censorship detection
+\newcommand\CDnrecords{1,711,339\xspace}
+\newcommand\CDncensored{215,016\xspace}
+\newcommand\CDnuncensored{653,481\xspace}
+\newcommand\CDnunknown{842,842\xspace}
+\newcommand\CDtrainratio{70\%\xspace}
+\newcommand\CDvalidratio{10\%\xspace}
+\newcommand\CDtestratio{20\%\xspace}
+
+
+\newcommand\CDinputsize{96\xspace}
+\newcommand\CDfirstsize{512\xspace}
+\newcommand\CDsecondsize{256\xspace}
+\newcommand\CDoutputsize{2\xspace}
+
+

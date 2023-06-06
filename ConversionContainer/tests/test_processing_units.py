@@ -55,7 +55,6 @@ def test_get_file_source_log (payload_bad):
 
 def _clean_up ():
     shutil.rmtree('extracted')
-    os.chdir('../../../')
 
 @pytest.mark.processing_unit_tests
 def test_untar_success1 ():
@@ -91,7 +90,7 @@ def test_untar_success2 ():
 """
 
 @pytest.mark.processing_unit_tests
-def test_remove_ltxml ():
+def test_remove_ltxml_true_pos ():
     os.chdir('ConversionContainer/tests/ancillary_files')
     assert os.path.exists('malicious.ltxml'), \
         'This test depends on tests/ancillary_files/malicious.ltxml'
@@ -101,3 +100,61 @@ def test_remove_ltxml ():
     remove_ltxml('ltxml')
     assert not os.path.exists('./ltxml/malicious.ltxml'), \
         'Failed to remove malicious.ltxml from tests/ancillary_files/ltxml'
+
+@pytest.mark.processing_unit_tests
+def test_remove_ltxml_true_neg ():
+    os.chdir('ConversionContainer/tests/ancillary_files')
+    assert os.path.exists('ltxml/non_malicious.tar.gz'), \
+        'This test depends on tests/ancillary_files/ltxml/non_malicious.tar.gz'
+    remove_ltxml('ltxml')
+    assert os.path.exists('./ltxml/non_malicious.tar.gz'), \
+        'Erroneously removed non_malicious.ltxml from tests/ancillary_files/ltxml'
+
+
+
+"""
+******************************
+* find_main_tex_source tests *
+******************************
+"""
+
+@pytest.mark.processing_unit_tests
+def test_find_main_tex_source_single_source ():
+    os.chdir('ConversionContainer/tests/ancillary_files')
+    assert os.path.exists('single_tex'), \
+        'This test depends on tests/ancillary_files/single_tex'
+    main_tex = find_main_tex_source ('single_tex') 
+    assert main_tex == 'single_tex/main.tex', \
+        f'Failed to indetify main tex file \'main.tex\' in \
+        tests/ancillary_files/single_tex. Identified {main_tex} instead'
+
+@pytest.mark.processing_unit_tests
+def test_find_main_text_source_multiple_sources ():
+    os.chdir('ConversionContainer/tests/ancillary_files')
+    assert os.path.exists('multiple_tex'), \
+        'This test depends on tests/ancillary_files/multiple_tex'
+    main_tex = find_main_tex_source ('multiple_tex') 
+    assert main_tex == 'multiple_tex/paper.tex', \
+        f'Failed to indetify main tex file \'paper.tex\' in \
+        tests/ancillary_files/paper_tex. Identified {main_tex} instead'
+
+
+
+"""
+******************************
+****** do_latexml tests ******
+******************************
+"""
+
+# TODO: This just runs a subprocess and uploads to a bucket.
+#       We just mock the bucket and the subprocess isn't 
+#       written by us, so I'm skipping this for now
+
+
+"""
+******************************
+****  upload_output tests ****
+******************************
+"""
+
+# TODO: This will also just be mostly mocked. 

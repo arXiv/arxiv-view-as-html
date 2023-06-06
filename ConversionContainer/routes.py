@@ -2,9 +2,12 @@
 from datetime import datetime
 import os
 from threading import Thread
-from processing import process
+
 import flask
 from flask import Blueprint, request, jsonify, current_app
+
+from .processing import process
+
 
 # FlaskThread inherits Thread and also pushes the Flask applcation context
 class FlaskThread(Thread):

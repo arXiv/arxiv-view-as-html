@@ -30,7 +30,7 @@ def from_epoch(t: int) -> datetime:
 
 
 @contextmanager
-def transaction() -> Generator:
+def transaction() -> Generator[Session, None, None]:
     """Context manager for database transaction."""
     try:
         yield db.session

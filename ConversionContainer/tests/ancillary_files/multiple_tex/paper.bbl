@@ -1,0 +1,333 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{aceto_internet_2015}
+G.~Aceto, A.~Pescapé,
+  \href{https://www.sciencedirect.com/science/article/pii/S1389128615000948}{{Internet}
+  censorship detection: A survey}, Computer Networks 83 (2015) 381--421.
+\newblock \href {https://doi.org/10.1016/j.comnet.2015.03.008}
+  {\path{doi:10.1016/j.comnet.2015.03.008}}.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S1389128615000948}
+
+\bibitem{zhu2013velocity}
+T.~Zhu, D.~Phipps, A.~Pridgen, J.~R. Crandall, D.~S. Wallach, The velocity of
+  censorship:$\{$High-Fidelity$\}$ detection of microblog post deletions, in:
+  22nd USENIX Security Symposium (USENIX Security 13), 2013, pp. 227--240.
+
+\bibitem{xue280012}
+D.~Xue, R.~Ramesh, A.~Jain, M.~Kallitsis, J.~A. Halderman, J.~R. Crandall,
+  R.~Ensafi,
+  \href{https://www.usenix.org/conference/usenixsecurity22/presentation/xue-diwen}{{OpenVPN}
+  is open to {VPN} fingerprinting}, in: 31st USENIX Security Symposium (USENIX
+  Security 22), USENIX Association, Boston, MA, 2022, pp. 483--500.
+\newline\urlprefix\url{https://www.usenix.org/conference/usenixsecurity22/presentation/xue-diwen}
+
+\bibitem{dainotti2011analysis}
+A.~Dainotti, C.~Squarcella, E.~Aben, K.~C. Claffy, M.~Chiesa, M.~Russo,
+  A.~Pescap{\'e}, Analysis of country-wide {Internet} outages caused by
+  censorship, in: Proceedings of the 2011 ACM SIGCOMM conference on Internet
+  measurement conference, 2011, pp. 1--18.
+
+\bibitem{aceto2018comprehensive}
+G.~Aceto, A.~Botta, P.~Marchetta, V.~Persico, A.~Pescap{\'e}, A comprehensive
+  survey on {Internet} outages, Journal of Network and Computer Applications
+  113 (2018) 36--63.
+
+\bibitem{winter2012great}
+P.~Winter, S.~Lindskog, How the {Great Firewall of China} is blocking {Tor},
+  in: 2nd USENIX Workshop on Free and Open Communications on the Internet,
+  Bellevue, WA, USENIX-The Advanced Computing Systems Association, 2012, p.~7.
+
+\bibitem{chai2019importance}
+Z.~Chai, A.~Ghafari, A.~Houmansadr, On the importance of {Encrypted-SNI}
+  ({ESNI}) to censorship circumvention, in: 9th USENIX Workshop on Free and
+  Open Communications on the Internet (FOCI 19), 2019.
+
+\bibitem{satija2021blindtls}
+S.~Satija, R.~Chatterjee, Blindtls: Circumventing {TLS}-based https censorship,
+  in: Proceedings of the ACM SIGCOMM 2021 Workshop on Free and Open
+  Communications on the Internet, 2021, pp. 43--49.
+
+\bibitem{shishkina2018internet}
+A.~Shishkina, L.~Issaev, {Internet} censorship in {Arab} countries: Religious
+  and moral aspects, Religions 9~(11) (2018) 358.
+
+\bibitem{meserve2018google}
+S.~A. Meserve, D.~Pemstein, Google politics: The political determinants of
+  {Internet} censorship in democracies, Political Science Research and Methods
+  6~(2) (2018) 245--263.
+
+\bibitem{chen2000pornography}
+P.~Chen, Pornography, protection, prevarication: the politics of {Internet}
+  censorship., University of New South Wales Law Journal 23~(1) (2000)
+  221--226.
+
+\bibitem{aryan2013internet}
+S.~Aryan, H.~Aryan, J.~A. Halderman, {Internet} censorship in {Iran}: A first
+  look, in: 3rd USENIX Workshop on Free and Open Communications on the Internet
+  (FOCI 13), 2013.
+
+\bibitem{nabi2013anatomy}
+Z.~Nabi, The anatomy of {Web} censorship in {Pakistan}, in: 3rd USENIX Workshop
+  on Free and Open Communications on the Internet (FOCI 13), 2013.
+
+\bibitem{singh2017characterizing}
+R.~Singh, R.~Nithyanand, S.~Afroz, P.~Pearce, M.~C. Tschantz, P.~Gill,
+  V.~Paxson, Characterizing the nature and dynamics of {Tor} exit blocking, in:
+  26th USENIX Security Symposium (USENIX Security 17), 2017, pp. 325--341.
+
+\bibitem{yadav2018light}
+T.~K. Yadav, A.~Sinha, D.~Gosain, P.~K. Sharma, S.~Chakravarty, Where the light
+  gets in: Analyzing {Web} censorship mechanisms in {India}, in: Proceedings of
+  the Internet Measurement Conference 2018, 2018, pp. 252--264.
+
+\bibitem{ng2018detecting}
+K.~Y. Ng, A.~Feldman, C.~Leberknight, Detecting censorable content on {Sina}
+  {Weibo}: A pilot study, in: Proceedings of the 10th Hellenic Conference on
+  Artificial Intelligence, 2018, pp. 1--5.
+
+\bibitem{bock2021even}
+K.~Bock, G.~Naval, K.~Reese, D.~Levin, Even censors have a backup: Examining
+  {China}'s double {HTTPS} censorship middleboxes, in: Proceedings of the ACM
+  SIGCOMM 2021 Workshop on Free and Open Communications on the Internet, 2021,
+  pp. 1--7.
+
+\bibitem{padmanabhan2021multi}
+R.~Padmanabhan, A.~Filast{\`o}, M.~Xynou, R.~S. Raman, K.~Middleton, M.~Zhang,
+  D.~Madory, M.~Roberts, A.~Dainotti, A multi-perspective view of {Internet}
+  censorship in {Myanmar}, in: Proceedings of the ACM SIGCOMM 2021 Workshop on
+  Free and Open Communications on the Internet, 2021, pp. 27--36.
+
+\bibitem{ververis2021understanding}
+V.~Ververis, T.~Ermakova, M.~Isaakidis, S.~Basso, B.~Fabian, S.~Milan,
+  Understanding {Internet} censorship in {Europe}: The case of {Spain}, in:
+  13th ACM Web Science Conference 2021, 2021, pp. 319--328.
+
+\bibitem{sundara_raman_censored_2020}
+R.~Sundara~Raman, P.~Shenoy, K.~Kohls, R.~Ensafi,
+  \href{http://doi.org/10.1145/3372297.3417883}{Censored {Planet}: {An}
+  {Internet}-wide, {Longitudinal} {Censorship} {Observatory}}, in: Proceedings
+  of the 2020 {ACM} {SIGSAC} {Conference} on {Computer} and {Communications}
+  {Security}, {CCS} '20, Association for Computing Machinery, New York, NY,
+  USA, 2020, pp. 49--66.
+\newblock \href {https://doi.org/10.1145/3372297.3417883}
+  {\path{doi:10.1145/3372297.3417883}}.
+\newline\urlprefix\url{http://doi.org/10.1145/3372297.3417883}
+
+\bibitem{niaki2020iclab}
+A.~A. Niaki, S.~Cho, Z.~Weinberg, N.~P. Hoang, A.~Razaghpanah, N.~Christin,
+  P.~Gill, {ICLab}: A global, longitudinal {Internet} censorship measurement
+  platform, in: 2020 IEEE Symposium on Security and Privacy (SP), IEEE, 2020,
+  pp. 135--151.
+
+\bibitem{filasto2012ooni}
+A.~Filast{\`o}, J.~Appelbaum, {OONI}: Open observatory of network interference,
+  in: 2nd USENIX Workshop on Free and Open Communications on the Internet (FOCI
+  2012), 2012.
+
+\bibitem{qiao2020deep}
+L.~Qiao, X.~Li, Q.~Umer, P.~Guo, Deep learning based software defect
+  prediction, Neurocomputing 385 (2020) 100--110.
+
+\bibitem{lin2020software}
+G.~Lin, S.~Wen, Q.-L. Han, J.~Zhang, Y.~Xiang, Software vulnerability detection
+  using deep neural networks: a survey, Proceedings of the IEEE 108~(10) (2020)
+  1825--1848.
+
+\bibitem{gao2021machine}
+X.~Gao, M.~Qiu, M.~Liu, Machine learning based network censorship, in: 2021 8th
+  IEEE International Conference on Cyber Security and Cloud Computing
+  (CSCloud)/2021 7th IEEE International Conference on Edge Computing and
+  Scalable Cloud (EdgeCom), IEEE, 2021, pp. 149--154.
+
+\bibitem{li2015predicting}
+J.~Li, Predicting large-scale {Internet} censorship--a machine learning
+  approach, Master's thesis, the School of Engineering and Applied Science, the
+  University of Virginia, available:
+  \url{https://libra2.lib.virginia.edu/downloads/d504rk52c} (2015).
+
+\bibitem{jones2014automated}
+B.~Jones, T.-W. Lee, N.~Feamster, P.~Gill, Automated detection and
+  fingerprinting of censorship block pages, in: Proceedings of the 2014
+  Conference on Internet Measurement Conference, 2014, pp. 299--304.
+
+\bibitem{raman2020measuring}
+R.~S. Raman, A.~Stoll, J.~Dalek, R.~Ramesh, W.~Scott, R.~Ensafi, Measuring the
+  deployment of network censorship filters at global scale., in: NDSS, 2020.
+
+\bibitem{pearce2017augur}
+P.~Pearce, R.~Ensafi, F.~Li, N.~Feamster, V.~Paxson, Augur: {Internet-wide}
+  detection of connectivity disruptions, in: 2017 IEEE Symposium on Security
+  and Privacy (SP), IEEE, 2017, pp. 427--443.
+
+\bibitem{pearce2017global}
+P.~Pearce, B.~Jones, F.~Li, R.~Ensafi, N.~Feamster, N.~Weaver, V.~Paxson,
+  Global measurement of {DNS} manipulation, in: 26th USENIX Security Symposium
+  (USENIX Security 17), 2017, pp. 307--323.
+
+\bibitem{scott2016satellite}
+W.~Scott, T.~Anderson, T.~Kohno, A.~Krishnamurthy, Satellite: Joint analysis of
+  {CDNs} and {Network-Level} interference, in: 2016 USENIX Annual Technical
+  Conference (USENIX ATC 16), 2016, pp. 195--208.
+
+\bibitem{vandersloot2018quack}
+B.~VanderSloot, A.~McDonald, W.~Scott, J.~A. Halderman, R.~Ensafi, Quack:
+  Scalable remote measurement of {Application-Layer} censorship, in: 27th
+  USENIX Security Symposium (USENIX Security 18), 2018, pp. 187--202.
+
+\bibitem{jin2021understanding}
+L.~Jin, S.~Hao, H.~Wang, C.~Cotton, Understanding the practices of global
+  censorship through accurate, end-to-end measurements, Proceedings of the ACM
+  on Measurement and Analysis of Computing Systems 5~(3) (2021) 1--25.
+
+\bibitem{trivedi2016fully}
+U.~Trivedi, M.~Patel, A fully automated deep packet inspection verification
+  system with machine learning, in: 2016 IEEE International Conference on
+  Advanced Networks and Telecommunications Systems (ANTS), IEEE, 2016, pp.
+  1--6.
+
+\bibitem{sarabi_characterizing_2018}
+A.~Sarabi, M.~Liu, \href{http://doi.org/10.1145/3278532.3278545}{Characterizing
+  the {Internet} {Host} {Population} {Using} {Deep} {Learning}: {A} {Universal}
+  and {Lightweight} {Numerical} {Embedding}}, in: Proceedings of the {Internet}
+  {Measurement} {Conference} 2018, {IMC} '18, Association for Computing
+  Machinery, New York, NY, USA, 2018, pp. 133--146.
+\newblock \href {https://doi.org/10.1145/3278532.3278545}
+  {\path{doi:10.1145/3278532.3278545}}.
+\newline\urlprefix\url{http://doi.org/10.1145/3278532.3278545}
+
+\bibitem{aizman_high_2019}
+A.~Aizman, G.~Maltby, T.~Breuel, High {Performance} {I}/{O} {For} {Large}
+  {Scale} {Deep} {Learning}, in: 2019 {IEEE} {International} {Conference} on
+  {Big} {Data} ({Big} {Data}), Institute of Electrical and Electronics
+  Engineers, Los Angeles, CA, 2019, pp. 5965--5967.
+\newblock \href {https://doi.org/10.1109/BigData47090.2019.9005703}
+  {\path{doi:10.1109/BigData47090.2019.9005703}}.
+
+\bibitem{shawn_p_duncan_censored_2022}
+{Shawn P. Duncan},
+  \href{https://github.com/FatherShawn/cp_learning}{Replication package for
+  network-based internet censorship detection} (May 2022).
+\newline\urlprefix\url{https://github.com/FatherShawn/cp_learning}
+
+\bibitem{conneau2020unsupervised}
+A.~Conneau, K.~Khandelwal, N.~Goyal, V.~Chaudhary, G.~Wenzek, F.~Guzm{\'a}n,
+  {\'E}.~Grave, M.~Ott, L.~Zettlemoyer, V.~Stoyanov, Unsupervised cross-lingual
+  representation learning at scale, in: Proceedings of the 58th Annual Meeting
+  of the Association for Computational Linguistics, 2020, pp. 8440--8451.
+
+\bibitem{rezende2014stochastic}
+D.~J. Rezende, S.~Mohamed, D.~Wierstra, Stochastic backpropagation and
+  approximate inference in deep generative models, in: International conference
+  on machine learning, PMLR, 2014, pp. 1278--1286.
+
+\bibitem{luong2015effective}
+M.-T. Luong, H.~Pham, C.~D. Manning, Effective approaches to attention-based
+  neural machine translation, in: Proceedings of the 2015 Conference on
+  Empirical Methods in Natural Language Processing, 2015, pp. 1412--1421.
+
+\bibitem{raff_inside_2021}
+E.~Raff, Inside {Deep} {Learning}: {Math}, {Algorithms}, {Models}, Manning
+  Publications Co., Shelter Island, New York, 2021.
+
+\bibitem{mihaylova-martins-2019-scheduled}
+T.~Mihaylova, A.~F.~T. Martins,
+  \href{https://aclanthology.org/P19-2049}{Scheduled sampling for
+  transformers}, in: Proceedings of the 57th Annual Meeting of the Association
+  for Computational Linguistics: Student Research Workshop, Association for
+  Computational Linguistics, Florence, Italy, 2019, pp. 351--356.
+\newblock \href {https://doi.org/10.18653/v1/P19-2049}
+  {\path{doi:10.18653/v1/P19-2049}}.
+\newline\urlprefix\url{https://aclanthology.org/P19-2049}
+
+\bibitem{niu2021review}
+Z.~Niu, G.~Zhong, H.~Yu, A review on the attention mechanism of deep learning,
+  Neurocomputing 452 (2021) 48--62.
+
+\bibitem{raman_measuring_2020}
+R.~S. Raman, A.~Stoll, J.~Dalek, R.~Ramesh, W.~Scott, R.~Ensafi,
+  \href{https://www.ndss-symposium.org/wp-content/uploads/2020/02/23099.pdf}{Measuring
+  the {Deployment} of {Network} {Censorship} {Filters} at {Global} {Scale}},
+  in: Proceedings 2020 {Network} and {Distributed} {System} {Security}
+  {Symposium}, Internet Society, San Diego, CA, 2020, pp. 1--16.
+\newblock \href {https://doi.org/10.14722/ndss.2020.23099}
+  {\path{doi:10.14722/ndss.2020.23099}}.
+\newline\urlprefix\url{https://www.ndss-symposium.org/wp-content/uploads/2020/02/23099.pdf}
+
+\bibitem{huang_densely_2017}
+G.~Huang, Z.~Liu, L.~Van Der~Maaten, K.~Q. Weinberger, Densely {Connected}
+  {Convolutional} {Networks}, in: 2017 {IEEE} {Conference} on {Computer}
+  {Vision} and {Pattern} {Recognition} ({CVPR}), Curran Associates1, Honolulu,
+  Hawaii, USA, 2017, pp. 2261--2269.
+\newblock \href {https://doi.org/10.1109/CVPR.2017.243}
+  {\path{doi:10.1109/CVPR.2017.243}}.
+
+\bibitem{li_fei-fei_imagenet_2012}
+{Li Fei-Fei}, \href{https://image-net.org/challenges/LSVRC/2012/}{{ImageNet}
+  {Large} {Scale} {Visual} {Recognition} {Challenge} 2012 ({ILSVRC2012})} (May
+  2012).
+\newline\urlprefix\url{https://image-net.org/challenges/LSVRC/2012/}
+
+\bibitem{hemalatha_efficient_2021}
+J.~Hemalatha, S.~A. Roseline, S.~Geetha, S.~Kadry, R.~Damaševičius,
+  \href{https://www.mdpi.com/1099-4300/23/3/344}{An {Efficient}
+  {DenseNet}-{Based} {Deep} {Learning} {Model} for {Malware} {Detection}},
+  Entropy 23~(3) (2021) 344.
+\newblock \href {https://doi.org/10.3390/e23030344}
+  {\path{doi:10.3390/e23030344}}.
+\newline\urlprefix\url{https://www.mdpi.com/1099-4300/23/3/344}
+
+\bibitem{chen2020software}
+J.~Chen, K.~Hu, Y.~Yu, Z.~Chen, Q.~Xuan, Y.~Liu, V.~Filkov, Software
+  visualization and deep transfer learning for effective software defect
+  prediction, in: Proceedings of the ACM/IEEE 42nd international conference on
+  software engineering, 2020, pp. 578--589.
+
+\bibitem{zhu2017densenet}
+Y.~Zhu, S.~Newsam, Densenet for dense flow, in: 2017 IEEE international
+  conference on image processing (ICIP), IEEE, 2017, pp. 790--794.
+
+\bibitem{pytorchdensenet}
+{Pytorch Team}, {DenseNet}, available:
+  \url{https://pytorch.org/hub/pytorch_vision_densenet/}, retrieved Auguest 31,
+  2021.
+
+\bibitem{sarah_laplante_blockpage_2021}
+{Sarah Laplante},
+  \href{https://github.com/censoredplanet/censoredplanet-analysis/tree/master/pipeline/metadata/data}{Blockpage
+  and {False} {Positive} {Signatures} from {Censored} {Planet} {Analysis}}
+  (Apr. 2021).
+\newline\urlprefix\url{https://github.com/censoredplanet/censoredplanet-analysis/tree/master/pipeline/metadata/data}
+
+\bibitem{loshchilov10sgdr}
+I.~Loshchilov, F.~Hutter,
+  \href{https://openreview.net/forum?id=Skq89Scxx}{{SGDR}: Stochastic gradient
+  descent with warm restarts}, in: Proceedings of the 5th International
+  Conference on Learning Representations, 2017.
+\newline\urlprefix\url{https://openreview.net/forum?id=Skq89Scxx}
+
+\bibitem{shu_data_2014}
+A.~Shu, \href{https://scholarship.rice.edu/handle/1911/88119}{Data {Mining} of
+  {Chinese} {Social} {Media}}, Thesis, Rice University, accepted:
+  2016-01-25T21:29:03Z (Oct. 2014).
+\newline\urlprefix\url{https://scholarship.rice.edu/handle/1911/88119}
+
+\bibitem{cheng2021per}
+B.~Cheng, A.~Schwing, A.~Kirillov, Per-pixel classification is not all you need
+  for semantic segmentation, Advances in Neural Information Processing Systems
+  34 (2021) 17864--17875.
+
+\bibitem{chakraborty2021deep}
+S.~Chakraborty, R.~Krishna, Y.~Ding, B.~Ray, Deep learning based vulnerability
+  detection: Are we there yet, IEEE Transactions on Software Engineering
+  (2021).
+
+\bibitem{yang2020hyperparameter}
+L.~Yang, A.~Shami, On hyperparameter optimization of machine learning
+  algorithms: Theory and practice, Neurocomputing 415 (2020) 295--316.
+
+\end{thebibliography}

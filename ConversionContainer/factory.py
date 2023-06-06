@@ -1,6 +1,6 @@
 from flask import Flask
-from routes import blueprint
-from models.util import init_app
+from .routes import blueprint
+from .models.util import init_app
 
 def create_web_app(config_path: str=None) -> Flask:
     """

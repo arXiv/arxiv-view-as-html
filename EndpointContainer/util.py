@@ -1,11 +1,13 @@
 """Utility functions for debugging, downloading/untarring files, 
 and injecting tags into HTML."""
+from typing import Dict
 import os
 import shutil
 import tarfile
 import exceptions
 from bs4 import BeautifulSoup
 from google.cloud import storage
+from jinja2 import Template
 # import io
 
 def list_files(startpath: str) -> None:
@@ -126,91 +128,53 @@ def untar(fpath: str, id: str) -> str:
     except Exception as exc:
         raise exceptions.TarError(f"Tarfile at {fpath} failed to extract in untar()") from exc
 
-def inject_base_tag (html_path: str, base_path: str) -> None:
+def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, payload_fpath: str, **template_args: Dict[str, str]) -> BeautifulSoup:
     """
-    Appends a <base> html tag to the end of the head 
-    section of a given html file
+    Injects arbitrary html into the given parent tag in the src
+    html file. The payload is placed inside the provided parent tag
+    at the given position
 
     Parameters
     ----------
-    html_path : String
+    src_fpath : String
         File path to the html files, relative to the
         /source/templates dir, where all the html 
         should live
-    base_path : String
-        The value that should be assigned to the href
-        attribute of the <base> element. Like...
-        <base href=[base_path]>
-
-    Returns
-    -------
-    None
+    payload_fpath : String
+        The path to the html to be injected
+    parent_tag: str
+        The tag of the parent element. Usually 'head' or 'body'
+    position : int
+        The numerical index of the position of the element in the subtree of the parent_tag
     """
     try:
-        _inject_into_head(html_path, 'base', { 'href' : base_path })
+        with open(f'/source/addons/{payload_fpath}', 'r') as payload:
+            template = Template(payload.read())
+            block = BeautifulSoup(template.render(**template_args), 'html.parser')
+            soup.find(parent_tag).insert(position, block)
+            return soup
     except Exception as exc:
-        raise exceptions.HTMLInjectionError(f"Failed to append values at \
-            {base_path} into html at {html_path}") from exc
+        raise exceptions.HTMLInjectionError(f"Failed to inject {payload_fpath} with {exc}") from exc
+      
 
-def _inject_into_head (html_path: str, tag: str, attribs: dict) -> None:
-    """
-    Injects a tag into the "head" element of the HTML file with
-    attributes 'attribs'. Tag is placed at the end of the "head"
-    element after all existing tags.
+def inject_addons (src_fpath: str, identifier: str):
+    
+    with open(f'/source/templates/{src_fpath}', 'r+') as source:
+        soup = BeautifulSoup(source.read(), 'html.parser')
+        # Inject base tag into head
+        soup = _inject_html_addon(soup, 'head', 6, 'base.html', base_path=identifier.replace('.', '-'))
+        # Inject header block into body
+        soup = _inject_html_addon(soup, 'body', 1, 'header.html')
+        # Inject body message into body
+        soup = _inject_html_addon(soup, 'body', 2, 'body_message.html')
+        # Inject style block into head
+        soup = _inject_html_addon(soup, 'head', 7, 'style.html')
 
-    Parameters
-    ----------
-    html_path : String
-        File path to the html files, relative to the
-        /source/templates dir, where all the html 
-        should live
-    tag : String
-        A valid BeautifulSoup tag
-        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
-    attribs : dict
-        Valid BeautifulSoup tag "attrs"
-        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
-    """
-    try:
-        with open(f'/source/templates/{html_path}', 'r+') as html:
-            soup = BeautifulSoup(html.read(), 'html.parser')
-            new_tag = soup.new_tag(tag)
-            for k, v in attribs.items():
-                new_tag[k] = v
-            soup.find('head').append(new_tag)
-            html.seek(0)
-            html.write(str(soup))
-    except Exception as exc:
-        raise exceptions.HTMLInjectionError(f"Failed to inject {tag} into \
-            head of {html_path} with {exc}") from exc
+        # Add id="main" to <div class="ltx_page_main">
+        soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'
+        
+        # Overwrite original file with the new addons
+        source.seek(0)
+        source.write(str(soup))
+    
 
-def _inject_into_body (html_path: str, tag: str, attribs: dict) -> None:
-    """Injects a tag into the "body" element of the HTML file with
-    attributes 'attribs'. Tag is placed at the end of the "body"
-    element after all existing tags.
-
-    Parameters
-    ----------
-    html_path : String
-        File path to the html files, relative to the
-        /source/templates dir, where all the html 
-        should live
-    tag : String
-        A valid BeautifulSoup tag
-        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
-    attribs : dict
-        Valid BeautifulSoup tag "attrs"
-        https://www.crummy.com/software/BeautifulSoup/bs4/doc/#bs4.Tag
-    """
-    try:
-        with open(f'/source/templates/{html_path}', 'r+') as html:
-            soup = BeautifulSoup(html.read(), 'html.parser')
-            new_tag = soup.new_tag(tag)
-            for k, v in attribs:
-                new_tag[k] = v
-            soup.find('body').append(new_tag)
-            html.seek(0)
-            html.write(str(soup))
-    except Exception as exc:
-        raise exceptions.HTMLInjectionError(f"Failed to inject {tag} into \
-            body of {html_path} with {exc}") from exc

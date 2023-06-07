@@ -7,7 +7,7 @@ from typing import Any, Callable, Optional
 import os
 import datetime
 import config
-from util import get_file, get_log, untar, inject_base_tag
+from util import get_file, get_log, untar, inject_addons
 import exceptions
 from bs4 import BeautifulSoup, Tag
 import google.cloud.logging
@@ -23,17 +23,21 @@ lclient = google.cloud.logging.Client()
 lclient.setup_logging()
 blueprint = Blueprint('routes', __name__, '')
 
-def _get_google_auth () -> tuple[google.auth.credentials.Credentials, str, storage.Client]:
+
+def _get_google_auth() -> tuple[google.auth.credentials.Credentials, str, storage.Client]:
     credentials, project_id = google.auth.default()
     return (credentials, project_id, storage.Client(credentials=credentials))
 
+
 def _get_auth(req: Any) -> Optional[Session]:
     logging.info("request: %s", 'None' if request is None else 'Not None')
-    logging.info("hasattr(request, 'auth'): {%s}", 'True' if hasattr(request, 'auth') else 'False')
+    logging.info("hasattr(request, 'auth'): {%s}", 'True' if hasattr(
+        request, 'auth') else 'False')
     if request and hasattr(request, 'auth') and request.auth:
         return req.auth
     else:
         return None
+
 
 def _get_url(blob_name: Any) -> str:
     credentials, _, client = _get_google_auth()
@@ -53,6 +57,7 @@ def _get_url(blob_name: Any) -> str:
         access_token=credentials.token,
     )
     return url
+
 
 def authorize_for_submission(func: Callable) -> Callable:
     """
@@ -75,7 +80,7 @@ def authorize_for_submission(func: Callable) -> Callable:
             if request and 'submission_id' in request.args and submission_published(request.args.get('submission_id')):
                 # logging.info(f"Submission {request.args['submission_id']} authorized because it's already published")
                 logging.info("Submission %s authorized because it's already published",
-                    request.args['submission_id'])
+                             request.args['submission_id'])
                 return func(*args, **kwargs)
             logging.info("Submission is not published (try)")
         except (exceptions.DBConnectionError, exceptions.DBConfigError) as exc:
@@ -84,18 +89,21 @@ def authorize_for_submission(func: Callable) -> Callable:
         auth = _get_auth(request)
         try:
             if (auth and auth.user and ('submission_id' in request.args)
-                and authorize_user_for_submission(auth.user.user_id, request.args.get('submission_id'))):
+                    and authorize_user_for_submission(auth.user.user_id, request.args.get('submission_id'))):
                 logging.info("Submission %s authorized for user %s because they are the submitter",
-                    request.args['submission_id'],
-                    auth.user.user_id)
+                             request.args['submission_id'],
+                             auth.user.user_id)
                 return func(*args, **kwargs)
             else:
-                return jsonify ({"message": "You don't have permission to view this resource"}), 404 # do make_response
+                # do make_response
+                return jsonify({"message": "You don't have permission to view this resource"}), 404
         except Exception as e:
             logging.info(str(e))
             logging.info("user denied")
-            return jsonify ({"message": "You don't have permission to view this resource"}), 404 # do make_response
+            # do make_response
+            return jsonify({"message": "You don't have permission to view this resource"}), 404
     return wrapper
+
 
 @blueprint.route('/download/submission', methods=['GET'])
 @cross_origin(supports_credentials=True)
@@ -115,7 +123,7 @@ def download_for_sub_id():
     blob_name = request.args.get('submission_id')
     print(f"request blob name is {blob_name}")
     if blob_name is None:
-        return render_template("400.html", error = exceptions.PayloadError("Missing submission id"))
+        return render_template("400.html", error=exceptions.PayloadError("Missing submission id"))
         # Malformed request with no ID
     try:
         tar = get_file(
@@ -129,17 +137,20 @@ def download_for_sub_id():
             logpath = get_log(config.QA_BUCKET_NAME, blob_name, client)
             with open(logpath, "r") as f:
                 log = f.read()
-            return render_template("404.html", error = exc, log = log)
+            return render_template("404.html", error=exc, log=log)
             # No HTML found, conversion log file found
         except Exception as e:
-            return render_template("500.html", error = e)
+            return render_template("500.html", error=e)
             # No HTML or conversion log file found
     except Exception as exc:
-        return render_template("500.html", error = exc)
+        return render_template("500.html", error=exc)
         # File download or untarring went wrong
-    inject_base_tag(source, f"/conversion/templates/{blob_name.replace('.', '-')}/html/")
-    # This corrects the paths for static assets in the html
+    
+    # Inject addons like base tag and overlay
+    inject_addons (source, blob_name)
+
     return render_template("html_template.html", html=source)
+
 
 @blueprint.route('/download/paper', methods=['GET'])
 @cross_origin(supports_credentials=True)
@@ -158,7 +169,7 @@ def download_for_paper_id():
     blob_name = request.args.get('arxiv_id')
     print(f"request blob name is {blob_name}")
     if blob_name is None:
-        return render_template("400.html", error = exceptions.PayloadError("Missing arxiv id"))
+        return render_template("400.html", error=exceptions.PayloadError("Missing arxiv id"))
         # Malformed request with no ID
     try:
         tar = get_file(
@@ -172,15 +183,18 @@ def download_for_paper_id():
             logpath = get_log(config.QA_BUCKET_NAME, blob_name, client)
             with open(logpath, "r") as f:
                 log = f.read()
-            return render_template("404.html", error = exc, log = log)
+            return render_template("404.html", error=exc, log=log)
             # No HTML found, conversion log file found
         except Exception as e:
-            return render_template("500.html", error = e)
+            return render_template("500.html", error=e)
             # No HTML or conversion log file found
     except Exception as exc:
-        return render_template("500.html", error = exc)
+        return render_template("500.html", error=exc)
         # File download or untarring went wrong
-    inject_base_tag(source, f"/conversion/templates/{blob_name.replace('.', '-')}/html/")
+
+    # Inject addons like base tag and overlay
+    inject_addons (source, blob_name)
+
     # This corrects the paths for static assets in the html
     return render_template("html_template.html", html=source)
 
@@ -202,20 +216,25 @@ def test404():
         blob = client.bucket(bucket_name).blob(blob_name)
         blob.download_to_filename(f"/source/errors/{blob_name}")
     except Exception as exc:
-        raise exceptions.GCPBlobError(f"Download of {blob_name} from {bucket_name} failed") from exc
+        raise exceptions.GCPBlobError(
+            f"Download of {blob_name} from {bucket_name} failed") from exc
     with open(f"/source/errors/{blob_name}", "r") as f:
         log = f.read()
-    return render_template("404.html", error = exceptions.GCPBlobError("404 Description"), log = log)
+    return render_template("404.html", error=exceptions.GCPBlobError("404 Description"), log=log)
+
 
 @blueprint.route('/test400', methods=['GET'])
 def test400():
-    return render_template("400.html", error = exceptions.GCPBlobError("400 Description"))
+    return render_template("400.html", error=exceptions.GCPBlobError("400 Description"))
+
 
 @blueprint.route('/test500', methods=['GET'])
 def test500():
-    return render_template("500.html", error = exceptions.GCPBlobError("500 Description"))
+    return render_template("500.html", error=exceptions.GCPBlobError("500 Description"))
 
 # add exception handling
+
+
 @blueprint.route('/upload', methods=['POST'])
 @cross_origin(supports_credentials=True)
 @authorize_for_submission
@@ -238,6 +257,7 @@ def upload():
         return {"message": "No arxiv_id or submission_id specified"}, 400
     return jsonify({"url": url, "out_bucket": out_bucket}), 200
 
+
 @blueprint.route('/poll_submission', methods=['GET', 'OPTIONS'])
 @cross_origin(supports_credentials=True)
 @authorize_for_submission
@@ -255,14 +275,17 @@ def poll():
     try:
         _, _, client = _get_google_auth()
     except Exception:
-        logging.critical("Failed to get GCP credentials or create storage client")
+        logging.critical(
+            "Failed to get GCP credentials or create storage client")
         return {'exists': False}, 500
     arxiv_id = request.args.get('arxiv_id')
-    arxiv_conv_bucket = client.bucket(current_app.config['CONVERTED_BUCKET_ARXIV_ID'])
+    arxiv_conv_bucket = client.bucket(
+        current_app.config['CONVERTED_BUCKET_ARXIV_ID'])
     if arxiv_id and arxiv_conv_bucket.blob(arxiv_id).exists():
         return {'exists': True}, 200
     submission_id = request.args.get('submission_id')
-    sub_conv_bucket = client.bucket(current_app.config['CONVERTED_BUCKET_SUB_ID'])
+    sub_conv_bucket = client.bucket(
+        current_app.config['CONVERTED_BUCKET_SUB_ID'])
     if submission_id and sub_conv_bucket.blob(submission_id).exists():
         return {'exists': True}, 200
     qa_bucket = client.bucket(current_app.config['QA_BUCKET_NAME'])
@@ -278,4 +301,3 @@ def poll():
             print(f"{submission_id} log found with no converted html")
             return {'exists': True}, 200
     return {'exists': False}, 200
-        

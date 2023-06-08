@@ -1,0 +1,142 @@
+\documentclass[5p,twocolumn,times]{elsarticle}
+
+\usepackage{amssymb,amsmath}
+
+% tables
+\usepackage{booktabs}
+\usepackage{multirow} % merge table rows and columns
+%
+% make fonts of all tables smaller
+%
+% https://tex.stackexchange.com/questions/286733/change-content-font-in-tabular-environments
+\makeatletter
+\newcommand*\my@starttable[1][]{%
+	  \@float{table}[#1]\footnotesize
+		}
+		\patchcmd{\table}{\@float{table}}{\my@starttable}{\PackageInfo{mysty}{Table environment patched successfully.}}{\PackageWarning{mysty}{Could not patch table environment.}}
+\makeatother
+
+
+% code listing
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+
+
+
+%
+% source code listing
+%
+\lstdefinestyle{jsonstyle}{
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+
+% urls
+\usepackage[hidelinks]{hyperref}
+
+% subfigures
+\usepackage{caption}
+\usepackage{subcaption}
+
+% line arts
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, shadows}
+
+
+% flushend
+\usepackage{flushend}
+
+
+
+%\journal{Computer \& Security}
+\journal{~}
+
+% 
+% various commands
+%
+\usepackage{xspace} 
+\input{datastats}
+\newcommand{\code}{\texttt}
+
+\begin{document}
+\begin{frontmatter}
+
+	\title{Detecting Network-based Internet Censorship 
+	via Latent Feature Representation Learning}
+	\author[bc]{Shawn P. Duncan}
+	%\ead{shawn.duncan53@bcmail.cuny.edu}
+
+	\author[bc,gc]{Hui Chen\corref{cor1}}
+	%\ead{huichen@ieee.org}
+	\affiliation[bc]{organization={Department of Computer \& Information Science, CUNY Brooklyn College},%Department and Organization
+            addressline={2900 Bedford Avenue}, 
+            city={Brooklyn},
+            postcode={11210}, 
+            state={NY},
+            country={USA}}
+	\affiliation[gc]{organization={Department of Computer Science, CUNY Graduate Center},%Department and Organization
+            addressline={365 5th Avenue}, 
+            city={New York},
+            postcode={10016}, 
+            state={NY},
+            country={USA}}
+	%\cortext[cor1]{Corresponding author}
+
+
+	\begin{abstract}
+		\input{abstract}
+	\end{abstract}
+
+	\begin{keyword}
+		Internet censorship \sep 
+		Internet censorship detection \sep
+		Network-based Internet censorship detection \sep 
+		Deep neural network \sep 
+		Feature representation learning
+
+	%% PACS codes here, in the form: \PACS code \sep code
+
+	%% MSC codes here, in the form: \MSC code \sep code
+	%% or \MSC[2008] code \sep code (2000 is the default)
+	\end{keyword}
+
+\end{frontmatter}
+
+\input{intro}
+\input{related}
+%\input{bg}
+\input{system}
+\input{eval}
+\input{threats}
+\input{summ}
+
+\input{ack}
+
+\biboptions{sort&compress}
+\bibliographystyle{elsarticle-num} 
+\bibliography{paper}
+
+% \vskip 4em
+% \pagebreak
+% \vskip 4em
+% \input{duncan}
+% \subsection*{ } % This subsection (with no heading) is added to give more space between two biographies
+% \input{chen}
+
+
+\end{document}
+\endinput
+
+

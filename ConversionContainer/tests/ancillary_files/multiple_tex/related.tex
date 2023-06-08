@@ -1,0 +1,176 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{Internet Censorship} 
+Internet Censorship has been a global phenomenon, which has attracted a
+sustained research interest and resulted in a plethora of literature.  
+%
+A significant body of the literature is to understand the prevalence of
+censorship, such as, to measure the online content, the network protocols and
+applications, and the geographical regions that are subject to
+censorship~\cite{aryan2013internet, nabi2013anatomy, singh2017characterizing,
+yadav2018light, ng2018detecting,
+meserve2018google, bock2021even, padmanabhan2021multi, ververis2021understanding}.  
+%
+Another is to unpack the censorship mechanisms, such as,
+IP-based blocking, TCP packet injection, Transparent proxy,  DNS manipulation,
+and SNI filtering~\cite{aceto_internet_2015, chai2019importance, bock2021even,
+niaki2020iclab}.  
+
+This work is not aimed to expand these bodies of knowledge.  Instead, our focus
+is about the design of the ``end-to-end'' network-based Internet censorship
+detection system by leveraging the recent advances in deep learning and a wealth
+of network reachability data collected by the large scale Internet measurement
+platforms. 
+
+
+\paragraph{Censorship Measurement Platforms}
+Large scale remote network measurement
+platforms for studying Internet censorship have emerged over the last decade.~\cite{niaki2020iclab,
+filasto2012ooni, sundara_raman_censored_2020, pearce2017augur,
+pearce2017global, scott2016satellite, vandersloot2018quack, raman_measuring_2020,
+jin2021understanding}. These platforms fall into two broad categories with regard to the measurement
+methods employed and the selection and use of vantage points.
+
+Some platforms
+like OONI~\cite{filasto2012ooni}, ICLab~\cite{niaki2020iclab}, and
+Disguiser~\cite{jin2021understanding} use a mixture of volunteer hosts, 
+selected VPN servers, SOCKS Proxies, or RIPE Atlas servers as vantage 
+points. From these vantage points the platforms make attempts to access a brand range
+of content and services on the Internet, typically {\em like an
+ordinary user would do}, and collect reachability data.  
+
+Platforms like Censored
+Planet~\cite{sundara_raman_censored_2020} take a different approach. Using systems like
+Augur~\cite{pearce2017augur}, Iris~\cite{pearce2017global},
+Satellite~\cite{scott2016satellite}, Quack~\cite{vandersloot2018quack}, and
+HyperQuack~\cite{raman_measuring_2020}, these platforms rely on {\em network side-channels} to
+gauge potential network censorship events. The distinction here is that
+ordinary users would not access online content and services via these
+side-channels; however, the platforms can select servers that support the
+side-channel measurement mechanism globally as the vantage points.  These two
+categories of platforms are complementary. For instance, Censored Planet can
+select far more vantage points to provide a more complete geographical and
+network coverage and continuity than OONI and
+ICLab~\cite{sundara_raman_censored_2020}; however, the censorship mechanisms
+that are applied to ordinary network traffic may not be always applicable to
+the network side-channels, and as such, Censored Planet may not be able to
+detect some Internet censorship events, which can lead to higher false negative
+rate than OONI and ICLab~\cite{niaki2020iclab}.  
+
+The platforms are the foundation and the motivation of this work. First, these
+platforms are continuously collecting network measurement data, which provides
+a foundation for the proposed data-driven Internet
+censorship detection systems using deep neural networks. Second, the platforms have made available 
+a large collection of censorship fingerprints, e.g., Censored Planet makes
+available a tool to scan the collected data records to match a set of known
+censorship fingerprints. Our system adopts a supervised learning model to
+classify network reachability data records, and for this the fingerprints and
+the tool are particularly useful to create labeled training data set 
+for the classification model.
+Third, some platforms use machine learning, particularly, unsupervised
+learning to cluster network reachability data records to design new censorship
+fingerprints~\cite{raman_measuring_2020, niaki2020iclab}, which is a 
+laborious process and requires human expertise. This
+observation motivates us to propose the end-to-end network-based
+Internet censorship detection systems. 
+
+For this work, we elect to use the Censored Planet data set to study the
+proposed approaches to detect network-based Internet censorship.  Censored Planet
+is distinct in that the
+platform collects network measurement data on network side-channels.  The
+censorship measured is therefore network-based censorship other than
+host and server-based censorship~\cite{aceto_internet_2015} --- an exception may 
+be censorship mechanism deployed on host-based network filters or firewalls.  
+
+\paragraph{Machine Learning for Censorship Detection}
+Our work is a machine learning-based approach for censorship detection. There are
+studies that propose machine learning approaches for censorship
+detection. For instance, a study uses machine learning to understand Chinese
+social media censorship~\cite{li2015predicting}.  However, these approaches are
+for the host-based or the server-based censorship because the data used in
+their studies are the content of the blogs being censored.  Different from
+those, our work is on network-based Internet censorship detection in that the
+data on which our approaches rely are network measurement data and do not include
+the online content being censored.
+
+Additionally, machine learning has been used to design sophisticated
+Internet censorship methods or to recognize certain types of network
+traffic~\cite{gao2021machine, trivedi2016fully}. This trend adds urgency to studies
+on machine-learning based censorship detection like this one. This necessity of this
+work is increased given that the literature on detecting
+network-based Internet censorship using machine learning is still rare.
+
+
+\paragraph{Learning from Network Measurement Data}
+This work is about learning from the network reachability data collected by
+censorship measurement platforms to detect Internet censorship. The network
+reachability data is a type of network measurement data. A deep learning model
+has been used to characterize Internet hosts. In particular, a variational
+autoencoder, an unsupervised neural network model, was previously designed to construct
+low-dimensional embeddings of the high-dimensional binary representations of
+the IP intelligence data collected by Censys, a type of network measurement
+data~\cite{sarabi_characterizing_2018}.  Our work significantly
+benefits from this and in spirit is an application of such an approach. 
+However, there are
+several differences.  First, the problem we investigate, network-based
+Internet censorship detection, is distinct from host characterization. Second, our
+approach to infer the low-dimensional embeddings is a sequence-to-sequence
+model, which is motivated by the observation that the order of data elements
+matters. Third, we compare the latent feature representation approach with a
+state-of-the-art image-based approach. Finally, we design an engineering
+solution to overcome the hurdle that the censorship network 
+measurement data are enormous.  
+
+
+
+
+% Our work is about the design of an ``end-to-end'' system by adopting recent
+% machine learning technique. Related to this is the work that use machine
+% learning for network measurement data. 
+
+
+% An emerging line of work adopts remote measurement techniques to study Internet censorship.
+% 
+% 
+% 
+% 
+% 
+% and to measure the prevalence of censorship, such
+% as .
+% 
+% 
+% Content-based censorship detection -- require access to content. 
+% Difficult to observe from unharmful manner.
+% 
+% 
+% Machine learning based approach
+% 
+% 
+% Censored planet using clustering (features). 
+% 
+% 
+% The researchers at Censored Planet have been processing their data
+% using filtering scripts based on features defined by their knowledge
+% of the censorship domain. Central to their approach has been a
+% set of "block page fingerprints" which are strings of text found in
+% the HTML of known block pages. [5] Responses are processed via
+% regular expressions to identify matches with these strings. This
+% fingerprint matching process has been the primary means of finding
+% censored responses. Recently, the Censored Planet team also began
+% rendering the HTML response into an image, and using an image
+% classifying neural network, ResNet50, to cluster responses. [20]
+% They then examine a sample of each cluster to verify block pages,
+% identify new pages and engineer a new fingerprint.
+% The Censored Planet researchers intentionally chose the image of
+% a block page for processing through ResNet50 because block pages
+% from the same tool can be constructed in various languages. From
+% the researchers’ perspective the similarity of visual design allows
+% them to ignore the language of the text. However, the deep learning
+% models of Natural Language Processing would open the features
+% of the text to be sources of insight. In addition, a visual inspection
+% of the page even by a deep learning network does not include any
+% data from the headers or other metadata surrounding the request
+% and response.
+% 
+% 

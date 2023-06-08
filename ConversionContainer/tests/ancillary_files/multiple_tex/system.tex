@@ -1,0 +1,505 @@
+\section{Censorship Feature Representation and Detection}
+\label{sec:design}
+
+\begin{figure*}[!htbp]
+	\centering
+	\begin{subfigure}[b]{\textwidth}
+	\centering
+	\begin{tikzpicture}
+		\tikzset{
+			node distance=0.2in and 0.2in,
+			inout/.style={rectangle, draw, dashed, black, align=center, font=\footnotesize,
+			minimum height=0.5in, rounded corners=0pt},
+			box/.style={rectangle, draw, solid, black, drop shadow, fill=white, align=center, font=\footnotesize,
+			minimum height=0.5in, rounded corners=3pt}
+		}
+		\node[inout](data){Network \\ Reachability \\ Data};
+		\node[box, right=of data](tovec){Preprocessing \\ \& \\Vectorizing};
+		\node[inout, right=of tovec](vector){Raw \\ Vector};
+		\node[box, right=of vector](ae){Sequence-to-Sequence\\Autoencoder\\(Censor2Seq)};
+		\node[inout, right=of ae](embedding){Embeddings};
+		\node[box, right=of embedding](classifier){Censorship\\Classifier\\(CD Classifier)};
+		\node[inout, right=of classifier](decision){Deicision \\(Censorship\\Probability)};
+
+		\draw[-latex](data) -- (tovec);
+		\draw[-latex](tovec) -- (vector);
+		\draw[-latex](vector) -- (ae);
+		\draw[-latex](ae) -- (embedding);
+		\draw[-latex](embedding) -- (classifier);
+		\draw[-latex](classifier) -- (decision);
+
+		
+	\end{tikzpicture}
+	\caption{An End-to-End Network-based Internet Censorship Detection Pipeline with Latent Feature Representation Learning}
+	\label{fig:pipeline}
+	\end{subfigure}
+	\vskip 1.0em
+	\begin{subfigure}[b]{\textwidth}
+	\centering
+	\begin{tikzpicture}
+		\tikzset{
+			node distance=0.2in and 0.2in,
+			inout/.style={rectangle, draw, dashed, black, align=center, font=\footnotesize,
+			minimum height=0.5in, rounded corners=0pt},
+			box/.style={rectangle, draw, solid, black, drop shadow, fill=white, align=center, font=\footnotesize,
+			minimum height=0.5in, rounded corners=3pt}
+		}
+		\node[inout](data){Network \\ Reachability \\ Data};
+		\node[box, right=of data](tovec){Preprocessing \\ \& \\Vectorizing};
+		\node[inout, right=of tovec](vector){Raw \\ Vector};
+		\node[box, right=of vector](imaging){Character-to-Pixel\\Processing};
+		\node[inout, right=of imaging](images){Gray-Scale\\Images};
+		\node[box, right=of images](classifier){Censorship\\Classifier\\(DenseNet)};
+		\node[inout, right=of classifier](decision){Deicision \\(Censorship\\Probability)};
+
+		\draw[-latex](data) -- (tovec);
+		\draw[-latex](tovec) -- (vector);
+		\draw[-latex](vector) -- (imaging);
+		\draw[-latex](imaging) -- (images);
+		\draw[-latex](images) -- (classifier);
+		\draw[-latex](classifier) -- (decision);
+
+		
+	\end{tikzpicture}
+	\caption{An Alternative Network-based Internet Censorship Detection Pipeline with Image Classification}
+	\label{fig:pipeline:densenet}
+	\end{subfigure}
+	\caption{Processing pipelines of proposed models}
+	\label{fig:models}
+\end{figure*}
+
+We propose an end-to-end network-based Internet censorship detection system 
+whose processing pipeline is 
+as shown in Figure~\ref{fig:pipeline}. The pipeline begins with converting
+network reachability data to numerical vectors, i.e, raw vectors as detailed in
+Section~\ref{sec:design:vector}.  We design a sequence-to-sequence autoencoder
+model as the next processing component in the pipeline, and it is to infer
+latent feature representation in embedding space (called embedding vectors)
+from the raw vectors. We discuss this component in Section~\ref{sec:design:fl}.
+Finally, we classify each embedding vector by a fully-connected neural
+network, which we present in Section~\ref{sec:design:cd}. For
+convenience, we refer to this system as the E2ECD model. To evaluate this
+proposed system, we propose an alternate one as in
+Figure~\ref{fig:pipeline:densenet} and document it in
+Section~\ref{sec:design:alternate}.
+
+
+
+
+
+\subsection{Structured and Textual Data to Numerical Vectors}
+\label{sec:design:vector}
+
+The censorship measurement platforms run tests to collect network reachability
+data. A test typically consists of a request and a response where a no-response
+or timeout event is considered a response. There are {\em three challenges} to process
+the data collected by the measurement platforms.  First, the network
+reachability data recorded by the censorship measurement platforms are
+large and overwhelm our local storage capacity, and likely that of other
+researchers who wish to pursue a similar research agenda.  Second, the requests
+and responses are structured data. For instance, Censored Planet runs HyperQuack
+tests where a test consists of an Echo request and a response, and records the
+request and the response in the JSON format. Figure~\ref{fig:quack:data} is an
+example data record. As shown, the entire data record is structured.
+Furthermore, the values of some data fields are either structured or
+semi-structured. For instance, the numbers in an IP address have different
+meaning as the address has both host number and network number while the
+response field can be in several formats, such as, in HTML with embedded
+JavaScript (as illustrated in Listing~\ref{fig:quack:data}). 
+Third, the combination of the overwhelming amount of data and the feature 
+representation learning via deep neural networks can demand excessive computational resources, and thus there is need to balance feature representation learning effectiveness and required computational resources. 
+
+
+%\begin{figure}
+\begin{lstlisting}[float=tbh, style=jsonstyle, % 
+caption={An example of HyperQuack test data record. We truncated the record to save
+space. The response field is an array, and as such, an actual record can have multiple response bodies, where each response body corresponds to a block page; however, 
+we transform each of those records to multiple records, each of which has a single 
+response body. See Section~\ref{sec:eval:data} for detailed discussion.}, %
+label=fig:quack:data]
+
+{
+  "vp": "114.116.151.108",
+  "location": {
+    "country_name": "China",
+    "country_code": "CN"
+  },
+  "service": "echo",
+  "test_url": "666games.net",
+  "response": [
+    {
+      "matches_template": false,
+      "response": "HTTP/1.1 403 Forbidden\nContent-Type: text/html; charset=utf-8\nServer: ADM/2.1.1\nConnection: close\nContent-Length: 520\n\n<html>\n\t<head>\n\t\t<meta http-equiv=\"Content-Type\" content=\"textml;charset=GB2312\" />\n\t\t<style>body{background-color:#FFFFFF}</style> \n\t\t<title>\u975e\u6cd5\u963b\u65ad222</title>\n\t\t<script language=\"javascript\" type=\"text/javascript\">\n         window.onload = function () { \n           document.getElementById(\"mainFrame\").src= \"http://114.115.192.246:9080/error.html\";\n            }\n\t\t</script>   \n\t</head>\n\t<body>\n\t\n\t\t<iframe style=\"width:100%; height:100%;\" id=\"mainFrame\" src=\"\" frameborder=\"0\" scrolling=\"no\"/>\n\t</body>\n</html>\n",
+      "start_time": "2021-07-19T01:07:35.692415469-04:00",
+      "end_time": "2021-07-19T01:07:37.135588863-04:00"
+    },
+  ],
+  "anomaly": false,
+  "controls_failed": false,
+  "stateful_block": false,
+  "tag": "2021-07-19T01:01:01"
+}
+\end{lstlisting}
+
+\paragraph{Streaming I/O for Large Scale Machine Learning} To address the
+overwhelming amount of data records, we opt for an engineering solution that can
+iterate through the data directly from their cloud storage and process the data
+records as a data stream. Our engineering solution based on
+WebDataset~\cite{aizman_high_2019} is publicly available as a Python
+module~\cite{shawn_p_duncan_censored_2022}.  
+
+\paragraph{Vectorizing Structured Data}
+Our aim here is to capture nuances from the structured network measurement data records, and at the same time produce relatively small input vectors, which is driven in part to address the latter two challenges discussed above. 
+
+An example of the Censored Planet measurement data record is given in
+	Listing~\ref{fig:quack:data}. Each record can have multiple responses for a
+	test request value.  Because of this, to begin to process such test data, we
+	pair the top level metadata corresponding to a request to each unique
+	response to form a test record.  Such data records are structured as it
+	follows a tree-like structure as dictated by its syntax, e.g., in JSON syntax
+	and contains multiple data types of data.
+	As required by machine learning models, we need to
+	transform each test record to a numerical 
+	vector~\cite{sarabi_characterizing_2018}.  It is important to note
+	that we treat a test record as a sequence in order to preserve the
+	structure of the field values.  We generally follow the
+	spirit of the prior method that parses JSON data
+	records~\cite{sarabi_characterizing_2018} to transform test records to
+	sequences in a consistent and predictable manner, however 
+	with several distinctions that we detail below.  The end result is a set of
+	numerical vectors. For convenience, we
+	refer to the numerical vector of a test record as the vector representation of
+	the record or the raw vector. 
+
+The transformation method is as follows. First, we process simple data fields,
+e.g., \code{Datetime} fields in ISO format are transformed to UNIX timestamps, \code{Boolean}
+fields transformed to a 1 or 0, and we split and convert the IP addresses into
+sequential integers. We hold all this simple integer data and encode it as described below.
+%
+Second, two fields that contain text, \code{test\_url} and \code{response} need a more specialized
+approach.  The \code{response}
+field can contain the HTTP response code and
+string, the HTTP headers, and the markup of a block page with text in a variety of
+languages, e.g., the \code{response} field in the example in
+Figure~\ref{fig:quack:data} is a concatenation of the response code and string concatenated, the
+HTML headers, and HTML that contains an embedded
+JavaScript. Some versions of Censored Planet data separate these elements into their own fields within
+a nested JSON object.  We concatenate the \code{test\_url} followed by the \code{response} data into a single string. This string is relatively long when compared to the rest of the field. Aiming to reduce smaller input vectors, 
+we then take advantage of the XLM-R multilingual transformer model
+to process this string into numeric tokens~\cite{conneau2020unsupervised}. Figure~\ref{fig:xlmr} illustrates the processing pipeline
+for these data fields. 
+
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tikzpicture}
+		\tikzset{
+			node distance=0.2in and 0.2in,
+			inout/.style={rectangle, draw, dashed, black, align=center, font=\footnotesize,
+			minimum height=0.25in, rounded corners=0pt},
+			box/.style={rectangle, draw, solid, black, drop shadow, fill=white, align=center, font=\footnotesize,
+			minimum height=0.25in, rounded corners=3pt}
+		}
+		\node[inout](url){\code{test\_url} field};
+		\node[inout, below=of url](resp){\code{response} field};
+		\node[box, right=of resp, yshift=0.25in](token){Extract text token\\using XML-R};
+		\node[box, right=of token](dict){Form \\ token dictionary};
+		\node[box, right=of dict](xmlr){Index text tokens  from\\pretrained XML-R};
+		\node[box, right=of xmlr](filter){Filter out\\token indices\\per the dictionary};
+		\node[inout, right=of filter](vector){Token index \\vectors};
+
+		\draw[-latex](url) -- (token);
+		\draw[-latex](resp) -- (token);
+		\draw[-latex](token) -- (dict);
+		\draw[-latex](dict) -- (xmlr);
+		\draw[-latex](xmlr) -- (filter);
+		\draw[-latex](filter) -- (vector);
+
+		
+	\end{tikzpicture}
+	\caption{Multilingual data processing of the \code{test\_url} and \code{response} fields and dimensionality reduction via 
+	a pretrained XLM-R model~\cite{conneau2020unsupervised}. 
+	The \code{response} field can contain natural language text and program code. To reduce the size of the encoding vectors, We
+	filter out those with low frequency, such as, those do not appear in our data (i.e., frequency is 0) or rarely appear depending
+	on the constraint of the available computational resources. In this work, by filtering out tokens with frequency of 0, we reach
+	sufficiently small embedding vectors of length of 6,813.}
+	\label{fig:xlmr}	
+	
+\end{figure*}
+
+The XLM-R transformer uses just over 250,000 tokens. Given the amount of the data records we process, 
+the demand of both memory and CPU time during feature representation learning is unbearable.  
+We reduce the size of the token vocabulary so that
+the training tasks would fit within the computing capacity available to us.  We do this by creating a
+sequential index of the 6,813 XLM-R tokens needed to encode all the text in our datasets. We use the index
+value in our vectors rather than the corresponding XLM-R value. The maximum value in our simple integer data
+described above is 256.  We encode these integers as tokens also, so there are 7,069 possible token values
+which is substantially smaller that XLM-R vocabulary.  The final raw vector begins with the variable length encoded
+text which begins with XLM-R sequence start and sequence end tokens.  Appended to this variable length data are the simple integer tokens
+which are also surrounded by XLM-R sequence start and sequence end tokens.
+
+\subsection{Feature Representation Learning}
+\label{sec:design:fl}
+The next step in our method is to learn latent feature representations from the raw vectors.
+For this we build an unsupervised
+sequence-to-sequence neural network model. For convenience, we call this model
+Censor2Seq.  
+
+
+The latent feature representations are often
+referred to as embeddings~\cite{sarabi_characterizing_2018}. The learning here
+is essentially to determine an embedding function $E : X \rightarrow Y$ that
+takes an input $x \in X$ in a $m$-dimensional space and produces its
+corresponding numerical vector $y \in Y$ in a n-dimensional vector space, where
+$n \ll m$. The advantage of the embeddings are well discussed in the
+literature~\cite{sarabi_characterizing_2018}. A primary advantage is that a
+well-designed low-dimensional embedding function can infer embedding vectors
+that retain information in raw input data in much higher dimension and offers
+significant computational advantage due to low dimensionality and the 
+continuity of the embedding space. 
+
+We follow the typical encoder-decoder
+architecture~\cite{sarabi_characterizing_2018, rezende2014stochastic} to design
+the feature representation learning model. The architecture of the model is in
+Figure~\ref{fig:model:arch}. 
+The model takes the raw numerical
+vectors as input. Each vector is a sequence of tokens, 
+the set of tokens of all the row vectors is the ``vocabulary'', and each token is represented by an
+integer that indexes the token in the vocabulary. The model consists of an
+encoder block, a decoder block, and a predictor block. 
+
+The predictor is straightforward. The inputs to the predictor are the
+concatenated vector of a weighted context vector ($\vec{c}$) and the state
+vector ($\vec{h}$) of the decoder block that we shall discuss later. 
+The predictor outputs a series of probabilities ($\vec{p}$)
+across the range of possible tokens, representing a discrete probability mass
+function over the vocabulary. 
+The weighted context vector here is to capture
+the importance of different source-side information (e.g., which element in the state
+vector) for predicting the probability of a particular token in the vocabulary~\cite{luong2015effective}.
+We shall give a more detailed treatment of the context vector below (See the discussion about Equation~\eqref{eq:attention}). 
+These probabilities are then used to compute a
+cross-entropy loss at each step in the decoding process. The summation of
+these losses for all decoding steps is used as the loss for the current input. 
+The cross-entropy loss function is well-known and is estimated as follows, 
+
+\begin{equation}\label{eq:loss}
+	\mathcal{L}(\mathbf{x}, \mathbf{p}) = - \frac{1}{m}
+		\sum\limits_{i=0}^{m-1}
+			\sum\limits_{t=0}^{T-1}
+				{p}_i({x_i}_{t})
+\end{equation}
+
+\noindent where $\mathbf{x}$ represents the batch of training data consisting
+of $m$ raw vectors of censorship test records, $\vec{x_i}$ the $i$-th vector
+of $\mathbf{x}$, ${x_i}_{t}$ the $t$-th item of $\vec{x_i}$,
+${p}_i(\vec{x_i}_t)$ its probability mass, and $T$ the length of
+$\vec{x}$ or the total time steps. 
+
+
+
+\begin{figure}[!htbp]
+	\centering
+	\begin{tikzpicture}
+		\tikzset{node distance=0.3in and 0.1in,
+			box/.style={rectangle, draw, drop shadow, fill=white, align=center, 
+			font=\footnotesize},
+		}
+		\node[box](x){$\vec{x}$};
+		\node[box, right=of x](enc){GRU\\Auto-\\encoder};
+		\node[box, right=of enc](y){$\vec{y}$};
+		\node[box, right=of y](dec){GRU\\Auto-\\decoder};
+		\node[box, right=of dec](zc){$\vec{h}$\\$\vec{c}$};
+		\node[box, right=of zc](pred){Predictor};
+		\node[box, right=of pred](xcap){$\vec{p}$};
+
+		\node[box, right=of xcap](loss){$\mathcal{L}(\vec{x}, \vec{p})$};
+
+		\coordinate[below=of x](c1){};
+		\coordinate[below=of loss](c2){};
+
+		\draw[-latex](x) -- (enc);
+		\draw[-latex](enc) -- (y);
+		\draw[-latex](y) -- (dec);
+		\draw[-latex](dec) -- (zc);
+		\draw[-latex](zc) -- (pred);
+		\draw[-latex](pred) -- (xcap);
+
+
+		\draw(x) -- (c1);
+		\draw(c1) -- (c2);
+		\draw[-latex](c2) -- (loss);
+		\draw[-latex](xcap) -- (loss);
+
+	\end{tikzpicture}
+	\caption{The architecture of the encoder-decoder model for
+	sequence-to-sequence feature representation learning where $\vec{x}$ is
+	a raw vector in a high-dimensional space, $\vec{p}$ is akin to
+	an estimate of $\vec{x}$, $\vec{y}$ is the embedding vector in a
+	low-dimensional embedding space, and $\mathcal{L}$ is the loss function. The
+	learning algorithm is to minimize $\mathcal{L}$.}
+	\label{fig:model:arch}
+\end{figure}
+
+The encoder is a bidirectional Gated Recurrent Unit (GRU). It takes a vector
+representation as input and outputs a sequence of states, i.e., $h_t$ at time
+step $t$. The final state
+summarizes the entire vector representation and is the embedding of the test
+record, i.e., $\vec{y}$ in Figure~\ref{fig:model:arch}. Note that 
+$\vec{y} = h_{T-1}$  where $T-1$ is the last temp step. 
+
+
+
+The complexity of the model is in the decoder where we take advantage of
+several mechanisms to help with training speed and convergence. The decoder
+takes the output of the encoder (i.e., $\vec{y}$) as input and attempts to
+restore the input to its original form (i.e., $\vec{x}$). 
+
+First, before processing an input sequence, we use a simplification of
+scheduled sampling~\cite{raff_inside_2021, mihaylova-martins-2019-scheduled}.
+This sampling selects the inputs for the decoder by randomly switching
+between \textit{auto-regression} and \textit{teacher forcing}. 
+The difference between these two strategies
+begins with the second item of the input sequence (i.e., $\vec{y}$). 
+If auto-regression has been
+chosen the inputs will be sampled from the range of the vocabulary using the
+probabilities produced by the predictor block (i.e., $\vec{p}$).  If teacher
+forcing is chosen, the decoder inputs are the same as the inputs to the
+encoder. 
+
+The decoder is a sequence of bidirectional Gated Recurrent Unit Cells. We enhance
+it with an attention mechanism~\cite{niu2021review}, in particular, the ``dot'' 
+attention mechanism~\cite{luong2015effective}. 
+Instead of using fixed
+neuron weights, the attention mechanism allows us to enhance the 
+effect of some parts of the input data while diminishing other parts for predicting
+token probabilities via attention scores. 
+In one
+direction, each token in the input sequence is processed through the GRU cells.
+In the other direction, we calculate attention scores. Attention scores are
+computed using a dot product~\cite{raff_inside_2021}
+
+\begin{equation} \label{eq:attention}
+score(h_t, c_t) = \frac{h_t^T \cdot c_t}{\sqrt{H}}
+\end{equation}
+
+\noindent with values of $h_t$ taken from the state produced at step $t$ by the
+encoder, $h_t^T$ is $h_t$'s transpose, $c_t$ is the context, 
+and $H$ is the
+input size used for the GRU Cell. We compute $c_t$ as the decoder output at step $t$.
+We use the attention scores to weight the input sequence at each step of the decoding process.
+
+
+The use of the model consists of two phases, training and
+inference.  Given a set of vector representation of the test records, we train
+the model by minimizing the entropy loss function in equation~\eqref{eq:loss}.
+With a trained model, we infer the embedding of a test record by feeding the
+model with the numerical vector representation of the test record 
+and take the output of the
+encoder as the embedding.  The model is an unsupervised learning model during
+training and inference, and as such, no labels of censorship are given. 
+
+
+
+\subsection{Censorship Classification}
+\label{sec:design:cd}
+An advantage of embedding is its versatility, due in part to the continuity
+of the embedding space. It can be fed to a variety of
+machine learning models. The central question we want to answer is,
+``is the reachability problem the result of censorship?''  
+For this purpose, we construct a multiple-layer fully-connected 
+dense neural network with three layers as a binary classifier: an input layer
+matching the dimension of the embeddings produced by the autoencoder, an output
+layer that further refines the output of the hidden layer to a probability, and
+a hidden layer in between. For convenience, we call this neural network
+the CD classifier. 
+
+
+\subsection{Alternative Approach}
+\label{sec:design:alternate}
+
+Prior works typically adopt a semi-automated approach for Internet censorship 
+detection, where they first leverage an unsupervised machine learning algorithm,
+such as, a clustering algorithm to divide Internet outage measurements, e.g.,
+block pages into clusters, and second, manually examine the clusters to determine
+whether the cluster represents a type of Internet 
+censorship~\cite{raman_measuring_2020, niaki2020iclab}. A necessary step
+in the process is to extract data features from the internet
+measurement data. Page length and term frequency vectors are two features
+borrowed from natural language processing to cluster block 
+pages~\cite{jones2014automated}. Although the clustering algorithm
+using the two features reduces manual efforts to examine the clusters,
+several follow-up studies indicate that the features can lead to 
+high false positives due to natural variations in page length from dynamic
+and language-specific content~\cite{yadav2018light, raman_measuring_2020}. 
+Recognizing the limitation of the two features, researchers are seeking 
+different feature representation methods for Internet measurement data, such as,
+block pages~\cite{raman_measuring_2020}.
+
+Deep learning has found tremendous success in computer
+vision~\cite{huang_densely_2017, li_fei-fei_imagenet_2012}. In contrast to 
+more traditional learning algorithms, such as, Super-Vector Machine and 
+Tree-based algorithms (Decision Tree, Random Forest) for which we need to
+extract from the raw data manually designed features to represent the data
+in a tabular form, deep learning can learn to extract features directly
+from the raw data, which, numerous studies show it is an advantage because
+we do not always know what the best features might be for a particular 
+machine learning application~\cite{bengio2013representation}. 
+A clever way to
+design a learning system for non-tabular data is to take
+advantage of these recent advances in deep learning by encoding the data as
+gray-scale images and use a deep learning model for computer vision that is
+readily available to learn
+from these images. There have been applications of this approach in several
+domains, such as, for malware detection~\cite{hemalatha_efficient_2021} and for
+software defect prediction~\cite{chen2020software}.  A gray-scale image can be
+encoded using a byte pallet, in which the range from black to white is encoded
+as an integer between 0 and 255. In other words, we can consider a gray-scale
+image as a vector of $W \times H$ integers where $W$ is the width of the image
+and $H$ the height. For our structured data, after converting a
+censorship test record similar to that in Listing~1 into a
+raw vector, we pad the
+beginning and end of the vector with sufficient 0 to 
+equal a uniform length of size $W \times H$. We then export this vector to a
+sequence of bytes, reshape the vector to a $W \times H$ array from which we
+form the gray-scale image.
+
+Recently several works
+have adopted this approach in their semi-automated censorship detection
+pipeline and find that the approach leads to improved predictive performance
+than those using the page length and term frequency vector 
+features~\cite{raman_measuring_2020, sundara_raman_censored_2020}. 
+Following these prior works, we build a fully-automated Internet censorship detection model
+where we use images as feature representations of block pages. For this,
+we elect to use the well-known DenseNet
+model~\cite{huang_densely_2017}.  DenseNet uses the architecture of a Convolutional
+Neural Network (CNN). A DenseNet has multiple CNN blocks that have the
+following neuron connectivity pattern: each layer in the CNN block
+is connected to all the others with the block. Due to this connectivity
+pattern, there is a shortcut path between each individual layer to the loss
+function and the training of the layer can be directly supervised by the loss
+function. Aside from this, the connectivity pattern also results in a compact
+network that is less prone to overfitting and encourages heavy feature reuse.
+Because of this, prior work suggests that DenseNet should be a natural fit for per-pixel
+prediction problems~\cite{zhu2017densenet}.
+
+
+DenseNet is available as a pre-trained model~\cite{pytorchdensenet} 
+that expects images sized $224 \times 224$. The pre-trained model has a final linear
+layer of size 1,000 as a classifier for 1,000 image categories.  We replace
+that linear layer in the pre-trained model with a new layer accepting the same
+input dimension but producing a single output, the probability at which 
+the input is a censorship event.  
+
+As an alternative to for the proposed End-to-End
+Censorship Detection model (E2ECD), we consider a modeling pipeline as
+illustrated in Figure~\ref{fig:pipeline:densenet}. For convenience, we refer to
+this model as DenseNetCD. Because the alternative model leverages the feature presentation method
+that prior works consider the best and is equipped with an identical classifier as the
+E2ECD model, we shall use it as a baseline model to compare
+with the E2ECD model. 
+
+
+
+
+
+

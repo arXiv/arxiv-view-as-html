@@ -1,0 +1,32 @@
+Internet censorship is a phenomenon of societal importance and attracts
+investigation from multiple disciplines.  Several research groups, such as Censored Planet, have deployed large scale Internet
+measurement platforms to collect network
+reachability data.  However, existing studies generally rely on manually
+designed rules (i.e., using censorship fingerprints) to detect 
+network-based Internet censorship
+from the data.  While this rule-based approach yields a high true positive
+detection rate, it suffers from several challenges: it requires human
+expertise, is laborious, and cannot detect any censorship not captured by the
+rules.  Seeking to overcome these challenges, we design and evaluate a classification model based on  latent
+feature representation learning and an image-based classification model to detect
+network-based Internet censorship. To infer latent feature representations from
+network reachability data, we propose a sequence-to-sequence autoencoder to
+capture the structure and the order of data elements in the data. To estimate
+the probability of censorship events from the inferred latent features, we rely on a densely connected
+multi-layer neural network model.  Our image-based classification model encodes a network reachability data
+record as a gray-scale image and classifies the image as censored or not using a
+dense convolutional neural network.  We compare and evaluate both approaches using data
+sets from Censored Planet via a hold-out evaluation.  Both
+classification models are capable of detecting network-based Internet
+censorship as we were able to identify instances of
+censorship not detected by the known fingerprints. Latent feature representations likely encode more nuances in the data since the latent feature learning approach discovers  a greater quantity, and a more
+diverse set, of new censorship instances.
+
+% Via a hold-out evaluation, we train the models
+% using the data records labeled using known censorship fingerprints. Our results
+% show that although both approaches have alike predictive performance on the
+% data records that can be clearly distinguished as censored or uncensored using
+% known censorship fingerprints, the detection model using latent feature
+% representations yields far more instances of candidate censorship events from
+% undetermined data records than the image-based model. 
+% Examining these evidence,

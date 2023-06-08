@@ -1,0 +1,108 @@
+\section{Limitations and Threats to Validity}
+\label{sec:threats}
+
+This work is on the design and the evaluation of an ``end-to-end''
+network-based Internet censorship detection using deep learning. In particular,
+we advocate and argue that there is a strength in the approach that uses latent
+feature represent learning in embedding space. Deep learning is not clairvoyant
+and there can be threats to validity and limitations that constrain the
+potential of this work.  Here, we discuss several of these limitations.
+
+\paragraph{Data}
+We selected Censored Planet as the source of the evaluation data and extracted
+Quack test data from it.  Because Quack~\cite{vandersloot2018quack,
+raman_measuring_2020} monitors network side-channels, as we discussed in
+Section~\ref{sec:related}, the censorship events detected are unambiguously
+network-based Internet censorship.  
+
+There is a threat to internal validity stemmed from the quality of the
+evaluation data. A recent study indicates that a significant portion of the
+Quack tests did not successfully transmit a test request in the first
+place and resulted in false block pages~\cite{niaki2020iclab}. 
+
+However, this impacts our results little. Since these false block pages are
+not to be identified as a censorship and are invalid pages, there is no impact on the quality of the
+test records that are labeled as censorship and our trained models can 
+recognize almost all the correctly identified censorship events as shown
+in Table~\ref{tab:eval:compare}. 
+
+
+\paragraph{Hyperparameter and Model Tuning}
+The predictive performance of the deep learning models like those investigated
+in this study is subject to the choice of
+hyperparameters~\cite{yang2020hyperparameter}. Due to the computation resources
+available to us, we were unable to experiment exhaustively on a large
+collection of hyperparameters. However, we took measures to ensure the evaluation 
+settings of the proposed
+E2ECD and the DenseNetCD models are comparable. First, we adopted an identical
+training strategy, i.e., the Stochastic Gradient Descent with the cosine
+annealing learning rate scheduler with similar configuration. Second, we use
+an identical hold-out evaluation setting. Finally, we identify a pre-trained
+DenseNet that represents the state-of-the-art to design the baseline 
+model. The proposed E2ECD model yields an almost identical prediction
+accuracy as the baseline model 
+on the test data set (Table~\ref{tab:eval:compare}). We are convinced that the latent
+feature presentation model presented here has an appropriate design. 
+
+Despite this, we recognize that we used the smallest of the DenseNet
+architectures, also known as DenseNet 121 due to the constraint of
+computational resources available to us.  The original DenseNet research found
+that larger DenseNets had a lower error rate on the ImageNet classification
+problem~\cite{huang_densely_2017}, as such, larger DenseNets may also be more
+effective at detecting censorship. % This necessitates a future exploration 
+% along this direction.
+
+
+\paragraph{Censorship Detection on Undetermined Test Records}
+To compare the E2ECD and the DenseNetCD models, we also test them on a set of
+undetermined test records. The E2ECD model detects far more candidate
+censorship events than the DenseNetCD model. We argue that it is likely the
+result of the advantage of the latent feature representation approach.  The
+undetermined test records are all perceived network outages.  First, it is
+clear that we are unable to access the intention of any factors that might
+cause these outages. Second, we are limited by our knowledge to determine
+whether the outages are truly censorship or ordinary network outages. As the
+result, the reliability of our assessment is not absolute.
+
+Because the evaluation data set contains in total 842,842 records, a thorough
+examination of the prediction results manually is infeasible. We plan to study
+these test records in a future work. Because we are unable to access people's intention
+who might initiate the censorship events, the correctness of censorship 
+detection is often via cross-examination and inference. For this, we plan to
+compare records collected by multiple Internet censorship measurement 
+platforms including both the Censored Planet and 
+ICLab in the same time period~\cite{sundara_raman_censored_2020,niaki2020iclab}. 
+Second, following the approach adopted by prior works, we shall cluster
+the test records, such as, those predicted as probable censorship events, 
+and manually examine each cluster to determine whether the prediction is correct
+by inferring what the censorship mechanism is and what intention 
+of censorship may be~\cite{jones2014automated,sundara_raman_censored_2020,niaki2020iclab}. 
+
+\paragraph{E2ECD versus DenseNetCD}
+We argue that the E2ECD model is superior to the DenseNetCD model; however, 
+the E2ECD model is not without a limitation when compared to the DenseNetCD model.
+The E2ECD model requires training two neural network models, a feature
+representation learning model and a classification model. In contrast, the
+DenseNetCD model only needs to train a single pre-trained DenseNet. We observe
+that training the two networks of the E2ECD model requires inherently more
+computation than training a single network of DenseNetCD. The E2ECD model took
+far more iterations to train, more than 100 times the number of steps as our
+DenseNetCD model. In addition, the Censor2Seq component of the E2ECD model is
+far more complex and so requires more computation per training step. However,
+we argue that this additional complexity is clearly worth the computation cost
+given the striking difference between the abilities of the two models as 
+discussed in Section~\ref{sec:eval:undermine}.
+
+
+\paragraph{Replication Package}
+Some unmitigated limitations and threats to validity discussed in the above necessitate 
+a future exploration along those directions. Ultimately, the approach to examine 
+these limitations and threats to
+validity is via replication studies. To facilitate this, we compose a
+replication package and make it publicly
+available~\cite{shawn_p_duncan_censored_2022}.  This package can also be 
+useful to serve as a research baseline, to extend our work,  and to help develop
+fully automated censorship detection systems.
+
+
+

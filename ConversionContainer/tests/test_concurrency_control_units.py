@@ -5,15 +5,15 @@ from flask_sqlalchemy.query import Query
 import os
 import logging
 
-from ..factory import create_web_app
-from ..models.util import (
+from ..conversion.factory import create_web_app
+from ..conversion.models.util import (
     create_all,
     drop_all,
     transaction,
     now
 )
-from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
-from ..concurrency_control import write_start, write_success
+from ..conversion.models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
+from ..conversion.concurrency_control import write_start, write_success
 
 from time import sleep
 

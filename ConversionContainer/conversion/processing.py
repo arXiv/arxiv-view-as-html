@@ -17,6 +17,7 @@ from .models.db import db
 from .exceptions import *
 from .concurrency_control import \
     write_start, write_success
+from .addons import inject_addons
 
 
 
@@ -49,6 +50,8 @@ def process(payload: Dict[str, str]) -> bool:
             payload is invalid/malformed.
     """
     try:
+        doc_type = 'doc' if payload['bucket'] == 'latexml_arxiv_id_source' else 'sub'
+        logging.info(f'BUCKET: {payload["bucket"]}')
         payload_name = payload.get('name')
         if payload_name:
             pass
@@ -56,43 +59,52 @@ def process(payload: Dict[str, str]) -> bool:
             raise PayloadError('No name identifier')
         
         # Check file format and download to ./[tar]
+        logging.info(f"Step 1: Download {payload['name']}")
         tar, id = get_file(payload)
 
         # Write to DB that process has started
-        write_start(id, tar)
+        logging.info(f"Write start process to db")
+        write_start(id, tar, doc_type)
 
         # Untar file ./[tar] to ./extracted/id/
+        logging.info(f"Step 2: Untar {id}")
         source = untar(tar, id)
 
         # Remove .ltxml files from [source] (./extracted/id/)
+        logging.info(f"Step 3: Remove .ltxml for {id}")
         remove_ltxml(source)
 
         # Identify main .tex source in [source]
+        logging.info(f"Step 4: Identify main .tex source for {id}")
         main = find_main_tex_source(source)
 
         # ./extracted/id/html/ will hold the exact tree
         # that we will ultimately upload to gcs
-        out_path = os.path.join(source, 'html')
+        bucket_path = os.path.join(source, 'html')
+        out_path = os.path.join(bucket_path, id)
         try:
-            os.mkdir(out_path)
+            os.makedirs(out_path)
         except FileExistsError:
             # Abort if this fails:
-            shutil.rmtree(out_path)
-            os.mkdir(out_path)
+            shutil.rmtree(bucket_path)
+            os.makedirs(out_path)
             
         # Run LaTeXML on main and output to ./extracted/id/html/id
-        logging.info("Step 5: Do LaTeXML")
+        logging.info(f"Step 5: Do LaTeXML for {id}")
         do_latexml(main, os.path.join(out_path, id), id)
+
+        # Post process html
+        logging.info(f"Step 7: Upload html for {id}")
+        post_process(out_path, id)
         
-        logging.info(f"Step 6: Upload html from {out_path}, {payload['bucket']}")
+        logging.info(f"Step 7: Upload html for {id}")
         tar, id = get_file(payload)
 
-        upload_output(out_path, 
+        upload_dir_to_gcs(bucket_path, 
                         OUT_BUCKET_ARXIV_ID 
                         if payload['bucket'] == 'latexml_arxiv_id_source' 
-                        else OUT_BUCKET_SUB_ID,
-                        id)
-        write_success(id, tar)
+                        else OUT_BUCKET_SUB_ID)
+        write_success(id, tar, doc_type)
         logging.info(f"{id} uploaded successfully!") 
         # db.write_success(payload_name)
     except Exception as e:
@@ -104,7 +116,9 @@ def process(payload: Dict[str, str]) -> bool:
         #     pass
             # what to do if we got a bad submission_id?
     finally:
-        if out_path and tar and id:
+        if 'out_path' in locals() and \
+            'tar' in locals() and \
+            'id' in locals():
             try:
                 clean_up(tar, id)
             except Exception as e:
@@ -304,58 +318,49 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
             f"Uploading {sub_id}_stdout.txt to {QA_BUCKET_NAME} failed in do_latexml") from exc
     os.remove(errpath)
 
-
-def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
+def post_process (src_dir: str, id: str):
     """
-    Uploads a .tar.gz object named {destination_fname}
-    containing a folder called "html" located at {path}
-    to the bucket named {bucket_name}. 
+    Adds the arxiv overlay to the latexml output. This
+    includes injecting html and moving static assets
 
     Parameters
     ----------
-    path : str
-        Directory path in format /.../.../sub_id/html
-        containing the static files
-    bucket_name: str
-        Name of the output bucket
-    destination_fname : str
-        What to name the .tar.gz object, should be the
-        submission id.
+    src_dir : str
+        path to the directory to be uploaded. This should be 
+        in the form of ./extracted/{id}/html/{id}
+    bucket_name : str
+        submission_id for submissions and paper_id for 
+        published documents
     """
-    try:
-        destination_fpath = os.path.join(os.getcwd(), destination_fname)
-        with tarfile.open(destination_fpath, "w:gz") as tar:
-            tar.add(path, arcname=os.path.basename(path))
-        with open(destination_fpath, 'r') as temp:
-            temp.seek(0, os.SEEK_END)
-            logging.info(f"Tar size: {temp.tell()}")
-        bucket = get_google_storage_client().bucket(bucket_name)
-        blob = bucket.blob(destination_fname)
-        logging.info(f"Blob info: {blob.name}")
-        blob.upload_from_filename(destination_fpath)
-    except Exception as exc:
-        logging.info(exc)
-        raise GCPBlobError(
-            f"Upload of {destination_fname} to {bucket_name} failed") from exc
-    finally:
-        try:
-            os.remove(destination_fpath)
-        except Exception as exc:
-            logging.info(exc)
-            raise CleanupError(
-                f"Failed to remove {destination_fpath} in upload_output()") from exc
+    inject_addons(os.path.join(src_dir, f'{id}.html'), id)
+    # TODO: static content
 
-def upload_dir_to_gcs (src_dir: str, bucket_name: str, out_dir: str):
+
+def upload_dir_to_gcs (src_dir: str, bucket_name: str):
+    """
+    Uploads the directory subtree of the given directory to the 
+    given GCS bucket
+
+    Parameters
+    ----------
+    src_dir : str
+        path to the directory to be uploaded. This should be 
+        in the form of ./extracted/{id}/html/
+    bucket_name : str
+        name of bucket to upload to
+    """
     bucket = get_google_storage_client().bucket(bucket_name)
-    for root, _, fname in os.walk(src_dir):
-        abs_fpath = os.join(root, fname)
-        bucket.blob(
-            os.path.relpath(
-                abs_fpath,
-                src_dir
-            )
-        ) \
-        .upload_from_file(abs_fpath)
+    for root, _, fnames in os.walk(src_dir):
+        for fname in fnames:
+            abs_fpath = os.path.join(root, fname)
+            logging.info(f'uploading {os.path.relpath(abs_fpath, src_dir)}')
+            bucket.blob(
+                os.path.relpath(
+                    abs_fpath,
+                    src_dir
+                )
+            ) \
+            .upload_from_filename(abs_fpath)
     
 def clean_up (tar, id):
     os.remove(tar)

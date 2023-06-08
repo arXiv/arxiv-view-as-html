@@ -13,7 +13,7 @@ def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, pay
     ----------
     src_fpath : String
         File path to the html files, relative to the
-        /source/templates dir, where all the html 
+        /arxiv/conversion/addons/html/ dir, where all the html 
         should live
     payload_fpath : String
         The path to the html to be injected
@@ -23,7 +23,7 @@ def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, pay
         The numerical index of the position of the element in the subtree of the parent_tag
     """
     try:
-        with open(f'addons/html/{payload_fpath}', 'r') as payload:
+        with open(f'/arxiv/conversion/addons/html/{payload_fpath}', 'r') as payload:
             template = Template(payload.read())
             block = BeautifulSoup(template.render(**template_args), 'html.parser')
             soup.find(parent_tag).insert(position, block)
@@ -37,7 +37,7 @@ def inject_addons (src_fpath: str, identifier: str):
     with open(f'{src_fpath}', 'r+') as source:
         soup = BeautifulSoup(source.read(), 'html.parser')
         # Inject base tag into head
-        soup = _inject_html_addon(soup, 'head', 6, 'base.html', base_path=identifier.replace('.', '-'))
+        # soup = _inject_html_addon(soup, 'head', 6, 'base.html', base_path=identifier.replace('.', '-'))
         # Inject header block into body
         soup = _inject_html_addon(soup, 'body', 1, 'header.html')
         # Inject body message into body
@@ -52,4 +52,5 @@ def inject_addons (src_fpath: str, identifier: str):
         source.seek(0)
         source.write(str(soup))
     
-
+def copy_static_assets (src_fpath: str):
+    ...

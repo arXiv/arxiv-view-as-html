@@ -24,5 +24,5 @@ class PayloadError(RuntimeError):
 class HTMLInjectionError(RuntimeError):
     """Raised when there is an error injecting a HTML tag into the HTML file."""
 
-class UploadError(RunrimeError):
+class UploadError(RuntimeError):
     """Raised when there is a problem uploading the output"""

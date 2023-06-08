@@ -73,9 +73,9 @@ def _write_start_sub (submission_id: int, tar_fpath: str):
     logging.info(f"{now()}: Conversion started for submission {submission_id}")
 
 
-def write_start (id: Any, tar_fpath: str):
+def write_start (id: Any, tar_fpath: str, doc_type: str):
     logging.info(f"{now()}: Trying write start for {tar_fpath}")
-    if type(id) == str:
+    if doc_type == 'doc':
         _write_start_doc(id, tar_fpath)
     else:
         _write_start_sub(id, tar_fpath)
@@ -126,8 +126,8 @@ def _write_success_sub (submission_id: int, tar_fpath: str) -> bool:
         logging.info(f"{now()}: document {submission_id} failed to write")
     return success
 
-def write_success (id: int, tar_fpath: str):
-    if type(id) == str:
+def write_success (id: int, tar_fpath: str, doc_type: str):
+    if doc_type == 'doc':
         return _write_success_doc(id, tar_fpath)
     else:
         return _write_success_sub(id, tar_fpath)

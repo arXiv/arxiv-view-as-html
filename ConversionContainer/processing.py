@@ -49,66 +49,67 @@ def process(payload: Dict[str, str]) -> bool:
             payload is invalid/malformed.
     """
     try:
-        payload_name = payload['name']
-        out_path = None
-        # Looking for subid/subid.tar.gz
+        payload_name = payload.get('name')
         if payload_name:
-            # db.write_in_progress(payload_name)
             pass
         else:
-            raise PayloadError('No submission_id')
-        logging.info("Step 1: downloading")
+            raise PayloadError('No name identifier')
+        
+        # Check file format and download to ./[tar]
         tar, id = get_file(payload)
+
+        # Write to DB that process has started
         write_start(id, tar)
-        logging.info(f"Step 2: untarring {tar}")
+
+        # Untar file ./[tar] to ./extracted/id/
         source = untar(tar, id)
-        logging.info("Step 3: Removing .ltxml files")
+
+        # Remove .ltxml files from [source] (./extracted/id/)
         remove_ltxml(source)
-        logging.info("Step 4: finding main tex source")
+
+        # Identify main .tex source in [source]
         main = find_main_tex_source(source)
-        logging.info(f"Main tex source is {main}")
+
+        # ./extracted/id/html/ will hold the exact tree
+        # that we will ultimately upload to gcs
         out_path = os.path.join(source, 'html')
         try:
             os.mkdir(out_path)
         except FileExistsError:
-            for filename in os.listdir(out_path):
-                filepath = os.path.join(out_path, filename)
-                try:
-                    shutil.rmtree(filepath)
-                except OSError:
-                    os.remove(filepath)
-        logging.info(f"Out path is {out_path}")
+            # Abort if this fails:
+            shutil.rmtree(out_path)
+            os.mkdir(out_path)
+            
+        # Run LaTeXML on main and output to ./extracted/id/html/id
         logging.info("Step 5: Do LaTeXML")
         do_latexml(main, os.path.join(out_path, id), id)
+        
         logging.info(f"Step 6: Upload html from {out_path}, {payload['bucket']}")
         tar, id = get_file(payload)
-        if write_success(id, tar):
-            upload_output(out_path, 
-                          OUT_BUCKET_ARXIV_ID 
-                            if payload['bucket'] == 'latexml_arxiv_id_source' 
-                            else OUT_BUCKET_SUB_ID,
-                          id)
-            logging.info("Uploaded successfully. Done!")
-        else:
-            logging.info("Upload success without write")
-        
+
+        upload_output(out_path, 
+                        OUT_BUCKET_ARXIV_ID 
+                        if payload['bucket'] == 'latexml_arxiv_id_source' 
+                        else OUT_BUCKET_SUB_ID,
+                        id)
+        write_success(id, tar)
+        logging.info(f"{id} uploaded successfully!") 
         # db.write_success(payload_name)
     except Exception as e:
-        logging.info(e)
+        logging.info(f'Conversion unsuccessful with {e}')
+        # TODO: db Write failure
         # if payload.get('name'):
         #     db.write_failure(payload['name'])
         # else:
         #     pass
             # what to do if we got a bad submission_id?
     finally:
-        if out_path:
+        if out_path and tar and id:
             try:
-                shutil.rmtree(out_path)
+                clean_up(tar, id)
             except Exception as e:
-                logging.info(e)
-                logging.info(f"Failed to delete {out_path}")
+                logging.info(f"Failed to clean up {id} with {e}")
     return True
-
 
 def _unwrap_payload (payload_name: str) -> Tuple[str, str]:
     fname = payload_name.split('/')[1]
@@ -314,8 +315,9 @@ def upload_output(path: str, bucket_name: str, destination_fname: str) -> None:
     ----------
     path : str
         Directory path in format /.../.../sub_id/html
-        containing the static files for ar        # Read and update hash in chunks of 4K
-the object to.
+        containing the static files
+    bucket_name: str
+        Name of the output bucket
     destination_fname : str
         What to name the .tar.gz object, should be the
         submission id.
@@ -342,3 +344,19 @@ the object to.
             logging.info(exc)
             raise CleanupError(
                 f"Failed to remove {destination_fpath} in upload_output()") from exc
+
+def upload_dir_to_gcs (src_dir: str, bucket_name: str, out_dir: str):
+    bucket = get_google_storage_client().bucket(bucket_name)
+    for root, _, fname in os.walk(src_dir):
+        abs_fpath = os.join(root, fname)
+        bucket.blob(
+            os.path.relpath(
+                abs_fpath,
+                src_dir
+            )
+        ) \
+        .upload_from_file(abs_fpath)
+    
+def clean_up (tar, id):
+    os.remove(tar)
+    shutil.rmtree(f'extracted/{id}')

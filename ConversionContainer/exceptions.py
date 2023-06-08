@@ -21,3 +21,8 @@ class CleanupError(RuntimeError):
 class PayloadError(RuntimeError):
     """Raised when the Payload is malformed."""
     
+class HTMLInjectionError(RuntimeError):
+    """Raised when there is an error injecting a HTML tag into the HTML file."""
+
+class UploadError(RunrimeError):
+    """Raised when there is a problem uploading the output"""

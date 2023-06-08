@@ -6,8 +6,15 @@
       padding: .5em 4em;
       align-items: center;
     }
+    header a {
+      color: white;
+    }
     .logo {
-      Max-height: 2em
+      max-height: 2em
+    }
+    .logomark {
+      max-height: 1.5em;
+      display: none;
     }
     .header-message {
       border: 10px solid #fb595a;
@@ -27,6 +34,13 @@
       padding: 1em;
       box-shadow: 1px 3px 8px 0.1px grey;
     }
+    .body-message p, .body-message-mobile p {
+      margin:0;
+      margin-top: -15px;
+    }
+    .body-message-mobile {
+      display: none;
+    }
     a.skip{
       position:absolute;
       left:-10000px;
@@ -40,16 +54,55 @@
       width:auto;
       height:auto;
     }
+    button.feedback-button {
+      position: fixed;
+      bottom: 1em;
+      right: 1em;
+      background-color: #a5d6fe;
+      color: black;
+      padding:.5em 1em;
+      border-radius: .5em;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    .close-icon {
+      position: relative;
+      top: -10px;
+      right: -99%;
+    }
+
     /*mobile*/
     @media only screen and (max-width: 719px) {
       header {
-        flex-direction: column;
         gap: .75em;
       }
       .header-message {
         max-width:100%;
       }
+      .body-message {
+        display: none;
+      }
+      .body-message-mobile {
+        display: block;
+        margin: 1em auto;
+        border: 1px solid #cecece;
+        padding: 1em;
+        max-width: 150px;
+        box-shadow: 1px 3px 8px 0.1px grey;
+        border-radius: .5em
+      }
+      .logo {
+        display: none;
+      }
+      .logomark {
+        display: inline-flex;
+      }
+      .banner {
+        display: none;
+      }
     }
+
+    /*BETA corner banner*/
     body:after {
       content: "beta";
       position: fixed;
@@ -70,5 +123,14 @@
       -ms-transform:rotate(-45deg);
       -webkit-transform:rotate(-45deg);
       transform:rotate(-45deg);
+    }
+    /*will display to screen readers, but not be visible to sighted users*/
+    .sr-only {
+      position:absolute;
+      left:-10000px;
+      top:auto;
+      width:1px;
+      height:1px;
+      overflow:hidden;
     }
 </style>

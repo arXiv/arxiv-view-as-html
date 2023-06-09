@@ -124,7 +124,7 @@ def untar(fpath: str, id: str) -> str:
         with tarfile.open(fpath) as tar:
             tar.extractall(f'/source/templates/{id_hyphen}')
             tar.close()
-        return f'{id_hyphen}/html/{id}.html'
+        return f'{id_hyphen}/{id}.html'
     except Exception as exc:
         raise exceptions.TarError(f"Tarfile at {fpath} failed to extract in untar()") from exc
 

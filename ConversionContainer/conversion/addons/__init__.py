@@ -2,6 +2,8 @@ from typing import Dict
 from jinja2 import Template
 from bs4 import BeautifulSoup
 from ..exceptions import HTMLInjectionError
+import os
+import shutil
 
 def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, payload_fpath: str, **template_args: Dict[str, str]) -> BeautifulSoup:
     """
@@ -53,4 +55,8 @@ def inject_addons (src_fpath: str, identifier: str):
         source.write(str(soup))
     
 def copy_static_assets (src_fpath: str):
-    ...
+    # if not os.path.exists(os.path.join(src_fpath, 'images')):
+    #     # for root, _, img in os.walk('/arxiv/conversion/addons/images/'):
+    #     #     shutil.copy(os.path.join(root, img), os.path.join(src_fpath, 'images'))
+    #     os.mkdir(os.path.join(src_fpath, 'images'))
+    shutil.copytree('/arxiv/conversion/addons/images', os.path.join(src_fpath, 'images'))

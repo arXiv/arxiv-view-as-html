@@ -17,7 +17,7 @@ from .models.db import db
 from .exceptions import *
 from .concurrency_control import \
     write_start, write_success
-from .addons import inject_addons
+from .addons import inject_addons, copy_static_assets
 
 
 
@@ -94,16 +94,16 @@ def process(payload: Dict[str, str]) -> bool:
         do_latexml(main, os.path.join(out_path, id), id)
 
         # Post process html
-        logging.info(f"Step 7: Upload html for {id}")
-        post_process(out_path, id)
+        logging.info(f"Step 6: Upload html for {id}")
+        post_process(bucket_path, id)
         
         logging.info(f"Step 7: Upload html for {id}")
         tar, id = get_file(payload)
 
-        upload_dir_to_gcs(bucket_path, 
-                        OUT_BUCKET_ARXIV_ID 
-                        if payload['bucket'] == 'latexml_arxiv_id_source' 
-                        else OUT_BUCKET_SUB_ID)
+        if doc_type == 'doc':
+            upload_dir_to_gcs(bucket_path, OUT_BUCKET_ARXIV_ID)
+        else:
+            upload_tar_to_gcs(id, bucket_path, OUT_BUCKET_SUB_ID, f'{bucket_path}/{id}.tar.gz')
         write_success(id, tar, doc_type)
         logging.info(f"{id} uploaded successfully!") 
         # db.write_success(payload_name)
@@ -327,13 +327,13 @@ def post_process (src_dir: str, id: str):
     ----------
     src_dir : str
         path to the directory to be uploaded. This should be 
-        in the form of ./extracted/{id}/html/{id}
+        in the form of ./extracted/{id}/html/
     bucket_name : str
         submission_id for submissions and paper_id for 
         published documents
     """
-    inject_addons(os.path.join(src_dir, f'{id}.html'), id)
-    # TODO: static content
+    inject_addons(os.path.join(src_dir, f'{id}/{id}.html'), id)
+    copy_static_assets(os.path.join(src_dir, str(id)))
 
 
 def upload_dir_to_gcs (src_dir: str, bucket_name: str):
@@ -361,6 +361,28 @@ def upload_dir_to_gcs (src_dir: str, bucket_name: str):
                 )
             ) \
             .upload_from_filename(abs_fpath)
+
+def upload_tar_to_gcs (sub_id: int, src_dir: str, bucket_name: str, destination_fname: str) -> None:
+    """
+    Uploads a .tar.gz object named {destination_fname}
+    containing a folder called "html" located at {path}
+    to the bucket named {bucket_name}. 
+
+    Parameters
+    ----------
+    path : str
+        Directory path in format /.../.../sub_id/html
+        containing the static files for ar        # Read and update hash in chunks of 4K
+the object to.
+    destination_fname : str
+        What to name the .tar.gz object, should be the
+        submission id.
+    """
+    with tarfile.open(destination_fname, "w:gz") as tar:
+        tar.add(f'{src_dir}/{sub_id}', arcname=str(sub_id))
+    bucket = get_google_storage_client().bucket(bucket_name)
+    blob = bucket.blob(f'{sub_id}.tar.gz')
+    blob.upload_from_filename(destination_fname)
     
 def clean_up (tar, id):
     os.remove(tar)

@@ -78,7 +78,7 @@ def write_start (id: Any, tar_fpath: str, doc_type: str):
     if doc_type == 'doc':
         _write_start_doc(id, tar_fpath)
     else:
-        _write_start_sub(id, tar_fpath)
+        _write_start_sub(int(id), tar_fpath)
 
 def _write_success_doc (paper_idv: str, tar_fpath: str) -> bool:
     if 'v' in paper_idv:
@@ -130,5 +130,5 @@ def write_success (id: int, tar_fpath: str, doc_type: str):
     if doc_type == 'doc':
         return _write_success_doc(id, tar_fpath)
     else:
-        return _write_success_sub(id, tar_fpath)
+        return _write_success_sub(int(id), tar_fpath)
 

@@ -9,7 +9,7 @@ from flask import Blueprint, request, jsonify, current_app
 from .processing import process
 
 
-# FlaskThread inherits Thread and also pushes the Flask applcation context
+# FlaskThread pushes the Flask applcation context
 class FlaskThread(Thread):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

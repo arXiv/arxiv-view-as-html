@@ -4,7 +4,8 @@ import logging
 import os
 
 from flask import Blueprint, Request, \
-    request, current_app, send_from_directory
+    request, current_app, \
+    send_from_directory, g
 from flask_cors import cross_origin
 from werkzeug.exceptions import BadRequest
 
@@ -14,6 +15,7 @@ from google.auth.credentials import Credentials
 from google.auth.transport import requests
 
 from .authorize import authorize_user_for_submission
+from .poll import poll_submission
 from .util import untar, clean_up
 from .exceptions import AuthError
 
@@ -23,21 +25,38 @@ def _get_google_auth () -> Tuple[Credentials, str, Client]:
     credentials, project_id = google.auth.default()
     return (credentials, project_id, Client(credentials=credentials))
 
-def _get_arxiv_user_id (req: Request) -> int:
-    if hasattr(request, 'auth') and request.auth is not None and \
-        hasattr(request.auth, 'user') and \
-            request.auth.user is not None and \
-            hasattr(request.auth.user, 'user_id') and \
-            type(request.auth.user.user_id) == int:
-        return req.auth.user.user_id
-    else:
-        raise AuthError
+def _get_arxiv_user_id () -> int:
+    try:
+        return request.auth.user.user_id
+    except Exception as e:
+        raise AuthError from e
     
-@blueprint.route('/submission/<int:submission_id>', methods=['GET'])
-@cross_origin(supports_credentials=True)
-def get (submission_id: int):
-    user_id = _get_arxiv_user_id(request)
+# def authorize (f: Callable) -> Callable:
+
+#     @wraps(f)
+#     def inner (*args, **kwargs):
+#         user_id = _get_arxiv_user_id(request)
+#         authorize_user_for_submission(user_id, g.submission_id)
+#         return f(*args, **kwargs)
+    
+#     return inner
+
+def authorize (submission_id: int):
+    user_id = _get_arxiv_user_id()
     authorize_user_for_submission(user_id, submission_id)
+    
+@blueprint.route('/<int:submission_id>/poll', methods=['GET', 'OPTIONS'])
+@cross_origin(supports_credentials=True)
+# @authorize
+def poll (submission_id: int):
+    authorize(submission_id)
+    return poll_submission(submission_id)
+
+@blueprint.route('/<int:submission_id>/view', methods=['GET'])
+@cross_origin(supports_credentials=True)
+# @authorize
+def get (submission_id: int):
+    authorize(submission_id)
 
     BUCKET = current_app.config['CONVERTED_BUCKET_SUB_ID']
     TARS_DIR = current_app.config['TARS_DIR']
@@ -58,7 +77,7 @@ def get (submission_id: int):
     
     return send_from_directory (dir, f'{submission_id}.html')
 
-@blueprint.route('/submission/<int:submission_id>/<path:path>', methods=['GET'])
+@blueprint.route('/<int:submission_id>/<path:path>', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def get_static (submission_id: int, path: str):
     SITES_DIR = current_app.config['SITES_DIR']
@@ -71,8 +90,20 @@ def get_static (submission_id: int, path: str):
     return send_from_directory (dir, path)
 
 
-@blueprint.errorhandler(BadRequest)
+@blueprint.app_errorhandler(BadRequest)
 def handle_bad_request(e):
+    # TODO: 404 Page for submissions?
+    logging.warning(f'Error: {e}')
+    return 'This page does not exist', 404
+
+@blueprint.app_errorhandler(500)
+def handle_500(e):
+    # TODO: 404 Page for submissions?
+    logging.warning(f'Error: {e}')
+    return 'This page does not exist', 404
+
+@blueprint.app_errorhandler(404)
+def handle_404(e):
     # TODO: 404 Page for submissions?
     logging.warning(f'Error: {e}')
     return 'This page does not exist', 404

@@ -25,7 +25,7 @@ def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, pay
         The numerical index of the position of the element in the subtree of the parent_tag
     """
     try:
-        with open(f'/arxiv/conversion/addons/html/{payload_fpath}', 'r') as payload:
+        with open(f'/arxiv/source/addons/html/{payload_fpath}', 'r') as payload:
             template = Template(payload.read())
             block = BeautifulSoup(template.render(**template_args), 'html.parser')
             soup.find(parent_tag).insert(position, block)

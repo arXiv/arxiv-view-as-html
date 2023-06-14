@@ -13,7 +13,7 @@ from ..models.util import (
     now
 )
 from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
-from ..concurrency_control import write_start, write_success
+from ..convert.concurrency_control import write_start, write_success
 
 from time import sleep
 

@@ -27,7 +27,7 @@ blueprint = Blueprint('routes', __name__)
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
 @blueprint.route('/process', methods=['POST'])
-def process () -> Response:
+def process_route () -> Response:
     """
     Takes in the eventarc trigger payload and creates a thread
     to perform the latexml conversion on the blob specified
@@ -44,7 +44,7 @@ def process () -> Response:
     return '', 202
 
 @blueprint.route('/publish', methods=['POST'])
-def publish () -> Response:
+def publish_route () -> Response:
     logging.info(request.json)
     thread = FlaskThread(target=publish, args=(request.json,))
     thread.start()

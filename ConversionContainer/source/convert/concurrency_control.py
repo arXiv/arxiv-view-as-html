@@ -7,8 +7,8 @@ from flask import current_app
 
 from google.cloud.storage.blob import Blob
 
-from .models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
-from .models.util import transaction, now
+from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
+from ..models.util import transaction, now
 
 def _latexml_commit (): return current_app.config['LATEXML_COMMIT']
 

@@ -2,7 +2,7 @@ import pytest
 import shutil
 from unittest.mock import MagicMock
 import os
-from ..processing import *
+from ..convert.processing import *
 from ..exceptions import FileTypeError
 
 @pytest.fixture(autouse=True)

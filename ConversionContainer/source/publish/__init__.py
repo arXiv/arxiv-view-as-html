@@ -3,9 +3,9 @@ import logging
 
 from ..models.util import transaction
 
-from db_queries import submission_has_html, \
+from .db_queries import submission_has_html, \
     write_published_html
-from buckets import move_sub_to_doc_bucket, delete_sub
+from .buckets import move_sub_to_doc_bucket, delete_sub
 
 def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
     return (

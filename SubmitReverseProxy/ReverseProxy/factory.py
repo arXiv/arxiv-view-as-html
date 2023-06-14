@@ -30,7 +30,7 @@ def create_web_app() -> Flask:
     # include_raw jinja loader used in template.html
     # app.jinja_env.globals['include_raw'] = lambda html_path : \
     #     markupsafe.Markup(app.jinja_loader.get_source(app.jinja_env, html_path)[0])
-
+    
     auth.Auth(app)
     wrap(app, [AuthMiddleware])
 

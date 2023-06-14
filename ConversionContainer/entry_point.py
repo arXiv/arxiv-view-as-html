@@ -1,9 +1,10 @@
 """Initializes the Flask app"""
 from conversion.factory import create_web_app
 from conversion.models.util import create_all, drop_all, transaction
-from conversion.util import get_google_logging_client
+from google.cloud import logging
 
-_ = get_google_logging_client()
+logging_client = logging.Client()
+logging_client.setup_logging()
 
 app = create_web_app()
 with app.app_context():

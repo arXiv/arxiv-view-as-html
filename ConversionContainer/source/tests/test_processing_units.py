@@ -11,7 +11,7 @@ def change_test_dir(request, monkeypatch):
 
 @pytest.fixture(autouse=True)
 def mock_google_storage_client (mocker):
-    mocker.patch('ConversionContainer.processing.get_google_storage_client', 
+    mocker.patch('conversion.processing.get_google_storage_client', 
                  return_value=MagicMock())
     
 @pytest.fixture 

@@ -7,17 +7,20 @@ import shutil
 from typing import Any, Tuple, Dict
 import logging
 
-from .config import (
+from ..config import (
     OUT_BUCKET_ARXIV_ID,
     OUT_BUCKET_SUB_ID,
     QA_BUCKET_NAME
 )
-from .util import get_google_storage_client
-from .models.db import db
-from .exceptions import *
+from ..util import untar
+from ..buckets.util import get_google_storage_client
+from ..buckets import download_blob, upload_dir_to_gcs, \
+    upload_tar_to_gcs
+from ..models.db import db
+from ..exceptions import *
 from .concurrency_control import \
     write_start, write_success
-from .addons import inject_addons, copy_static_assets
+from ..addons import inject_addons, copy_static_assets
 
 
 
@@ -51,7 +54,9 @@ def process(payload: Dict[str, str]) -> bool:
     """
     try:
         doc_type = 'doc' if payload['bucket'] == 'latexml_arxiv_id_source' else 'sub'
+
         logging.info(f'BUCKET: {payload["bucket"]}')
+        
         payload_name = payload.get('name')
         if payload_name:
             pass
@@ -60,7 +65,7 @@ def process(payload: Dict[str, str]) -> bool:
         
         # Check file format and download to ./[tar]
         logging.info(f"Step 1: Download {payload['name']}")
-        tar, id = get_file(payload)
+        tar, id = _get_file(payload)
 
         # Write to DB that process has started
         logging.info(f"Write start process to db")
@@ -68,15 +73,15 @@ def process(payload: Dict[str, str]) -> bool:
 
         # Untar file ./[tar] to ./extracted/id/
         logging.info(f"Step 2: Untar {id}")
-        source = untar(tar, id)
+        source = _untar(tar, id)
 
         # Remove .ltxml files from [source] (./extracted/id/)
         logging.info(f"Step 3: Remove .ltxml for {id}")
-        remove_ltxml(source)
+        _remove_ltxml(source)
 
         # Identify main .tex source in [source]
         logging.info(f"Step 4: Identify main .tex source for {id}")
-        main = find_main_tex_source(source)
+        main = _find_main_tex_source(source)
 
         # ./extracted/id/html/ will hold the exact tree
         # that we will ultimately upload to gcs
@@ -91,14 +96,14 @@ def process(payload: Dict[str, str]) -> bool:
             
         # Run LaTeXML on main and output to ./extracted/id/html/id
         logging.info(f"Step 5: Do LaTeXML for {id}")
-        do_latexml(main, os.path.join(out_path, id), id)
+        _do_latexml(main, os.path.join(out_path, id), id)
 
         # Post process html
         logging.info(f"Step 6: Upload html for {id}")
-        post_process(bucket_path, id)
+        _post_process(bucket_path, id)
         
         logging.info(f"Step 7: Upload html for {id}")
-        tar, id = get_file(payload)
+        tar, id = _get_file(payload)
 
         if doc_type == 'doc':
             upload_dir_to_gcs(bucket_path, OUT_BUCKET_ARXIV_ID)
@@ -120,7 +125,7 @@ def process(payload: Dict[str, str]) -> bool:
             'tar' in locals() and \
             'id' in locals():
             try:
-                clean_up(tar, id)
+                _clean_up(tar, id)
             except Exception as e:
                 logging.info(f"Failed to clean up {id} with {e}")
     return True
@@ -130,7 +135,7 @@ def _unwrap_payload (payload_name: str) -> Tuple[str, str]:
     idv = fname.replace('.tar.gz', '')
     return fname, idv
 
-def get_file(payload: dict[str, Any]) -> Tuple[str, str]:
+def _get_file(payload: dict[str, Any]) -> Tuple[str, str]:
     """
     Checks if the payload contains a .tar.gz file
     and if so it downloads the file to "fpath".
@@ -156,18 +161,15 @@ def get_file(payload: dict[str, Any]) -> Tuple[str, str]:
     else:
         raise FileTypeError(f"{payload['name']} was not a .tar.gz")
     try:
-        blob = get_google_storage_client().bucket(payload['bucket']) \
-            .blob(payload['name'])
-        with open(fname, 'wb') as read_stream:
-            blob.download_to_file(read_stream)
-            read_stream.close()
+        download_blob (payload['bucket'], payload['name'], fname)
         return os.path.abspath(f"./{fname}"), id
     except Exception as exc:
         raise GCPBlobError(
             f"Download of {payload['name']} from {payload['bucket']} failed") from exc
 
 
-def untar(fpath: str, dir_name: str) -> str:
+# TODO: Refactor
+def _untar(fpath: str, dir_name: str) -> str:
     """
     Extracts the .tar.gz at "fpath" into directory
     "dir_name".
@@ -187,6 +189,7 @@ def untar(fpath: str, dir_name: str) -> str:
         extracted files
     """
     try:
+        untar (fpath, f'extracted/{dir_name}')
         with tarfile.open(fpath) as tar:
             # Assuming they protect us from files with ../ or / in the name
             tar.extractall(f"extracted/{dir_name}")
@@ -197,7 +200,7 @@ def untar(fpath: str, dir_name: str) -> str:
             f"Tarfile at {fpath} failed to extract in untar()") from exc
 
 
-def remove_ltxml(path: str) -> None:
+def _remove_ltxml(path: str) -> None:
     """
     Remove files with the .ltxml extension from the
     directory "path".
@@ -217,7 +220,7 @@ def remove_ltxml(path: str) -> None:
             f".ltxml file at {path} failed to be removed") from exc
 
 
-def find_main_tex_source(path: str) -> str:
+def _find_main_tex_source(path: str) -> str:
     """
     Looks inside the directory at "path" and determines the
     main .tex source. Assumes that the main .tex file
@@ -277,7 +280,7 @@ def find_main_tex_source(path: str) -> str:
             f"Process to find main .tex file in {path} failed") from exc
 
 
-def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
+def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     """
     Runs latexml on the .tex file at main_fpath and
     outputs the html at out_fpath.
@@ -318,7 +321,7 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
             f"Uploading {sub_id}_stdout.txt to {QA_BUCKET_NAME} failed in do_latexml") from exc
     os.remove(errpath)
 
-def post_process (src_dir: str, id: str):
+def _post_process (src_dir: str, id: str):
     """
     Adds the arxiv overlay to the latexml output. This
     includes injecting html and moving static assets
@@ -335,55 +338,7 @@ def post_process (src_dir: str, id: str):
     inject_addons(os.path.join(src_dir, f'{id}/{id}.html'), id)
     copy_static_assets(os.path.join(src_dir, str(id)))
 
-
-def upload_dir_to_gcs (src_dir: str, bucket_name: str):
-    """
-    Uploads the directory subtree of the given directory to the 
-    given GCS bucket
-
-    Parameters
-    ----------
-    src_dir : str
-        path to the directory to be uploaded. This should be 
-        in the form of ./extracted/{id}/html/
-    bucket_name : str
-        name of bucket to upload to
-    """
-    bucket = get_google_storage_client().bucket(bucket_name)
-    for root, _, fnames in os.walk(src_dir):
-        for fname in fnames:
-            abs_fpath = os.path.join(root, fname)
-            logging.info(f'uploading {os.path.relpath(abs_fpath, src_dir)}')
-            bucket.blob(
-                os.path.relpath(
-                    abs_fpath,
-                    src_dir
-                )
-            ) \
-            .upload_from_filename(abs_fpath)
-
-def upload_tar_to_gcs (sub_id: int, src_dir: str, bucket_name: str, destination_fname: str) -> None:
-    """
-    Uploads a .tar.gz object named {destination_fname}
-    containing a folder called "html" located at {path}
-    to the bucket named {bucket_name}. 
-
-    Parameters
-    ----------
-    path : str
-        Directory path in format /.../.../sub_id/html
-        containing the static files for ar        # Read and update hash in chunks of 4K
-the object to.
-    destination_fname : str
-        What to name the .tar.gz object, should be the
-        submission id.
-    """
-    with tarfile.open(destination_fname, "w:gz") as tar:
-        tar.add(f'{src_dir}/{sub_id}', arcname=str(sub_id))
-    bucket = get_google_storage_client().bucket(bucket_name)
-    blob = bucket.blob(f'{sub_id}.tar.gz')
-    blob.upload_from_filename(destination_fname)
     
-def clean_up (tar, id):
+def _clean_up (tar, id):
     os.remove(tar)
     shutil.rmtree(f'extracted/{id}')

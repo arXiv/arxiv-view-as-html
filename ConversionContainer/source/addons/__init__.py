@@ -55,8 +55,4 @@ def inject_addons (src_fpath: str, identifier: str):
         source.write(str(soup))
     
 def copy_static_assets (src_fpath: str):
-    # if not os.path.exists(os.path.join(src_fpath, 'images')):
-    #     # for root, _, img in os.walk('/arxiv/conversion/addons/images/'):
-    #     #     shutil.copy(os.path.join(root, img), os.path.join(src_fpath, 'images'))
-    #     os.mkdir(os.path.join(src_fpath, 'images'))
-    shutil.copytree('/arxiv/conversion/addons/images', os.path.join(src_fpath, 'images'))
+    shutil.copytree('/arxiv/source/addons/images', os.path.join(src_fpath, 'images'))

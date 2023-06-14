@@ -20,6 +20,7 @@ def _get_checksum (abs_fname: str) -> str:
     return md5_hash.hexdigest()
 
 def _write_start_doc (paper_idv: str, tar_fpath: str):
+    # TODO: Bad
     if 'v' in paper_idv:
         paper_id = paper_idv.split('v')[0]
         document_version = int(paper_idv.split('v')[1])

@@ -1,5 +1,7 @@
 from typing import Dict, Tuple
 import logging
+from base64 import b64decode
+import json
 
 from ..models.util import transaction
 
@@ -8,18 +10,18 @@ from .db_queries import submission_has_html, \
 from .buckets import move_sub_to_doc_bucket, delete_sub
 
 def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
+    data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
     return (
-        payload['submission_id'],
-        payload['paper_id'],
-        payload['version']
+        data['submission_id'],
+        data['paper_id'],
+        data['version']
     )
 
 def publish (payload: Dict):
     """Triggered from a message on a Cloud Pub/Sub topic.
     Args:
-         event (dict): Event payload.
-         context (google.cloud.functions.Context): Metadata for the event.
-    
+         paylod (dict): Event payload containing a base64 encoded 
+                        string of the json in the ['message']['data'] key    
     Steps:
       1. Parse out fields from json payload
       2. Query arXiv_latexml_sub to check for html for submission
@@ -30,6 +32,7 @@ def publish (payload: Dict):
       5. Delete from latexml_submission_converted
 
     """
+    logging.info(payload['message'])
 
     # 1.
     submission_id, paper_id, version = _parse_json_payload(payload)
@@ -37,6 +40,7 @@ def publish (payload: Dict):
 
     # If there is a db error, the session will be rolled back, but 
     # the document bucket may still get the site
+    
     with transaction() as session:
         # 2.
         submission_row = submission_has_html(submission_id, session)

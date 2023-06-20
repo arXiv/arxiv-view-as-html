@@ -11,3 +11,5 @@ LATEXML_COMMIT = os.environ.get('LATEXML_COMMIT')
 
 LATEXML_DB_URI = os.environ.get('LATEXML_DB_URI')
 SQLALCHEMY_DATABASE_URI = LATEXML_DB_URI
+
+LOCK_DIR = '/arxiv/locks'

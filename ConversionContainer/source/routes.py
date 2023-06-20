@@ -1,4 +1,5 @@
 """HTTPS routes for the Flask app"""
+from typing import Tuple, Dict
 from datetime import datetime
 import os
 from threading import Thread
@@ -24,6 +25,16 @@ class FlaskThread(Thread):
 
 blueprint = Blueprint('routes', __name__)
 
+
+# Unwraps payload and only starts processing if it is 
+# the desired format and a .tar.gz
+def _unwrap_payload (payload: Dict[str, str]) -> Tuple[str, str]:
+    if payload['name'].endswith('.gz'):
+        id = payload['name'].split('/')[1].replace('.tar.gz', '')
+        return id, payload['name'], payload['bucket']
+    raise ValueError ('Received extraneous file')
+
+
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
 @blueprint.route('/process', methods=['POST'])
@@ -38,8 +49,13 @@ def process_route () -> Response:
     Response
         Returns a 202 response with no payload
     """
-    logging.info (request.json)
-    thread = FlaskThread(target=process, args=(request.json,))
+    try:
+        id, blob, bucket = _unwrap_payload(request.json)
+    except Exception as e:
+        logging.info(f'Discarded request with {e}')
+        return '', 403
+    logging.info(f'Begin processing for {blob} from {bucket}')
+    thread = FlaskThread(target=process, args=(id, blob, bucket))
     thread.start()
     return '', 202
 

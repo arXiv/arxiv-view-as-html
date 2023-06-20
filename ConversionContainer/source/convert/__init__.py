@@ -6,198 +6,94 @@ import subprocess
 import shutil
 from typing import Any, Tuple, Dict
 import logging
+import uuid
+
+from flask import current_app
 
 from ..config import (
     OUT_BUCKET_ARXIV_ID,
     OUT_BUCKET_SUB_ID,
     QA_BUCKET_NAME
 )
-from ..util import untar
+from ..util import untar, id_lock, timeout
 from ..buckets.util import get_google_storage_client
 from ..buckets import download_blob, upload_dir_to_gcs, \
     upload_tar_to_gcs
 from ..models.db import db
 from ..exceptions import *
 from .concurrency_control import \
-    write_start, write_success
+    write_start, write_success, write_failure
 from ..addons import inject_addons, copy_static_assets
 
 
+def process(id: str, blob: str, bucket: str) -> bool:
+    is_submission = bucket != current_app.config['IN_BUCKET_ARXIV_ID']
 
-# Change such that we can handle multiple requests
-# Raise max requests allowed on cloud run
-# Error handling try/catch - send event maybe
-
-
-def process(payload: Dict[str, str]) -> bool:
-    """
-    Runs latexml on the blob in the payload and uploads
-    the results to the output bucket in the config
-    file.
-
-    Parameters
-    ----------
-    payload : JSON
-        https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
-
-    Returns
-    -------
-    Boolean
-        Returns true unless an exception occurs
-
-    Raises
-    ------
-    Exception
-        'PayloadError': No submission id (payload.name)
-            contained in the payload. Likely the entire
-            payload is invalid/malformed.
-    """
+    """ File system we will be using """
+    safe_name = str(uuid.uuid4()) # In case two machines download before locking
+    tar_gz = f'{safe_name}.tar.gz' # the file we download the blob to
+    src_dir = f'extracted/{id}' # the directory we untar the blob to
+    bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
+    outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
     try:
-        doc_type = 'doc' if payload['bucket'] == 'latexml_arxiv_id_source' else 'sub'
+        os.makedirs(outer_bucket_dir)
+    except OSError:
+        shutil.rmtree(src_dir)
+        os.makedirs(outer_bucket_dir)
+        # Abort if this fails
+    
+    # Check file format and download to ./[{id}.tar.gz]
+    logging.info(f"Step 1: Download {id}")
+    download_blob(bucket, blob, tar_gz)
 
-        logging.info(f'BUCKET: {payload["bucket"]}')
-        
-        payload_name = payload.get('name')
-        if payload_name:
-            pass
-        else:
-            raise PayloadError('No name identifier')
-        
-        # Check file format and download to ./[tar]
-        logging.info(f"Step 1: Download {payload['name']}")
-        tar, id = _get_file(payload)
+    # Write to DB that process has started
+    logging.info(f"Write start process to db")
+    write_start(id, tar_gz, is_submission)
 
-        # Write to DB that process has started
-        logging.info(f"Write start process to db")
-        write_start(id, tar, doc_type)
+    try:
+        with id_lock(id, current_app.config['LOCK_DIR']):
+            # Untar file ./[tar] to ./extracted/id/
+            logging.info(f"Step 2: Untar {id}")
+            untar (tar_gz, src_dir)
 
-        # Untar file ./[tar] to ./extracted/id/
-        logging.info(f"Step 2: Untar {id}")
-        source = _untar(tar, id)
+            # Remove .ltxml files from [source] (./extracted/id/)
+            logging.info(f"Step 3: Remove .ltxml for {id}")
+            _remove_ltxml(src_dir)
 
-        # Remove .ltxml files from [source] (./extracted/id/)
-        logging.info(f"Step 3: Remove .ltxml for {id}")
-        _remove_ltxml(source)
+            # Identify main .tex source in [source]
+            logging.info(f"Step 4: Identify main .tex source for {id}")
+            main = _find_main_tex_source(src_dir)
+                
+            # Run LaTeXML on main and output to ./extracted/id/html/id
+            with timeout(600):
+                logging.info(f"Step 5: Do LaTeXML for {id}")
+                _do_latexml(main, outer_bucket_dir, id)
 
-        # Identify main .tex source in [source]
-        logging.info(f"Step 4: Identify main .tex source for {id}")
-        main = _find_main_tex_source(source)
-
-        # ./extracted/id/html/ will hold the exact tree
-        # that we will ultimately upload to gcs
-        bucket_path = os.path.join(source, 'html')
-        out_path = os.path.join(bucket_path, id)
-        try:
-            os.makedirs(out_path)
-        except FileExistsError:
-            # Abort if this fails:
-            shutil.rmtree(bucket_path)
-            os.makedirs(out_path)
+            # Post process html
+            logging.info(f"Step 6: Upload html for {id}")
+            _post_process(bucket_dir_container, id)
             
-        # Run LaTeXML on main and output to ./extracted/id/html/id
-        logging.info(f"Step 5: Do LaTeXML for {id}")
-        _do_latexml(main, os.path.join(out_path, id), id)
-
-        # Post process html
-        logging.info(f"Step 6: Upload html for {id}")
-        _post_process(bucket_path, id)
-        
-        logging.info(f"Step 7: Upload html for {id}")
-        tar, id = _get_file(payload)
-
-        if doc_type == 'doc':
-            upload_dir_to_gcs(bucket_path, OUT_BUCKET_ARXIV_ID)
-        else:
-            upload_tar_to_gcs(id, bucket_path, OUT_BUCKET_SUB_ID, f'{bucket_path}/{id}.tar.gz')
-        write_success(id, tar, doc_type)
-        logging.info(f"{id} uploaded successfully!") 
-        # db.write_success(payload_name)
+            logging.info(f"Step 7: Upload html for {id}")
+            if is_submission:
+                upload_tar_to_gcs(id, bucket_dir_container, OUT_BUCKET_SUB_ID, f'{bucket_dir_container}/{id}.tar.gz')
+            else:
+                upload_dir_to_gcs(bucket_dir_container, OUT_BUCKET_ARXIV_ID)
+            
+            download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
+            write_success(id, tar_gz, is_submission)
     except Exception as e:
         logging.info(f'Conversion unsuccessful with {e}')
-        # TODO: db Write failure
-        # if payload.get('name'):
-        #     db.write_failure(payload['name'])
-        # else:
-        #     pass
-            # what to do if we got a bad submission_id?
-    finally:
-        if 'out_path' in locals() and \
-            'tar' in locals() and \
-            'id' in locals():
-            try:
-                _clean_up(tar, id)
-            except Exception as e:
-                logging.info(f"Failed to clean up {id} with {e}")
-    return True
-
-def _unwrap_payload (payload_name: str) -> Tuple[str, str]:
-    fname = payload_name.split('/')[1]
-    idv = fname.replace('.tar.gz', '')
-    return fname, idv
-
-def _get_file(payload: dict[str, Any]) -> Tuple[str, str]:
-    """
-    Checks if the payload contains a .tar.gz file
-    and if so it downloads the file to "fpath".
-    Otherwise, it throws an Exception, ending the process
-    and logging the non .tar.gz file.
-
-    Parameters
-    ----------
-    payload : dict[str, Any]
-        https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
-
-    Returns
-    -------
-    fpath : str
-        File path to the .tar.gz object
-    """
-    if payload['name'].endswith('.gz'):
-        fname, id = _unwrap_payload(payload['name'])
         try:
-            os.remove(f"./{fname}")
-        except:
-            pass
-    else:
-        raise FileTypeError(f"{payload['name']} was not a .tar.gz")
-    try:
-        download_blob (payload['bucket'], payload['name'], fname)
-        return os.path.abspath(f"./{fname}"), id
-    except Exception as exc:
-        raise GCPBlobError(
-            f"Download of {payload['name']} from {payload['bucket']} failed") from exc
-
-
-# TODO: Refactor
-def _untar(fpath: str, dir_name: str) -> str:
-    """
-    Extracts the .tar.gz at "fpath" into directory
-    "dir_name".
-
-    Parameters
-    ----------
-    fpath : str
-        File path to the .tar.gz object
-    dir_name : str
-        Name that we want to give to the directory
-        that contains the extracted files
-
-    Returns
-    -------
-    extracted_directory : str
-        File path of the directory that contains the
-        extracted files
-    """
-    try:
-        untar (fpath, f'extracted/{dir_name}')
-        with tarfile.open(fpath) as tar:
-            # Assuming they protect us from files with ../ or / in the name
-            tar.extractall(f"extracted/{dir_name}")
-            tar.close()
-        return os.path.abspath(f"extracted/{dir_name}")
-    except Exception as exc:
-        raise TarError(
-            f"Tarfile at {fpath} failed to extract in untar()") from exc
+            download_blob(bucket, blob, tar_gz)
+            write_failure(id, tar_gz, is_submission)
+        except Exception as e:
+            logging.info(f'Failed to write failure for {id} with {e}')
+    finally:
+        try:
+            with id_lock(id, current_app.config['LOCK_DIR'], 1):
+                _clean_up(tar_gz, id)
+        except Exception as e:
+            logging.info(f"Failed to clean up {id} with {e}")
 
 
 def _remove_ltxml(path: str) -> None:
@@ -302,7 +198,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
                       "--timeout=2700",
                       "--nodefaultresources",
                       "--css=css/ar5iv.min.css",
-                      f"--source={main_fpath}", f"--dest={out_dpath}.html"]
+                      f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(
         latexml_config,
         stdout=subprocess.PIPE,

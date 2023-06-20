@@ -65,9 +65,8 @@ def process(id: str, blob: str, bucket: str) -> bool:
             main = _find_main_tex_source(src_dir)
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
-            with timeout(600):
-                logging.info(f"Step 5: Do LaTeXML for {id}")
-                _do_latexml(main, outer_bucket_dir, id)
+            logging.info(f"Step 5: Do LaTeXML for {id}")
+            _do_latexml(main, outer_bucket_dir, id)
 
             # Post process html
             logging.info(f"Step 6: Upload html for {id}")
@@ -204,7 +203,8 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=True,
-        text=True)
+        text=True,
+        timeout=600)
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)

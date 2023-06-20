@@ -52,8 +52,7 @@ def process_route () -> Response:
     try:
         id, blob, bucket = _unwrap_payload(request.json)
     except Exception as e:
-        logging.info(f'Discarded request with {e}')
-        return '', 403
+        return '', 200
     logging.info(f'Begin processing for {blob} from {bucket}')
     thread = FlaskThread(target=process, args=(id, blob, bucket))
     thread.start()

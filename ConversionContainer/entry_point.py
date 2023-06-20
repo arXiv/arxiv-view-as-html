@@ -1,9 +1,10 @@
 """Initializes the Flask app"""
-from .factory import create_web_app
-from .models.util import create_all, drop_all, transaction
-from .util import get_google_logging_client
+from source.factory import create_web_app
+from source.models.util import create_all, drop_all, transaction
+from google.cloud import logging
 
-_ = get_google_logging_client()
+logging_client = logging.Client()
+logging_client.setup_logging()
 
 app = create_web_app()
 with app.app_context():

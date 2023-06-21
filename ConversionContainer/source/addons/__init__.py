@@ -47,6 +47,8 @@ def inject_addons (src_fpath: str, identifier: str):
         # Inject style block into head
         soup = _inject_html_addon(soup, 'head', 7, 'style.html')
 
+        soup = _inject_html_addon(soup, 'body', len(list(soup.find('body').children)) - 1, 'footer.html')
+
         # Add id="main" to <div class="ltx_page_main">
         soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'
         

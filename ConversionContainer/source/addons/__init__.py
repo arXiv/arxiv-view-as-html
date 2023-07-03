@@ -38,15 +38,15 @@ def inject_addons (src_fpath: str, identifier: str):
     
     with open(f'{src_fpath}', 'r+') as source:
         soup = BeautifulSoup(source.read(), 'html.parser')
-        # Inject base tag into head
-        # soup = _inject_html_addon(soup, 'head', 6, 'base.html', base_path=identifier.replace('.', '-'))
         # Inject header block into body
         soup = _inject_html_addon(soup, 'body', 1, 'header.html')
         # Inject body message into body
         soup = _inject_html_addon(soup, 'body', 2, 'body_message.html')
         # Inject style block into head
         soup = _inject_html_addon(soup, 'head', 7, 'style.html')
-
+        # Inject feedback script into head
+        soup = _inject_html_addon(soup, 'head', 8, 'feedback_script.html')
+        # Inject footer into body
         soup = _inject_html_addon(soup, 'body', len(list(soup.find('body').children)) - 1, 'footer.html')
 
         # Add id="main" to <div class="ltx_page_main">

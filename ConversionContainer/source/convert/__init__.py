@@ -70,7 +70,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
 
             # Post process html
             logging.info(f"Step 6: Upload html for {id}")
-            _post_process(bucket_dir_container, id)
+            _post_process(bucket_dir_container, id, is_submission)
             
             logging.info(f"Step 7: Upload html for {id}")
             if is_submission:
@@ -217,7 +217,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
             f"Uploading {sub_id}_stdout.txt to {QA_BUCKET_NAME} failed in do_latexml") from exc
     os.remove(errpath)
 
-def _post_process (src_dir: str, id: str):
+def _post_process (src_dir: str, id: str, is_submission: bool):
     """
     Adds the arxiv overlay to the latexml output. This
     includes injecting html and moving static assets
@@ -231,7 +231,7 @@ def _post_process (src_dir: str, id: str):
         submission_id for submissions and paper_id for 
         published documents
     """
-    inject_addons(os.path.join(src_dir, f'{id}/{id}.html'), id)
+    inject_addons(os.path.join(src_dir, f'{id}/{id}.html'), id, is_submission)
     copy_static_assets(os.path.join(src_dir, str(id)))
 
     

@@ -1,4 +1,11 @@
 import functions_framework
+from models import add_feedback
+
+def _validate_params (params, field_names) -> bool:
+    for field in field_names:
+        if field not in params:
+            return False
+    return True
 
 @functions_framework.http
 def main(request):
@@ -11,13 +18,28 @@ def main(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
-    request_json = request.get_json(silent=True)
-    request_args = request.args
+    field_names = [
+        'uniqueId',
+        'canonicalURL',
+        'conversionURL',
+        'reportTime',
+        'browserInfo',
+        'description',
+        'locationLow',
+        'locationHigh'
+    ]
 
-    if request_json and 'name' in request_json:
-        name = request_json['name']
-    elif request_args and 'name' in request_args:
-        name = request_args['name']
-    else:
-        name = 'World'
-    return 'Hello {}!'.format(name)
+    if _validate_params (request.args, field_names):
+        add_feedback(
+            request.args['uniqueId'],
+            request.args['canonicalURL'],
+            request.args['conversionURL'],
+            request.args['reportTime'],
+            request.args['browserInfo'],
+            request.args['locationLow'],
+            request.args['locationHigh'],
+            request.args['description']
+        )
+        return '', 200
+    return '', 400
+

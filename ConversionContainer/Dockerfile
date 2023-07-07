@@ -82,11 +82,11 @@ ENV TMPDIR=/dev/shm
 
 WORKDIR /arxiv
 
-COPY . .
-
 RUN /usr/local/bin/python -m pip install --upgrade pip
 RUN pip install poetry  
 RUN poetry config virtualenvs.create false
+
+COPY . .
 RUN poetry install
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "entry_point:app"]

@@ -5,6 +5,8 @@ from ..exceptions import HTMLInjectionError
 import os
 import shutil
 
+ABS_URL_BASE = 'https://arxiv.org/abs'
+
 def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, payload_fpath: str, **template_args: Dict[str, str]) -> BeautifulSoup:
     """
     Injects arbitrary html into the given parent tag in the src
@@ -34,18 +36,12 @@ def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, pay
         raise HTMLInjectionError(f"Failed to inject {payload_fpath} with {exc}") from exc
       
 
-def inject_addons (src_fpath: str, identifier: str):
-    
+def inject_addons (src_fpath: str, identifier: str, is_submission: bool):
+
     with open(f'{src_fpath}', 'r+') as source:
         soup = BeautifulSoup(source.read(), 'html.parser')
-        # Inject base tag into head
-        # soup = _inject_html_addon(soup, 'head', 6, 'base.html', base_path=identifier.replace('.', '-'))
-        # Inject header block into body
-        soup = _inject_html_addon(soup, 'body', 1, 'header.html')
-        # Inject body message into body
-        soup = _inject_html_addon(soup, 'body', 2, 'body_message.html')
-        # Inject style block into head
-        soup = _inject_html_addon(soup, 'head', 7, 'style.html')
+        
+        soup = _inject_html_addon(soup, 'head', 100, 'scripts.html') # append
 
         # Add id="main" to <div class="ltx_page_main">
         soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'

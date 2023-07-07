@@ -2,14 +2,14 @@
 
 import os
 
-IN_BUCKET_ARXIV_ID = 'latexml_arxiv_id_source'
-OUT_BUCKET_ARXIV_ID = 'latexml_arxiv_id_converted'
-OUT_BUCKET_SUB_ID = 'latexml_submission_converted'
-QA_BUCKET_NAME = 'latexml_qa'
+IN_BUCKET_ARXIV_ID = os.environ['DOCUMENT_SOURCE_BUCKET'] # Startup failure on miss
+OUT_BUCKET_ARXIV_ID = os.environ['DOCUMENT_CONVERTED_BUCKET'] # Startup failure on miss
+OUT_BUCKET_SUB_ID = os.environ['SUBMISSION_SOURCE_BUCKET'] # Startup failure on miss
+QA_BUCKET_NAME = os.environ['QA_BUCKET'] # Startup failure on miss
 
-LATEXML_COMMIT = os.environ.get('LATEXML_COMMIT')
+LATEXML_COMMIT = os.environ['LATEXML_COMMIT']
 
-LATEXML_DB_URI = os.environ.get('LATEXML_DB_URI')
+LATEXML_DB_URI = os.environ['LATEXML_DB_URI']
 SQLALCHEMY_DATABASE_URI = LATEXML_DB_URI
 
 LOCK_DIR = '/arxiv/locks'

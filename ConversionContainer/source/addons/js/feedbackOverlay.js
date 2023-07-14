@@ -1,4 +1,28 @@
 var selectionAnchorNode;
+var bugReportState = {
+    initiateWay: null,
+    setInitiateWay: (value) => this.initiateWay = value,
+    getInitiateWay: () => this.initiateWay,
+    selectedHtml: null,
+    elementIdentifier: null,
+    setSelectedHtmlSRB: (value) => {
+        this.selectedHtml = "data:text/html;charset=utf-8," + encodeURIComponent(value.innerHTML);
+        this.elementIdentifier = value.id;
+    },
+    setSelectedHtmlSmallButton: (value) => {
+        const range = value.getRangeAt(0);
+        const container = document.createElement('div');
+        container.appendChild(range.cloneContents());
+        this.selectedHtml = 'data:text/html;charset=utf-8,' + encodeURIComponent(container.innerHTML);
+    },
+    getSelectedHtml: () => this.selectedHtml,
+    getElementIdentifier: () => this.elementIdentifier,
+    clear: () => {
+        this.selectedHtml = "undefined";
+        this.elementIdentifier = "undefined";
+        this.initiateWay = "undefined";
+    }
+};
 
 function detectColorScheme() {
     var theme="light";
@@ -82,11 +106,17 @@ function addBugReportForm() {
     const modalBody = document.createElement("div");
     modalBody.setAttribute("class", "modal-body");
 
+    // Update: Add warning label. Need add format in style.css.
+    const warningLabel = document.createElement("div");
+    warningLabel.id = "warningLabel";
+    warningLabel.setAttribute('class', 'form-text');
+    warningLabel.textContent = "Warning: Issue reports are not private. If you are an author submitting feedback about a pre-release submission, be advised that the contents of the bug report will be publicly available.";
+
     // Create the description input field
     const descriptionLabel = document.createElement("label");
     descriptionLabel.setAttribute("for", "description");
     //descriptionLabel.setAttribute("class", "form-label");
-    descriptionLabel.appendChild(document.createTextNode("Description*:"));
+    descriptionLabel.appendChild(document.createTextNode("Description*"));
 
     const descriptionTextarea = document.createElement("textarea");
     descriptionTextarea.setAttribute("class", "form-control");
@@ -94,8 +124,9 @@ function addBugReportForm() {
     descriptionTextarea.setAttribute("name", "description");
     descriptionTextarea.setAttribute("required", "required");
     descriptionTextarea.setAttribute("style", "height: 80px;");
-    descriptionTextarea.setAttribute("maxlength", "1000"); // Set the maximum length to 200 characters
-    descriptionTextarea.setAttribute("placeholder","1000 characters maximum");
+    // Update: Change to 500 for next two lines.
+    descriptionTextarea.setAttribute("maxlength", "500"); // Set the maximum length to 200 characters
+    descriptionTextarea.setAttribute("placeholder","500 characters maximum");
 
     // Create the modal footer
     const modalFooter = document.createElement("div");
@@ -109,14 +140,25 @@ function addBugReportForm() {
     submitButton.setAttribute("style", "background-color: #b31b1b;");
     submitButton.appendChild(document.createTextNode("Submit"));
 
+    // Update: ScreenReader Submit Buttons. Needed for Submit without Github Function.
+    const srSubmit = document.createElement("button");
+    srSubmit.setAttribute("type", "submit");
+    srSubmit.setAttribute("class", "sr-only button");
+    srSubmit.setAttribute("id", "modal-submit-sr");
+    srSubmit.appendChild(document.createTextNode("Submit without Github"));
+
     // Create a container div for the buttons
     const buttonsContainer = document.createElement("div");
     buttonsContainer.setAttribute("class", "d-flex justify-content-between");
 
     // Append the elements to their respective parents
+    // Update: Add warning label (next line)
+    modalBody.appendChild(warningLabel);
     modalBody.appendChild(descriptionLabel);
     modalBody.appendChild(descriptionTextarea);
 
+    // Update: Add buttonsContainer (next line)
+    modalFooter.appendChild(srSubmit);
     modalFooter.appendChild(submitButton);
 
     form.appendChild(modalHeader);
@@ -133,6 +175,7 @@ function addBugReportForm() {
     button.onclick = (e) => {
         currentAnchorNode = null;
         showModal(modal, 'button');
+        bugReportState.setInitiateWay("Fixedbutton");
     }
     closeButton.onclick = (e) => hideModal(modal);
 
@@ -148,8 +191,7 @@ function addSRButton(modal) {
     // Add a hidden button after each paragraph
     // Add a hidden button after each paragraph
     contents.forEach((content, i) => {
-
-        if (i < 5 || content.classList.contains("logomark")) return;
+        if (content.classList.contains("header-message") || content.classList.contains("logomark")) return;
 
         const button = document.createElement("button");
         button.setAttribute("class", "sr-only button");
@@ -159,7 +201,19 @@ function addSRButton(modal) {
         button.onfocus = () => previousFocusElement = document.activeElement;
 
         button.onclick = (e) => {
+            /* 
+                Comment: Need add a variable named initiateWay, so we can know how users initiate the report.
+            
+                For addSRbutton, initiateWay = "srButton"
+                For smallReportButton, initiateWay = "smallButton"
+                For ShortCut, initiateWay = "ShortCut"
+                For click the button(right bi button) created in the modal, initiateWay = "FixedButton".
+
+                So you may need to create a global variable. I have checked showModal it cannot send any parameter to modal.
+            */
             showModal(modal);
+            bugReportState.setSelectedHtmlSRB(content);
+            bugReportState.setInitiateWay("SRButton");
             e.preventDefault();
         };
 
@@ -178,7 +232,9 @@ function showModal (modal) {
     modal.focus();
 }
 
-function hideModal (modal) { modal.style.display = 'none'; }
+function hideModal (modal) { 
+    modal.style.display = 'none'; 
+}
 
 function showButtons (buttons) {
     buttons.forEach((button) => {
@@ -202,6 +258,7 @@ const handleKeyDown = (e, modal, buttons) => {
         showButtons(buttons);
     } else if (ctrlOrMeta && (e.key === '/' || e.key === '?')) {
         showModal(modal)
+        bugReportState.setInitiateWay("ShortCut");
     } else if (ctrlOrMeta && (e.key === '}' || e.key === ']')) {
         hideModal(modal);
     }
@@ -212,7 +269,16 @@ function handleMouseUp (e, smallButton) {
         if (e.target.id === "small-report-button") 
             return;
         if (!window.getSelection().isCollapsed) {
-            currentAnchorNode = window.getSelection().anchorNode;
+            selection = window.getSelection();
+            currentAnchorNode = selection.anchorNode;
+            bugReportState.setSelectedHtmlSmallButton(selection);
+            // var range = selection.getRangeAt(0);
+            // var container = document.createElement('div');
+            // container.appendChild(range.cloneContents());
+            // // Use the selected text to generate the dataURI
+            // selectedHtml = 'data:text/html;charset=utf-8,' + encodeURIComponent(container.innerHTML);
+            //Comment: Need to get the selected text and pass it to the backend
+            //reference: var selectedhtml in app.js
             showSmallButton(smallButton);
         }
         else hideSmallButton(smallButton);
@@ -231,6 +297,7 @@ function createSmallButton (modal) {
 
     smallReportButton.onclick = (e) => {
         showModal(modal); // do something with window.getSelection()
+        bugReportState.setInitiateWay("selectedText-smallButton");
     }
 
     smallReportButton.addEventListener("focusout", function (e) {
@@ -284,7 +351,7 @@ function submitBugReport (e) {
     const browserInfo = browserName + '/' + browserVersion;
 
     // Relevant Selection
-    let elementIdentifier = 'Unknown';
+    let elementIdentifier = bugReportState.getElementIdentifier();
     let topLayer = 'Unknown';
     console.log(currentAnchorNode);
     if (currentAnchorNode !== null) {
@@ -317,11 +384,12 @@ function submitBugReport (e) {
     issueData['description'] = dataDescription;
     issueData['locationLow'] = elementIdentifier;
     issueData['locationHigh'] = topLayer;
-
+    issueData['selectedHtml'] = bugReportState.getSelectedHtml();
+    issueData['initiationWay'] = bugReportState.getInitiateWay();
 
     form = new FormData();
     form.append('template', 'bug_report.md');
-    form.append('title', `${arxivIdv}:${uniqueId}`)
+    form.append('title',`Improve article : ${arxivIdv}`)
     form.append('body', makeGithubBody(issueData));
 
     const GITHUB_BASE_URL = 'https://github.com/arXiv/html_feedback/issues/new?' 
@@ -329,6 +397,14 @@ function submitBugReport (e) {
     const link = GITHUB_BASE_URL + queryString;
 
     window.open(link, '_blank');
+
+    /*
+        Comment: 
+        1. Add document.querySelector('#myFormContent').reset(); // Reset the form
+        2. Add hideModal(modal) and hideSmallButton(smallReportButton) here.
+    */
+    document.querySelector('#myFormContent').reset();
+    bugReportState.clear();
 }
 
 function handleClickOutsideModal(e, modal) {
@@ -338,16 +414,27 @@ function handleClickOutsideModal(e, modal) {
 
 
 function makeGithubBody (issueData) {
-    let body = "";
-    body += `### Issue ID: ${issueData.uniqueId}\n\n`;
-    body += `### Article URL: ${issueData.canonicalURL}\n\n`;
-    body += `### HTML URL: ${issueData.conversionURL}\n\n`;
-    body += `### Report Time: ${issueData.reportTime}\n\n`;
-    body += `### Browser Info: ${issueData.browserInfo}\n\n`;
-    body += `### Location Low: ${issueData.locationLow}\n\n`;
-    body += `### Location High: ${issueData.locationHigh}\n\n`;
-    body += `### Description\n ${issueData.description}`;
-    
+    let body = "## Self Report Data\n\n Feel free to attach a screenshot (or document) link below:\n\n\n## Auto Fill Data \n\n";
+
+    body += `**Issue ID**: ${issueData.uniqueId}\n\n`;
+    body += `**Description**: ${issueData.description}\n\n`;
+    body += `**Article URL**: ${issueData.canonicalURL}\n\n`;
+    body += `**HTML URL**: ${issueData.conversionURL}\n\n`;
+    body += `**Report Time**: ${issueData.reportTime}\n\n`;
+    body += `**Browser Info**: ${issueData.browserInfo}\n\n`;
+    body += `**Location Low**: ${issueData.locationLow}\n\n`;
+    body += `**Location High**: ${issueData.locationHigh}\n\n`;
+    body += `**Initiation Way**: ${issueData.initiationWay}\n\n`;
+
+    var selectedText=`**Selected HTML**: ${issueData.selectedHtml}\n\n`;
+    if((body+selectedText).length>=8000){
+        selectedText="**htmlText**: " + selectedHtml.substring(0, 4000) + "\n\n"
+        body+=selectedText;
+    }
+    else{
+        body+=selectedText;
+    }
+
     return body;
 }
 
@@ -363,8 +450,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.onclick = (e) => handleClickOutsideModal(e, modal);
     document.onmouseup = (e) => handleMouseUp(e, smallReportButton);
 
-    // Handle the window scroll event
-    window.onscroll = () => showSmallButton(smallReportButton);
+    let lastScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+    window.addEventListener('scroll', () => {
+        const currentScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
+        if (currentScrollPosition > lastScrollPosition || currentScrollPosition < lastScrollPosition) {
+            smallReportButton.style.display = "none";
+          } else {
+            smallReportButton.style.display = "block";
+          }
+          lastScrollPosition = currentScrollPosition;
+    });
 
     document.getElementById('myFormContent').onsubmit = submitBugReport;
 });

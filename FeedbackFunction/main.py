@@ -3,7 +3,7 @@ from models import add_feedback
 import re
 
 def _validate_params (params, field_names) -> bool:
-    id_re = re.compile(r'^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$')
+    id_re = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$')
     if not (params.get('uniqueId') and re.match(id_re, params['uniqueId'])):
         return False
     for field in field_names:

@@ -1,6 +1,6 @@
 import os
 
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, String, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -12,7 +12,7 @@ class DBFeedback (base):
     id = Column(String, primary_key=True)
     canonical_url = Column(String)
     conversion_url = Column(String)
-    report_time = Column(Integer)
+    report_time = Column(BigInteger)
     browser_info = Column(String)
     location_low = Column(String)
     location_high = Column(String)

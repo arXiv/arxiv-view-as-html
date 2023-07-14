@@ -419,6 +419,7 @@ async function postToDB (issueData) {
     const queryString = new URLSearchParams(issueData).toString();
     const response = await fetch(DB_BACKEND_URL, {
         method: "POST",
+        mode: "no-cors",
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },

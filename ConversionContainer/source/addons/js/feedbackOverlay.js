@@ -415,7 +415,7 @@ function handleClickOutsideModal(e, modal) {
 }
 
 async function postToDB (issueData) {
-    const DB_BACKEND_URL = 'services.arxiv.org/latexml/feedback';
+    const DB_BACKEND_URL = 'https://services.arxiv.org/latexml/feedback';
     const queryString = new URLSearchParams(issueData).toString();
     const response = await fetch(DB_BACKEND_URL, {
         method: "POST",

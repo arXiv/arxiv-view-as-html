@@ -78,6 +78,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
             else:
                 upload_dir_to_gcs(bucket_dir_container, OUT_BUCKET_ARXIV_ID)
             
+            # TODO: Maybe remove for batch
             download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
             write_success(id, tar_gz, is_submission)
     except Exception as e:
@@ -204,7 +205,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         stderr=subprocess.STDOUT,
         check=True,
         text=True,
-        timeout=600)
+        timeout=300)
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)

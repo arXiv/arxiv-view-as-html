@@ -4,12 +4,15 @@ from datetime import datetime
 import os
 from threading import Thread
 import logging
+import json
+from base64 import b64decode
 
 import flask
 from flask import Blueprint, request, jsonify, \
     current_app, Response
 
 from .convert import process
+from .convert.batch_convert import batch_process
 from .publish import publish
 
 
@@ -28,12 +31,19 @@ blueprint = Blueprint('routes', __name__)
 
 # Unwraps payload and only starts processing if it is 
 # the desired format and a .tar.gz
-def _unwrap_payload (payload: Dict[str, str]) -> Tuple[str, str]:
+def _unwrap_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
     if payload['name'].endswith('.gz'):
         id = payload['name'].split('/')[1].replace('.tar.gz', '')
         return id, payload['name'], payload['bucket']
     raise ValueError ('Received extraneous file')
 
+def _unwrap_batch_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
+    data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
+    return (
+        data['id'],
+        data['blob'],
+        data['bucket']
+    )
 
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
@@ -53,11 +63,15 @@ def process_route () -> Response:
         id, blob, bucket = _unwrap_payload(request.json)
     except Exception as e:
         logging.info(f'Discarded request for {request.json["name"]}')
-        return '', 202
+        return '', 400
     logging.info(f'Begin processing for {blob} from {bucket}')
-    thread = FlaskThread(target=process, args=(id, blob, bucket))
-    thread.start()
-    return '', 202
+    process(id, blob, bucket)
+    return '', 200
+
+@blueprint.route('/batch-convert', methods=['POST'])
+def batch_convert_route () -> Response:
+    batch_process(*_unwrap_batch_conversion_payload(request.json))
+    return '', 200
 
 @blueprint.route('/publish', methods=['POST'])
 def publish_route () -> Response:

@@ -89,4 +89,4 @@ RUN poetry config virtualenvs.create false
 COPY . .
 RUN poetry install
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "entry_point:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "-w", "4", "--threads", "2", "entry_point:app"]

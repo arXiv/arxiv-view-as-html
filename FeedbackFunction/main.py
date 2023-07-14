@@ -1,7 +1,11 @@
 import functions_framework
 from models import add_feedback
+import re
 
 def _validate_params (params, field_names) -> bool:
+    id_re = re.compile(r'^[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$')
+    if not (params.get('uniqueId') and re.match(id_re, params['uniqueId'])):
+        return False
     for field in field_names:
         if field not in params:
             return False
@@ -10,7 +14,7 @@ def _validate_params (params, field_names) -> bool:
 @functions_framework.http
 def main(request):
     """HTTP Cloud Function.
-    Args:
+    form:
         request (flask.Request): The request object.
         <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
     Returns:
@@ -18,6 +22,7 @@ def main(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
+
     field_names = [
         'uniqueId',
         'canonicalURL',
@@ -26,19 +31,21 @@ def main(request):
         'browserInfo',
         'description',
         'locationLow',
-        'locationHigh'
+        'locationHigh',
+        'selectedHtml', 
+        'initiationWay'
     ]
 
-    if _validate_params (request.args, field_names):
+    if _validate_params (request.form, field_names):
         add_feedback(
-            request.args['uniqueId'],
-            request.args['canonicalURL'],
-            request.args['conversionURL'],
-            request.args['reportTime'],
-            request.args['browserInfo'],
-            request.args['locationLow'],
-            request.args['locationHigh'],
-            request.args['description']
+            request.form['uniqueId'],
+            request.form['canonicalURL'],
+            request.form['conversionURL'],
+            request.form['reportTime'],
+            request.form['browserInfo'],
+            request.form['locationLow'],
+            request.form['locationHigh'],
+            request.form['description']
         )
         return '', 200
     return '', 400

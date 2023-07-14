@@ -396,6 +396,8 @@ function submitBugReport (e) {
     const queryString = new URLSearchParams(form).toString()
     const link = GITHUB_BASE_URL + queryString;
 
+    postToDB(issueData);
+
     window.open(link, '_blank');
 
     /*
@@ -412,6 +414,22 @@ function handleClickOutsideModal(e, modal) {
         modal.style.display = 'none';
 }
 
+async function postToDB (issueData) {
+    const DB_BACKEND_URL = 'services.arxiv.org/latexml/feedback';
+    const queryString = new URLSearchParams(issueData).toString();
+    const response = await fetch(DB_BACKEND_URL, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: queryString, // body data type must match "Content-Type" header
+    });
+    if (response.status == 200) {
+        console.log('Submitted form successfully');
+    } else {
+        console.log('Form subission failed');
+    }
+}
 
 function makeGithubBody (issueData) {
     let body = "## Self Report Data\n\n Feel free to attach a screenshot (or document) link below:\n\n\n## Auto Fill Data \n\n";

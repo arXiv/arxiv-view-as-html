@@ -11,7 +11,7 @@ steps:
       - 'gcr.io/$PROJECT_ID/html-conversion:$COMMIT_SHA'
       - '-t'
       - 'gcr.io/$PROJECT_ID/html-conversion:latest'
-      - '.'
+      - 'ConversionContainer/Dockerfile'
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - push

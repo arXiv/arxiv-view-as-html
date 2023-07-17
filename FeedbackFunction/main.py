@@ -41,7 +41,7 @@ def main(request):
             request.form['uniqueId'],
             request.form['canonicalURL'],
             request.form['conversionURL'],
-            request.form['reportTime'],
+            int(request.form['reportTime']),
             request.form['browserInfo'],
             request.form['locationLow'],
             request.form['locationHigh'],

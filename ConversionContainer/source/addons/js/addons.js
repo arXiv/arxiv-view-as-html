@@ -3,21 +3,21 @@ let create_header = () => {
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
     if (id === 'submission') {
-        header.innerHTML = 
+        header.innerHTML =
         '<a href="#main" class="skip">Skip to main content</a> \
         <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
         <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
-            The HTML below is experimental. We invite you to report any rendering errors you find by clicking the "Report" button, or click <strong>Shift+b</strong> to toggle accessible reporting links at each section. <a href="#footer">Reference a list of keyboard commands</a> and instructions in the footer. \
+            <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
         </div> \
-        </a>';
+        <div></div>';
     } else {
-        header.innerHTML = 
+        header.innerHTML =
         `<a href="#main" class="skip">Skip to main content</a> \
         <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
         <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
-            The HTML below is experimental. We invite you to report any rendering errors you find by clicking the "Report" button, or click <strong>Shift+b</strong> to toggle accessible reporting links at each section. <a href="#footer">Reference a list of keyboard commands</a> and instructions in the footer. \
+            <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
         </div> \
         <a href="${ABS_URL_BASE}/${id}"> \
             Back to Abstract \
@@ -34,14 +34,16 @@ let create_footer = () => {
     footer.setAttribute('class', 'ltx_document');
     footer.innerHTML =
     '<div class="keyboard-glossary ltx_page_content"> \
-        <h2>Keyboard commands and instructions for reporting</h2> \
-        <p>Report rendering errors in the HTML by either clicking on the "Report" button or using the keyboard commands listed below</p> \
+        <h2>Keyboard commands and instructions for reporting errors</h2> \
+        <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p> \
         <ul> \
-            <li><strong>Shift + b</strong> will toggle individual reporting buttons at each section. Use these reporting buttons when you want to report an issue within a specific section.</li> \
-            <li>[KEY COMMAND 2] will open a general report form. Use this to report an issue that applies to the paper overall.</li> \
-            <li>Reporting will prompt you to login to your Github account. You can set up an account for free <a href="https://github.com/account/organizations/new?plan=free" target="_blank">here</a>.</li> \
+            <li>Use the "Open Issue" button.</li> \
+            <li><strong>Ctrl + ?</strong> will open the report feedback form via keyboard.</li> \
+            <li>If using a screen reader, <strong>Shift + b</strong> will toggle individual reporting buttons at each section on and off. Useful when you want to report an issue just within a specific section, as highligting is not screen reader compatible.</li> \
+            <li>You can also highlight any text and click the "Open Issue" button that will display near your cursor. Highlighting is not screen reader compatible so the method above is also available.</li> \
+            <li>Reporting will prompt you to login to Github to complete the process. Need an account? <a href="https://github.com/account/organizations/new?plan=free" target="_blank">Create a GitHub account for free</a>.</li> \
         </ul> \
-        <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible. <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">What is accessibility and why is it important?</a>.</p> \
+        <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field. <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why is it important that research papers be accessible?</a>.</p> \
     </div>';
 
     document.body.appendChild(footer);

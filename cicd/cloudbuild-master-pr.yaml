@@ -19,9 +19,9 @@ steps:
       - 'gcr.io/$PROJECT_ID/html-conversion'
     id: Push
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
-  - entrypoint: "bash"
+    entrypoint: "bash"
     args:
-      - "-c" 
+      - '-c' 
       - |
           git clone https://github.com/arXiv/$REPO_NAME/commit/$COMMIT_SHA
           gsutil cp $REPO_NAME/ConversionContainer/bucket_static/** gs://latexml_document_conversions

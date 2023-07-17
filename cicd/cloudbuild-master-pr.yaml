@@ -20,13 +20,7 @@ steps:
     id: Push
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     entrypoint: "bash"
-    args:
-      - '-c' 
-      - |
-          git clone https://github.com/arXiv/$REPO_NAME.git
-          cd $REPO_NAME
-          git reset --hard $COMMIT_SHA
-          gsutil cp ConversionContainer/bucket_static/** gs://latexml_document_conversions
+    args: ['-c', gsutil cp ./ConversionContainer/bucket_static/** gs://latexml_document_conversions]
     id: OverwriteStatic
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     args:

@@ -138,7 +138,7 @@ function addBugReportForm() {
     submitButton.setAttribute("class", "btn btn-primary");
     submitButton.setAttribute("id", "modal-submit");
     submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;" );
-    submitButton.appendChild(document.createTextNode("Submit"));
+    submitButton.appendChild(document.createTextNode("Submit in Github"));
 
     // Update: ScreenReader Submit Buttons. Needed for Submit without Github Function.
     const srSubmit = document.createElement("button");

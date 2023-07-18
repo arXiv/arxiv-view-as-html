@@ -35,15 +35,15 @@ let create_footer = () => {
     footer.innerHTML =
     '<div class="keyboard-glossary ltx_page_content"> \
         <h2>Keyboard commands and instructions for reporting errors</h2> \
-        <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p> \
+        <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback that will help us improve the HTML conversion. Use the methods listed below to report HTML errors:</p> \
         <ul> \
             <li>Use the "Open Issue" button.</li> \
-            <li><strong>Ctrl + ?</strong> will open the report feedback form via keyboard.</li> \
-            <li>If using a screen reader, <strong>Shift + b</strong> will toggle individual reporting buttons at each section on and off. Useful when you want to report an issue just within a specific section, as highligting is not screen reader compatible.</li> \
+            <li><strong>Ctrl + ?</strong> will also open the report feedback form via keyboard.</li> \
+            <li>If using a screen reader, <strong>Shift + b</strong> will toggle individual reporting buttons at each paragraph. Useful when you want to report an issue related to a specific section.</li> \
             <li>You can also highlight any text and click the "Open Issue" button that will display near your cursor. Highlighting is not screen reader compatible so the method above is also available.</li> \
             <li>Reporting will prompt you to login to Github to complete the process. Need an account? <a href="https://github.com/account/organizations/new?plan=free" target="_blank">Create a GitHub account for free</a>.</li> \
         </ul> \
-        <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field. <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why is it important that research papers be accessible?</a>.</p> \
+        <p>We appreciate your time reporting rendering errors in the HTML. Disability should not be a barrier to accessing research, and your feedback will help us improve the HTML versions for all readers and make papers more accessible. <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why is it important that research papers be accessible?</a>.</p> \
     </div>';
 
     document.body.appendChild(footer);

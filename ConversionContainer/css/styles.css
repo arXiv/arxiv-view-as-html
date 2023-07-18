@@ -5,6 +5,9 @@ header {
   padding: .5em 4em;
   align-items: center;
 }
+[data-theme=dark] header {
+  background-color: black;
+}
 header a {
   color: white;
 }
@@ -77,10 +80,14 @@ footer {
   font-family: arial, tahoma, sans-serif;
 }
 footer h2 {
-  font-size: 1em;
+  font-size: 1.5em;
+  font-weight: 700;
 }
 footer p, footer ul {
   font-size: 0.9em;
+}
+footer strong {
+  font-weight: bold;
 }
 
 /*mobile*/
@@ -454,3 +461,5 @@ body:after {
   border-radius: .5em;
   margin: 1em auto;
 }
+
+[data-theme=dark]

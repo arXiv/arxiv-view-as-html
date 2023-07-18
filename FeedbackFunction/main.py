@@ -45,7 +45,10 @@ def main(request):
             request.form['browserInfo'],
             request.form['locationLow'],
             request.form['locationHigh'],
-            request.form['description']
+            request.form['description'],
+            request.form['selectedHtml'],
+            request.form['initiationWay'],
+
         )
         return '', 200
     return '', 400

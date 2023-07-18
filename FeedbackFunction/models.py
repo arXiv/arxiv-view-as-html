@@ -17,6 +17,8 @@ class DBFeedback (base):
     location_low = Column(String)
     location_high = Column(String)
     description = Column(String)
+    selected_html = Column(String)
+    initiation_mode = Column(String)
 
 
 engine = create_engine(os.environ['LATEXML_DB_URI'])
@@ -25,7 +27,8 @@ base.metadata.create_all(engine)
 
 def add_feedback (id: str, canonical_url: str, conversion_url: str,
                   report_time: str, browser_info: str, location_low: str,
-                  location_high: str, description: str):
+                  location_high: str, description: str, 
+                  selected_html: str, initiation_mode: str):
     s = session()
     s.add(DBFeedback(
         id=id,
@@ -35,7 +38,9 @@ def add_feedback (id: str, canonical_url: str, conversion_url: str,
         browser_info=browser_info,
         location_low=location_low,
         location_high=location_high,
-        description=description
+        description=description,
+        selected_html=selected_html,
+        initiation_mode=initiation_mode
     ))
     s.commit()
 

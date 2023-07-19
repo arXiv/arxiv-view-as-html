@@ -400,13 +400,9 @@ function submitBugReport (e) {
 
     window.open(link, '_blank');
 
-    /*
-        Comment:
-        1. Add document.querySelector('#myFormContent').reset(); // Reset the form
-        2. Add hideModal(modal) and hideSmallButton(smallReportButton) here.
-    */
     document.querySelector('#myFormContent').reset();
     bugReportState.clear();
+    hideModal(document.getElementById('myForm'));
 }
 
 function handleClickOutsideModal(e, modal) {
@@ -428,26 +424,13 @@ function postToDB (issueData) {
 }
 
 function makeGithubBody (issueData) {
-    let body = "## Issue Description\n\n ${issueData.description}\n\n Feel free to attach a screenshot (or document) link below:\n\n\n## Do not edit below this line \n\n";
-
-    body += `**Issue ID**: ${issueData.uniqueId}\n\n`;
-    // body += `**Article URL**: ${issueData.canonicalURL}\n\n`;
-    // body += `**HTML URL**: ${issueData.conversionURL}\n\n`;
-    // body += `**Report Time**: ${issueData.reportTime}\n\n`;
-    // body += `**Browser Info**: ${issueData.browserInfo}\n\n`;
-    // body += `**Location Low**: ${issueData.locationLow}\n\n`;
-    // body += `**Location High**: ${issueData.locationHigh}\n\n`;
-    // body += `**Initiation Way**: ${issueData.initiationWay}\n\n`;
-
-    var selectedText=`**Selected HTML**: ${issueData.selectedHtml}\n\n`;
-    if((body+selectedText).length>=8000){
-        selectedText="**htmlText**: " + selectedHtml.substring(0, 4000) + "\n\n"
-        body+=selectedText;
-    }
-    else{
-        body+=selectedText;
-    }
-
+    let body = "## Describe the issue\n\n";
+    body += `**Description**: ${issueData.description}\n\n`;
+    body += "Feel free to attach a screenshot (or document) link below: \n\n\n\n";
+    // Auto Fill Data
+    body += "## Auto Fill Data - !!! Please do not edit below this line !!!\n";
+    body += "----------------------------------------------------------------------------------------\n\n";
+    body += `Id: ${issueData.uniqueId}\n`     
     return body;
 }
 

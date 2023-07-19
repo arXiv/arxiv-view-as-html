@@ -27,7 +27,7 @@ from ..addons import inject_addons, copy_static_assets
 
 
 def process(id: str, blob: str, bucket: str) -> bool:
-    is_submission = bucket != current_app.config['IN_BUCKET_ARXIV_ID']
+    is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
 
     """ File system we will be using """
     safe_name = str(uuid.uuid4()) # In case two machines download before locking

@@ -188,6 +188,8 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         os.getcwd(),
         os.path.dirname(main_fpath)
     )
+    logging.info(f'SRC_PATH: {src_path}')
+    logging.info('\n'.join(os.listdir(src_path)))
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",

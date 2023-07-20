@@ -211,7 +211,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
-        f.wirte(f'{main_fpath}\n')
+        f.write(f'{main_fpath}\n')
         f.write('\n'.join(os.listdir(os.path.dirname(main_fpath))))
         f.write(f'\n\n{src_path}\n')
         f.write('\n'.join(os.listdir(src_path)))

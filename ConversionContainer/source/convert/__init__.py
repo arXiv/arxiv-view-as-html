@@ -198,7 +198,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
                       "--timeout=2700",
                       "--nodefaultresources",
                       "--css=https://browse.arxiv.org/latexml/ar5iv.min.css",
-                      "--graphicimages"
+                      "--graphicimages",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(
         latexml_config,

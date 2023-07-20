@@ -184,10 +184,15 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     sub_id: str
         submission id of the article
     """
+    src_path = os.path.join(
+        os.getcwd(),
+        os.path.dirname(main_fpath)
+    )
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
                       "--path=/opt/arxmliv-bindings/supported_originals",
+                      f"--path={src_path}"
                       "--pmml", "--cmml", "--mathtex",
                       "--timeout=2700",
                       "--nodefaultresources",
@@ -204,8 +209,10 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
-        f.write(f'{os.path.dirname(main_fpath)}\n')
+        f.wirte(f'{main_fpath}\n')
         f.write('\n'.join(os.listdir(os.path.dirname(main_fpath))))
+        f.write(f'\n\n{src_path}\n')
+        f.write('\n'.join(os.listdir(src_path)))
     try:
         bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_NAME'])
         errblob = bucket.blob(f"{sub_id}_stdout.txt")

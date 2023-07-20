@@ -192,7 +192,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
                       "--path=/opt/arxmliv-bindings/supported_originals",
-                      f"--path={src_path}"
+                      f"--path={src_path}",
                       "--pmml", "--cmml", "--mathtex",
                       "--timeout=2700",
                       "--nodefaultresources",

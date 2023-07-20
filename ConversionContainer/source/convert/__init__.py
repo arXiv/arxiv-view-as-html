@@ -208,6 +208,8 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         check=True,
         text=True,
         timeout=300)
+    ld = "\n".join(os.listdir(src_path))
+    logging.info(f'SRC_PATH AGAIN: {src_path}\n{ld}')
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)

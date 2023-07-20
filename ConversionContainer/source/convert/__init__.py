@@ -197,7 +197,6 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
                       "--pmml", "--cmml", "--mathtex",
                       "--timeout=2700",
                       "--nodefaultresources",
-                      "--css=css/ar5iv.min.css",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(
         latexml_config,

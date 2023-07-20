@@ -10,11 +10,6 @@ import uuid
 
 from flask import current_app
 
-from ..config import (
-    OUT_BUCKET_ARXIV_ID,
-    OUT_BUCKET_SUB_ID,
-    QA_BUCKET_NAME
-)
 from ..util import untar, id_lock, timeout
 from ..buckets.util import get_google_storage_client
 from ..buckets import download_blob, upload_dir_to_gcs, \
@@ -24,7 +19,6 @@ from ..exceptions import *
 from .concurrency_control import \
     write_start, write_success, write_failure
 from ..addons import inject_addons, copy_static_assets
-
 
 def process(id: str, blob: str, bucket: str) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
@@ -74,9 +68,9 @@ def process(id: str, blob: str, bucket: str) -> bool:
             
             logging.info(f"Step 7: Upload html for {id}")
             if is_submission:
-                upload_tar_to_gcs(id, bucket_dir_container, OUT_BUCKET_SUB_ID, f'{bucket_dir_container}/{id}.tar.gz')
+                upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
-                upload_dir_to_gcs(bucket_dir_container, OUT_BUCKET_ARXIV_ID)
+                upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
             
             # TODO: Maybe remove for batch
             download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
@@ -210,14 +204,15 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
+        f.write(f'{os.path.dirname(main_fpath)}\n')
         f.write('\n'.join(os.listdir(os.path.dirname(main_fpath))))
     try:
-        bucket = get_google_storage_client().bucket(QA_BUCKET_NAME)
+        bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_NAME'])
         errblob = bucket.blob(f"{sub_id}_stdout.txt")
         errblob.upload_from_filename(f"{sub_id}_stdout.txt")
     except Exception as exc:
         raise GCPBlobError(
-            f"Uploading {sub_id}_stdout.txt to {QA_BUCKET_NAME} failed in do_latexml") from exc
+            f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
     os.remove(errpath)
 
 def _post_process (src_dir: str, id: str, is_submission: bool):

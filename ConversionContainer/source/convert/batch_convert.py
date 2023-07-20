@@ -5,10 +5,6 @@ import logging
 
 from flask import current_app
 
-from ..config import (
-    OUT_BUCKET_ARXIV_ID,
-    OUT_BUCKET_SUB_ID,
-)
 from ..util import untar, id_lock
 from ..buckets import download_blob, upload_dir_to_gcs, \
     upload_tar_to_gcs
@@ -72,6 +68,8 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             # Identify main .tex source in [source]
             logging.info(f"Step 4: Identify main .tex source for {id}")
             main = _find_main_tex_source(src_dir)
+
+            logging.info('\n'.join(os.listdir(src_dir)))
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
@@ -81,7 +79,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             logging.info(f"Step 6: Upload html for {id}")
             _post_process(bucket_dir_container, id, is_submission)
             
-            upload_dir_to_gcs(bucket_dir_container, OUT_BUCKET_ARXIV_ID)
+            upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
             
             write_success(id, tar_gz, is_submission)
     except Exception as e:

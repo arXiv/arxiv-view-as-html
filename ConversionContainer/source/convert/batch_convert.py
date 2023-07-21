@@ -41,10 +41,6 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
     try:
         with id_lock(id, current_app.config['LOCK_DIR']):
 
-            # Write to DB that process has started
-            logging.info(f"Write start process to db")
-            write_start(id, tar_gz, is_submission)
-
             try:
                 os.makedirs(outer_bucket_dir)
             except OSError:
@@ -59,6 +55,10 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             except Exception as e:
                 logging.info(f'Failed to download {id} with {e.with_traceback()}')
                 return
+            
+            # Write to DB that process has started
+            logging.info(f"Write start process to db")
+            write_start(id, tar_gz, is_submission)
     
             # Untar file ./[tar] to ./extracted/id/
             logging.info(f"Step 2: Untar {id}")

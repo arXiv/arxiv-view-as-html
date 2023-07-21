@@ -53,7 +53,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
                 logging.info(f"Step 1: Download {id}")
                 download_blob(bucket, blob, tar_gz)
             except Exception as e:
-                logging.info(f'Failed to download {id} with {e.with_traceback()}')
+                logging.info(f'Failed to download {id} with {e.__traceback__}')
                 return
             
             # Write to DB that process has started
@@ -86,7 +86,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             
             write_success(id, tar_gz, is_submission)
     except Exception as e:
-        logging.info(f'Conversion unsuccessful with {e.with_traceback()}')
+        logging.info(f'Conversion unsuccessful with {e.__traceback__}')
         try:
             write_failure(id, tar_gz, is_submission)
         except Exception as e:

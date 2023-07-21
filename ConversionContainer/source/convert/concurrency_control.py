@@ -23,17 +23,13 @@ def _get_checksum (abs_fname: str) -> str:
             md5_hash.update(byte_block)
     return md5_hash.hexdigest()
 
-def has_doc_been_tried (paper_idv: str, tar_fpath: str) -> bool:
+def has_doc_been_tried (paper_idv: str) -> bool:
     paper_id, document_version = _get_id_version (paper_idv)
     rec = db.session.query(DBLaTeXMLDocuments) \
             .filter(DBLaTeXMLDocuments.paper_id == paper_id) \
             .filter(DBLaTeXMLDocuments.document_version == document_version) \
             .first()
-    if not rec or \
-        rec.latexml_version!=_latexml_commit() or \
-        rec.tex_checksum!=_get_checksum(tar_fpath):
-        return False
-    return True
+    return rec is not None
 
 def _write_start_doc (paper_idv: str, tar_fpath: str):
     paper_id, document_version = _get_id_version (paper_idv)

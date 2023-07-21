@@ -26,7 +26,7 @@ from . import (
 
 def batch_process(id: str, blob: str, bucket: str) -> bool:
 
-    if has_doc_been_tried(id, tar_gz):
+    if has_doc_been_tried(id):
         return
 
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']

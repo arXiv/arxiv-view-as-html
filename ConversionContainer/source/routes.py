@@ -66,12 +66,12 @@ def process_route () -> Response:
         return '', 400
     logging.info(f'Begin processing for {blob} from {bucket}')
     process(id, blob, bucket)
-    return '', 200
+    return '', 202
 
 @blueprint.route('/batch-convert', methods=['POST'])
 def batch_convert_route () -> Response:
     batch_process(*_unwrap_batch_conversion_payload(request.json))
-    return '', 200
+    return '', 202
 
 @blueprint.route('/publish', methods=['POST'])
 def publish_route () -> Response:

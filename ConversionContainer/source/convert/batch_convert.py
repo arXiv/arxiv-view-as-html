@@ -2,6 +2,7 @@ import uuid
 import os
 import shutil
 import logging
+import traceback
 
 from flask import current_app
 
@@ -52,8 +53,9 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             try:
                 logging.info(f"Step 1: Download {id}")
                 download_blob(bucket, blob, tar_gz)
-            except Exception as e:
-                logging.info(f'Failed to download {id} with {e.__traceback__}')
+            except:
+                logging.info(f'Failed to download {id}')
+                traceback.print_exc()
                 return
             
             # Write to DB that process has started
@@ -85,8 +87,9 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
             
             write_success(id, tar_gz, is_submission)
-    except Exception as e:
-        logging.info(f'Conversion unsuccessful with {e.__traceback__}')
+    except:
+        logging.info(f'Conversion unsuccessful')
+        traceback.print_exc()
         try:
             write_failure(id, tar_gz, is_submission)
         except Exception as e:

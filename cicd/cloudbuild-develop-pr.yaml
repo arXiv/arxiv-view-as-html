@@ -1,0 +1,43 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args: ['-c', 'docker pull gcr.io/$PROJECT_ID/html-conversion:latest || echo "need a :latest because we use it for cache-from" && exit 0']
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--cache-from'
+      - 'gcr.io/$PROJECT_ID/html-conversion:latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/html-conversion:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/html-conversion:latest'
+      - './ConversionContainer/'
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - '--all-tags'
+      - 'gcr.io/$PROJECT_ID/html-conversion'
+    id: Push
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    entrypoint: "bash"
+    args: ['-c', gsutil cp ./ConversionContainer/bucket_static/** gs://latexml_arxiv_id_converted]
+    id: OverwriteStatic
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
+    args:
+      - run
+      - services
+      - update
+      - $_SERVICE_NAME
+      - '--platform=managed'
+      - >-
+        --image=gcr.io/$PROJECT_ID/html-conversion:$COMMIT_SHA
+      - >-
+        --labels=commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID
+      - '--region=$_DEPLOY_REGION'
+      - '--quiet'
+    id: Deploy
+    entrypoint: gcloud
+images: ['gcr.io/$PROJECT_ID/html-conversion:latest', 'gcr.io/$PROJECT_ID/html-conversion:$COMMIT_SHA']
+
+
+

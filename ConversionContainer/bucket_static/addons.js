@@ -33,7 +33,20 @@ let create_footer = () => {
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
     footer.innerHTML =
-    '<div class="keyboard-glossary ltx_page_content"> \
+    '<div class="ltx_page_footer"> \
+        <div class="ltx_page_logo"> \
+            Generated  on Tue Jul 25 18:10:32 2023 by \
+            <a class="ltx_LaTeXML_logo" href="http://dlmf.nist.gov/LaTeXML/"> \
+                <span style="letter-spacing:-0.2em; margin-right:0.1em;">L \
+                <span style="font-size:70%;position:relative; bottom:2.2pt;">A \
+                </span>T \
+                <span style="position:relative; bottom:-0.4ex;">E \
+                </span></span><span class="ltx_font_smallcaps">xml</span> \
+                <img alt="[LOGO]" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg=="> \
+            </a> \
+        </div> \
+    </div> \
+    <div class="keyboard-glossary ltx_page_content"> \
         <h2>Keyboard commands and instructions for reporting errors</h2> \
         <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p> \
         <ul> \

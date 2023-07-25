@@ -34,13 +34,18 @@ def _inject_html_addon (soup: BeautifulSoup, parent_tag: str, position: int, pay
             return soup
     except Exception as exc:
         raise HTMLInjectionError(f"Failed to inject {payload_fpath} with {exc}") from exc
-      
+    
+def _strip_footer (soup: BeautifulSoup) -> BeautifulSoup:
+    soup.find('footer').decompose()
+    return soup
 
 def inject_addons (src_fpath: str, identifier: str, is_submission: bool):
 
     with open(f'{src_fpath}', 'r+') as source:
         soup = BeautifulSoup(source.read(), 'html.parser')
         
+        soup = _strip_footer(soup)
+
         soup = _inject_html_addon(soup, 'head', 100, 'scripts.html') # append
 
         # Add id="main" to <div class="ltx_page_main">
@@ -52,3 +57,4 @@ def inject_addons (src_fpath: str, identifier: str, is_submission: bool):
     
 def copy_static_assets (src_fpath: str):
     shutil.copytree('/arxiv/source/addons/images', os.path.join(src_fpath, 'images'))
+

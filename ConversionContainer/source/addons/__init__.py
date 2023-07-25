@@ -52,6 +52,8 @@ def inject_addons (src_fpath: str, identifier: str, is_submission: bool):
         soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'
         
         # Overwrite original file with the new addons
+        source.truncate(0)
+
         source.seek(0)
         source.write(str(soup))
     

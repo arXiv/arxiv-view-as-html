@@ -46,7 +46,7 @@ def inject_addons (src_fpath: str, identifier: str, is_submission: bool):
         
         soup = _strip_footer(soup)
 
-        soup = _inject_html_addon(soup, 'head', 100, 'scripts.html') # append
+        # soup = _inject_html_addon(soup, 'head', 100, 'scripts.html') # append
 
         # Add id="main" to <div class="ltx_page_main">
         soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'

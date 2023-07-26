@@ -184,20 +184,21 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     sub_id: str
         submission id of the article
     """
-    src_path = os.path.join(
-        os.getcwd(),
-        os.path.dirname(main_fpath)
-    )
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
                       "--path=/opt/arxmliv-bindings/supported_originals",
-                      f"--path={src_path}",
                       "--pmml", "--cmml", "--mathtex",
-                      "--timeout=2700",
+                      "--timeout=300",
                       "--nodefaultresources",
-                      "--css=https://browse.arxiv.org/latexml/ar5iv_0.7.4.min.css",
-                      "--graphicimages",
+                      "--css=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+                      "--css=https://services.dev.arxiv.org/html/ar5iv_0.7.4.min.css",
+                      "--css=https://services.dev.arxiv.org/html/styles.css",
+                      "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+                      "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
+                      "--javascript=https://services.dev.arxiv.org/html/addons.js",
+                      "--javascript=https://services.dev.arxiv.org/html/feedbackOverlay.js",
+                      "--navigationtoc=context",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(
         latexml_config,
@@ -206,8 +207,6 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         check=True,
         text=True,
         timeout=300)
-    ld = "\n".join(os.listdir(src_path))
-    logging.info(f'SRC_PATH AGAIN: {src_path}\n{ld}')
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)

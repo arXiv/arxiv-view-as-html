@@ -63,15 +63,15 @@ def process_route () -> Response:
         id, blob, bucket = _unwrap_payload(request.json)
     except Exception as e:
         logging.info(f'Discarded request for {request.json["name"]}')
-        return '', 400
+        return '', 202
     logging.info(f'Begin processing for {blob} from {bucket}')
     process(id, blob, bucket)
-    return '', 202
+    return '', 200
 
 @blueprint.route('/batch-convert', methods=['POST'])
 def batch_convert_route () -> Response:
     batch_process(*_unwrap_batch_conversion_payload(request.json))
-    return '', 202
+    return '', 200
 
 @blueprint.route('/publish', methods=['POST'])
 def publish_route () -> Response:

@@ -1,7 +1,6 @@
 import tarfile
 import shutil
 import os
-import logging
 
 from .config import SITES_DIR, TARS_DIR
 

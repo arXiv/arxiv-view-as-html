@@ -188,8 +188,6 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         os.getcwd(),
         os.path.dirname(main_fpath)
     )
-    logging.info(f'SRC_PATH: {src_path}')
-    logging.info('\n'.join(os.listdir(src_path)))
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
@@ -198,7 +196,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
                       "--pmml", "--cmml", "--mathtex",
                       "--timeout=2700",
                       "--nodefaultresources",
-                      "--css=https://browse.arxiv.org/latexml/ar5iv.min.css",
+                      "--css=https://browse.arxiv.org/latexml/ar5iv_0.7.4.min.css",
                       "--graphicimages",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(
@@ -213,10 +211,6 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
-        f.write(f'{main_fpath}\n')
-        f.write('\n'.join(os.listdir(os.path.dirname(main_fpath))))
-        f.write(f'\n\n{src_path}\n')
-        f.write('\n'.join(os.listdir(src_path)))
     try:
         bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_NAME'])
         errblob = bucket.blob(f"{sub_id}_stdout.txt")

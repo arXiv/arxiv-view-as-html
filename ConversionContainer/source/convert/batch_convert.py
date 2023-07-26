@@ -73,8 +73,6 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             # Identify main .tex source in [source]
             logging.info(f"Step 4: Identify main .tex source for {id}")
             main = _find_main_tex_source(src_dir)
-
-            logging.info('\n'.join(os.listdir(src_dir)))
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")

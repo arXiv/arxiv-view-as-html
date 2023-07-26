@@ -7,7 +7,7 @@ def database_retry (retries: int):
 
     def decorator (func: Callable) -> Callable:
 
-        @wraps
+        @wraps(func)
         def wrapped (*args, **kwargs):
             for _ in range(retries):
                 try:

@@ -1,5 +1,6 @@
 from typing import Callable
 from functools import wraps
+import time
 
 from ..exceptions import DBConnectionError
 
@@ -13,7 +14,7 @@ def database_retry (retries: int):
                 try:
                     return func(*args, **kwargs)
                 except DBConnectionError:
-                    pass
+                    time.sleep(3)
             raise DBConnectionError
         
         return wrapped

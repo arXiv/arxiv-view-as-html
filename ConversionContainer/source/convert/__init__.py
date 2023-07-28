@@ -1,11 +1,11 @@
 """Module that handles the conversion process from LaTeX to HTML"""
-import tarfile
 import os
 import re
 import subprocess
 import shutil
 from typing import Any, Tuple, Dict
 import logging
+import traceback
 import uuid
 
 from flask import current_app
@@ -29,23 +29,30 @@ def process(id: str, blob: str, bucket: str) -> bool:
     src_dir = f'extracted/{id}' # the directory we untar the blob to
     bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
     outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
-    try:
-        os.makedirs(outer_bucket_dir)
-    except OSError:
-        shutil.rmtree(src_dir)
-        os.makedirs(outer_bucket_dir)
-        # Abort if this fails
     
-    # Check file format and download to ./[{id}.tar.gz]
-    logging.info(f"Step 1: Download {id}")
-    download_blob(bucket, blob, tar_gz)
-
-    # Write to DB that process has started
-    logging.info(f"Write start process to db")
-    write_start(id, tar_gz, is_submission)
-
     try:
         with id_lock(id, current_app.config['LOCK_DIR']):
+
+            try:
+                os.makedirs(outer_bucket_dir)
+            except OSError:
+                shutil.rmtree(src_dir)
+                os.makedirs(outer_bucket_dir)
+                # Abort if this fails
+    
+            # Check file format and download to ./[{id}.tar.gz]
+            try:
+                logging.info(f"Step 1: Download {id}")
+                download_blob(bucket, blob, tar_gz)
+            except:
+                logging.info(f'Failed to download {id}')
+                traceback.print_exc()
+                return
+
+            # Write to DB that process has started
+            logging.info(f"Write start process to db")
+            write_start(id, tar_gz, is_submission)
+
             # Untar file ./[tar] to ./extracted/id/
             logging.info(f"Step 2: Untar {id}")
             untar (tar_gz, src_dir)
@@ -184,22 +191,21 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     sub_id: str
         submission id of the article
     """
-    src_path = os.path.join(
-        os.getcwd(),
-        os.path.dirname(main_fpath)
-    )
-    logging.info(f'SRC_PATH: {src_path}')
-    logging.info('\n'.join(os.listdir(src_path)))
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
                       "--path=/opt/arxmliv-bindings/supported_originals",
-                      f"--path={src_path}",
                       "--pmml", "--cmml", "--mathtex",
-                      "--timeout=2700",
+                      "--timeout=300",
                       "--nodefaultresources",
-                      "--css=https://browse.arxiv.org/latexml/ar5iv.min.css",
-                      "--graphicimages",
+                      "--css=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
+                      "--css=https://services.dev.arxiv.org/html/ar5iv_0.7.4.min.css",
+                      "--css=https://services.dev.arxiv.org/html/styles.css",
+                      "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
+                      "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
+                      "--javascript=https://services.dev.arxiv.org/html/addons.js",
+                      "--javascript=https://services.dev.arxiv.org/html/feedbackOverlay.js",
+                      "--navigationtoc=context",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(
         latexml_config,
@@ -208,15 +214,9 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         check=True,
         text=True,
         timeout=300)
-    ld = "\n".join(os.listdir(src_path))
-    logging.info(f'SRC_PATH AGAIN: {src_path}\n{ld}')
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
-        f.write(f'{main_fpath}\n')
-        f.write('\n'.join(os.listdir(os.path.dirname(main_fpath))))
-        f.write(f'\n\n{src_path}\n')
-        f.write('\n'.join(os.listdir(src_path)))
     try:
         bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_NAME'])
         errblob = bucket.blob(f"{sub_id}_stdout.txt")
@@ -225,6 +225,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         raise GCPBlobError(
             f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
     os.remove(errpath)
+
 
 def _post_process (src_dir: str, id: str, is_submission: bool):
     """

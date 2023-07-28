@@ -2,6 +2,7 @@ import uuid
 import os
 import shutil
 import logging
+import traceback
 
 from flask import current_app
 
@@ -52,8 +53,9 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             try:
                 logging.info(f"Step 1: Download {id}")
                 download_blob(bucket, blob, tar_gz)
-            except Exception as e:
-                logging.info(f'Failed to download {id} with {e.__traceback__}')
+            except:
+                logging.info(f'Failed to download {id}')
+                traceback.print_exc()
                 return
             
             # Write to DB that process has started
@@ -71,8 +73,6 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             # Identify main .tex source in [source]
             logging.info(f"Step 4: Identify main .tex source for {id}")
             main = _find_main_tex_source(src_dir)
-
-            logging.info('\n'.join(os.listdir(src_dir)))
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
@@ -85,8 +85,9 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
             
             write_success(id, tar_gz, is_submission)
-    except Exception as e:
-        logging.info(f'Conversion unsuccessful with {e.__traceback__}')
+    except:
+        logging.info(f'Conversion unsuccessful')
+        traceback.print_exc()
         try:
             write_failure(id, tar_gz, is_submission)
         except Exception as e:

@@ -26,3 +26,6 @@ class HTMLInjectionError(RuntimeError):
 
 class UploadError(RuntimeError):
     """Raised when there is a problem uploading the output"""
+
+class DBConnectionError (RuntimeError):
+    """Raised on failure to connect to database"""

@@ -6,10 +6,11 @@ from flask import Response
 from arxiv_auth.legacy.models import db
 
 from .db.models import DBLaTeXMLSubmissions
+from .db.util import database_retry
 from .exceptions import DBConnectionError
 # from flask_sqlalchemy import 
 
-# TODO: This should be in arxiv base
+@database_retry(5)
 def _get_latexml_status_for_document (submission_id: int) -> Optional[int]:
     """Get latexml conversion status for a given paper_id and version"""
     try:

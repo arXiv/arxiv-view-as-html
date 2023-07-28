@@ -164,7 +164,7 @@ def test_write_start_doc_multiple_versions (app, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
-        write_start('2012.02205', 'ancillary_files/2012.02205.tar.gz', False)
+        write_start('2012.02205v1', 'ancillary_files/2012.02205.tar.gz', False)
         write_start('2012.02205v2', 'ancillary_files/3966840.tar.gz', False) 
 
         row_v1: Optional[Query] = select_from_doc('2012.02205', 1)
@@ -186,7 +186,7 @@ def test_write_start_doc_overlap (app, select_from_doc):
     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
-        write_start('2012.02205', 'ancillary_files/2012.02205.tar.gz', False)
+        write_start('2012.02205v1', 'ancillary_files/2012.02205.tar.gz', False)
         old_ts = select_from_doc('2012.02205', 1).conversion_start_time
         sleep(1)
         write_start('2012.02205v1', 'ancillary_files/3966840.tar.gz', False)
@@ -368,7 +368,7 @@ def test_write_success_doc_simple (app, insert_into_doc, select_from_doc):
         )
         sleep(1)
 
-        result = write_success('2012.02205', 'ancillary_files/2012.02205.tar.gz', False)
+        result = write_success('2012.02205v1', 'ancillary_files/2012.02205.tar.gz', False)
 
         row: Optional[Query] = select_from_doc ('2012.02205', 1)
         assert row is not None, 'Insert failed to write. Check test db configuration'

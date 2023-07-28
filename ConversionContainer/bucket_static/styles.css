@@ -259,6 +259,15 @@ label {
   /* Add additional styles as needed */
 }
 
+[data-theme=dark] .form-control::placeholder {
+  color: #c9d1d9;
+}
+
+[data-theme=dark] .btn.btn-primary {
+  color:  #c9d1d9;
+  border-color:  #c9d1d9;
+}
+
 [data-theme=dark] .btn.btn-outline-secondary#take-screenshot {
   color:  #c9d1d9;
   border-color:  #c9d1d9;
@@ -445,9 +454,19 @@ body:after {
 }
 
 /* For warning label. */
-#warningLabel {
+[data-theme=light] #warningLabel {
   color: #b31313;
   background-color: rgb(250, 241, 230);
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 1em;
+  border-radius: .5em;
+  margin: 1em auto;
+}
+
+[data-theme=dark] #warningLabel {
+  color: rgb(209, 190, 137);
+  background-color: rgb(65, 57, 33);
   font-size: 12px;
   letter-spacing: 1px;
   padding: 1em;

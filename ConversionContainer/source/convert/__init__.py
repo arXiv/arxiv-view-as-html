@@ -1,11 +1,11 @@
 """Module that handles the conversion process from LaTeX to HTML"""
-import tarfile
 import os
 import re
 import subprocess
 import shutil
 from typing import Any, Tuple, Dict
 import logging
+import traceback
 import uuid
 
 from flask import current_app
@@ -29,23 +29,30 @@ def process(id: str, blob: str, bucket: str) -> bool:
     src_dir = f'extracted/{id}' # the directory we untar the blob to
     bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
     outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
-    try:
-        os.makedirs(outer_bucket_dir)
-    except OSError:
-        shutil.rmtree(src_dir)
-        os.makedirs(outer_bucket_dir)
-        # Abort if this fails
     
-    # Check file format and download to ./[{id}.tar.gz]
-    logging.info(f"Step 1: Download {id}")
-    download_blob(bucket, blob, tar_gz)
-
-    # Write to DB that process has started
-    logging.info(f"Write start process to db")
-    write_start(id, tar_gz, is_submission)
-
     try:
         with id_lock(id, current_app.config['LOCK_DIR']):
+
+            try:
+                os.makedirs(outer_bucket_dir)
+            except OSError:
+                shutil.rmtree(src_dir)
+                os.makedirs(outer_bucket_dir)
+                # Abort if this fails
+    
+            # Check file format and download to ./[{id}.tar.gz]
+            try:
+                logging.info(f"Step 1: Download {id}")
+                download_blob(bucket, blob, tar_gz)
+            except:
+                logging.info(f'Failed to download {id}')
+                traceback.print_exc()
+                return
+
+            # Write to DB that process has started
+            logging.info(f"Write start process to db")
+            write_start(id, tar_gz, is_submission)
+
             # Untar file ./[tar] to ./extracted/id/
             logging.info(f"Step 2: Untar {id}")
             untar (tar_gz, src_dir)
@@ -218,6 +225,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         raise GCPBlobError(
             f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
     os.remove(errpath)
+
 
 def _post_process (src_dir: str, id: str, is_submission: bool):
     """

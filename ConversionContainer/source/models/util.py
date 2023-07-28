@@ -1,17 +1,19 @@
 """Helpers and Flask application integration."""
 from contextlib import contextmanager
 
-from typing import Generator, List, Any
+from typing import Generator, Callable
 from datetime import datetime
 from pytz import timezone, UTC
 import logging
-
+import time
+from functools import wraps
 
 from flask import Flask
 from sqlalchemy import text
 from sqlalchemy.orm.session import Session
 
 from .db import db
+from ..exceptions import DBConnectionError
 
 def now() -> int:
     """Get the current epoch/unix time."""
@@ -62,3 +64,22 @@ def create_all() -> None:
 def drop_all() -> None:
     """Drop all tables in the database."""
     db.drop_all()
+
+
+def database_retry (retries: int):
+
+    def decorator (func: Callable) -> Callable:
+
+        @wraps(func)
+        def wrapped (*args, **kwargs):
+            for i in range(retries):
+                try:
+                    return func(*args, **kwargs)
+                except DBConnectionError:
+                    logging.warn(f'Database failure encountered, retrying (retry #{i + 1})')
+                    time.sleep(3)
+            raise DBConnectionError
+        
+        return wrapped
+    
+    return decorator

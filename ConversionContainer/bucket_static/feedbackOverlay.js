@@ -254,7 +254,7 @@ function hideButtons (buttons) {
 const handleKeyDown = (e, modal, buttons) => {
     const ctrlOrMeta = e.metaKey || e.ctrlKey;
 
-    if (e.shiftKey && e.code === 'KeyB') {
+    if (e.altKey && e.code === 'KeyY') {
         showButtons(buttons);
     } else if (ctrlOrMeta && (e.key === '/' || e.key === '?')) {
         showModal(modal)

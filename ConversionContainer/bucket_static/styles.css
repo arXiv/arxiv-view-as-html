@@ -19,6 +19,7 @@ svg.icon, [data-theme=dark] svg.icon {
   background-color: transparent !important;
   z-index: 1 !important;
   margin-left:2px;
+  
 }
 .header-message {
   border: 10px solid #fb595a;

@@ -56,7 +56,4 @@ def inject_addons (src_fpath: str, identifier: str, is_submission: bool):
 
         source.seek(0)
         source.write(str(soup))
-    
-def copy_static_assets (src_fpath: str):
-    shutil.copytree('/arxiv/source/addons/images', os.path.join(src_fpath, 'images'))
 

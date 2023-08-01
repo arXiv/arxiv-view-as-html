@@ -242,7 +242,6 @@ def _post_process (src_dir: str, id: str, is_submission: bool):
         published documents
     """
     inject_addons(os.path.join(src_dir, f'{id}/{id}.html'), id, is_submission)
-    copy_static_assets(os.path.join(src_dir, str(id)))
 
     
 def _clean_up (tar, id):

@@ -5,8 +5,8 @@ let create_header = () => {
     if (id === 'submission') {
         header.innerHTML =
         '<a href="#main" class="skip">Skip to main content</a> \
-        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
+        <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
+        <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
             <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
         </div> \
@@ -14,8 +14,8 @@ let create_header = () => {
     } else {
         header.innerHTML =
         `<a href="#main" class="skip">Skip to main content</a> \
-        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
+        <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
+        <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
             <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
         </div> \

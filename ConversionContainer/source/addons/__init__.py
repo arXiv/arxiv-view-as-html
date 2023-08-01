@@ -39,21 +39,27 @@ def _strip_footer (soup: BeautifulSoup) -> BeautifulSoup:
     soup.find('footer').decompose()
     return soup
 
-def inject_addons (src_fpath: str, identifier: str, is_submission: bool):
+def _fix_nav (soup: BeautifulSoup) -> BeautifulSoup:
+    soup.find('nav', {'class': 'ltx_page_navbar'}).replaceWithChildren() # delete outer nav
+    nav = soup.find('nav', {'class': 'ltx_TOC'})
+    nav['aria-labelledby'] = 'toc_header'
+    nav.insert_before(BeautifulSoup('<h2 id="toc_header">Table of Contents</h2>', 'html.parser'))
+    return soup
+
+def post_process (src_fpath: str, identifier: str, is_submission: bool):
 
     with open(f'{src_fpath}', 'r+') as source:
         soup = BeautifulSoup(source.read(), 'html.parser')
         
         soup = _strip_footer(soup)
 
-        # soup = _inject_html_addon(soup, 'head', 100, 'scripts.html') # append
+        soup = _fix_nav(soup)
 
         # Add id="main" to <div class="ltx_page_main">
         soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'
         
         # Overwrite original file with the new addons
         source.truncate(0)
-
         source.seek(0)
         source.write(str(soup))
 

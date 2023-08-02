@@ -7,9 +7,7 @@ import traceback
 from flask import current_app
 
 from ..util import untar, id_lock
-from ..buckets import download_blob, upload_dir_to_gcs, \
-    upload_tar_to_gcs
-from ..models.db import db
+from ..buckets import download_blob, upload_dir_to_gcs
 from ..exceptions import *
 from .concurrency_control import (
     write_start, 

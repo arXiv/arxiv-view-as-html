@@ -10,6 +10,7 @@ QA_BUCKET_NAME = os.environ['QA_BUCKET'] # Startup failure on miss
 LATEXML_COMMIT = os.environ['LATEXML_COMMIT']
 
 LATEXML_DB_URI = os.environ['LATEXML_DB_URI']
+LATEXML_URL_BASE = os.environ['LATEXML_URL_BASE']
 SQLALCHEMY_DATABASE_URI = LATEXML_DB_URI
 
 LOCK_DIR = '/arxiv/locks'

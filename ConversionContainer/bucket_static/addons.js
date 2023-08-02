@@ -55,10 +55,9 @@ let create_footer = () => {
         <ul> \
             <li>Use the "Open Issue" button.</li> \
             <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li> \
-            <li>If using a screen reader, <strong>Alt + Y</strong> will toggle individual reporting buttons at each section on and off. Useful when you want to report an issue just within a specific section, as highligting is not screen reader compatible.</li> \
             <li>You can also highlight any text and click the "Open Issue" button that will display near your cursor.</li> \
         </ul> \
-        <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field. <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why is it important that research papers be accessible?</a>.</p> \
+        <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p> \
     </div>';
 
     var night = document.createElement('a');

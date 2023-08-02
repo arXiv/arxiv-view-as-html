@@ -191,6 +191,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     sub_id: str
         submission id of the article
     """
+    LATEXML_URL_BASE = current_app.config['LATEXML_URL_BASE']
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
@@ -199,12 +200,12 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
                       "--timeout=300",
                       "--nodefaultresources",
                       "--css=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
-                      "--css=https://services.dev.arxiv.org/html/ar5iv_0.7.4.min.css",
-                      "--css=https://services.dev.arxiv.org/html/styles.css",
+                      f"--css={LATEXML_URL_BASE}/ar5iv_0.7.4.min.css",
+                      f"--css={LATEXML_URL_BASE}/styles.css",
                       "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
                       "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
-                      "--javascript=https://services.dev.arxiv.org/html/addons.js",
-                      "--javascript=https://services.dev.arxiv.org/html/feedbackOverlay.js",
+                      f"--javascript={LATEXML_URL_BASE}/addons.js",
+                      f"--javascript={LATEXML_URL_BASE}/feedbackOverlay.js",
                       "--navigationtoc=context",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(

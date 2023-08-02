@@ -5,17 +5,17 @@ let create_header = () => {
     if (id === 'submission') {
         header.innerHTML =
         '<a href="#main" class="skip">Skip to main content</a> \
-        <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
+        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
+        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
-            <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
+            <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button<span class="sr-only"> or click <strong>Shift+b</strong> to toggle accessible section reporting links</span>. <a href="#footer">Reference all keyboard commands</a> in the footer. \
         </div> \
         <div></div>';
     } else {
         header.innerHTML =
         `<a href="#main" class="skip">Skip to main content</a> \
-        <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
+        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
+        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
             <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
         </div> \
@@ -51,10 +51,9 @@ let create_footer = () => {
         <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p> \
         <ul> \
             <li>Use the "Open Issue" button.</li> \
-            <li><strong>Ctrl + ?</strong> will open the report feedback form via keyboard.</li> \
-            <li>If using a screen reader, <strong>Shift + b</strong> will toggle individual reporting buttons at each section on and off. Useful when you want to report an issue just within a specific section, as highligting is not screen reader compatible.</li> \
-            <li>You can also highlight any text and click the "Open Issue" button that will display near your cursor. Highlighting is not screen reader compatible so the method above is also available.</li> \
-            <li>Reporting will prompt you to login to Github to complete the process. Need an account? <a href="https://github.com/account/organizations/new?plan=free" target="_blank">Create a GitHub account for free</a>.</li> \
+            <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li> \
+            <li>If using a screen reader, <strong>Alt + Y</strong> will toggle individual reporting buttons at each section on and off. Useful when you want to report an issue just within a specific section, as highligting is not screen reader compatible.</li> \
+            <li>You can also highlight any text and click the "Open Issue" button that will display near your cursor.</li> \
         </ul> \
         <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field. <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why is it important that research papers be accessible?</a>.</p> \
     </div>';

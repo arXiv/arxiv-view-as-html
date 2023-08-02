@@ -10,7 +10,7 @@ import uuid
 
 from flask import current_app
 
-from ..util import untar, id_lock, timeout
+from ..util import untar, id_lock
 from ..buckets.util import get_google_storage_client
 from ..buckets import download_blob, upload_dir_to_gcs, \
     upload_tar_to_gcs
@@ -18,7 +18,7 @@ from ..models.db import db
 from ..exceptions import *
 from .concurrency_control import \
     write_start, write_success, write_failure
-from ..addons import inject_addons, copy_static_assets
+from ..addons import post_process
 
 def process(id: str, blob: str, bucket: str) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
@@ -241,7 +241,7 @@ def _post_process (src_dir: str, id: str, is_submission: bool):
         submission_id for submissions and paper_id for 
         published documents
     """
-    inject_addons(os.path.join(src_dir, f'{id}/{id}.html'), id, is_submission)
+    post_process(os.path.join(src_dir, f'{id}/{id}.html'), id, is_submission)
 
     
 def _clean_up (tar, id):

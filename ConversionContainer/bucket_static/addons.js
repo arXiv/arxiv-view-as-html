@@ -10,7 +10,7 @@ let create_header = () => {
         <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
         <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
-            <strong>Experimental HTML</strong>.Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable. \
+            Welcome to experimental HTML. We invite you to report rendering errors using Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable. \
         </div> \
         <div></div>';
     } else {
@@ -19,7 +19,7 @@ let create_header = () => {
         <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
         <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
         <div role="banner" class="header-message"> \
-            <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button. <a href="#footer">Reference all keyboard commands</a> in the footer. \
+            <strong>Welcome to experimental HTML</strong>. We invite you to report rendering errors with the "Open Issue" button. <a href="#footer">Reference all keyboard commands</a> in the footer. \
         </div>`;
     }
     var issueLink = document.createElement('a');

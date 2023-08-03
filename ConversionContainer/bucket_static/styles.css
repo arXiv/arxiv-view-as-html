@@ -1,6 +1,9 @@
 header {
   background-color: #b31313;
   display: flex;
+  position: fixed;
+  top: 0;
+  width: 100%;
   justify-content: space-between;
   padding: .5em 4em;
   align-items: center;
@@ -22,13 +25,16 @@ svg.icon, [data-theme=dark] svg.icon {
   
 }
 .header-message {
-  border: 10px solid #fb595a;
-  background: #fb595a;
+  border: none;
+  background: transparent;
   border-radius: 6px;
-  max-width: 50%;
+  /* max-width: 50%; */
   font-family: sans-serif;
   font-size: smaller;
-  color: black;
+  color: white;
+}
+.header-message a:hover{
+  text-shadow:0px 0px 2px white;
 }
 .report-container {
   display: block;
@@ -319,7 +325,7 @@ header a {
   background-color: transparent !important;
 }
 
-.header-message {
+/* .header-message {
   border: 10px solid #fb595a;
   background: #fb595a;
   border-radius: 6px;
@@ -327,7 +333,7 @@ header a {
   font-family: sans-serif;
   font-size: smaller;
   color: black;
-}
+} */
 
 .body-message {
   display: block;

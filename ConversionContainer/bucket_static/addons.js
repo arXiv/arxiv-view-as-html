@@ -4,30 +4,78 @@ let create_header = () => {
     let header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
+    // if (id === 'submission') {
+    //     header.innerHTML =
+    //     '<a href="#main" class="skip">Skip to main content</a> \
+    //     <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
+    //     <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
+    //     <div role="banner" class="header-message"> \
+    //         <strong>Experimental HTML</strong>.Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable. \
+    //     </div> \
+    //     <div></div>';
+    // } else {
+    //     header.innerHTML =
+    //     `<a href="#main" class="skip">Skip to main content</a> \
+    //     <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
+    //     <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
+    //     <div role="banner" class="header-message"> \
+    //         <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button. <a href="#footer">Reference all keyboard commands</a> in the footer. \
+    //     </div>`;
+    // }
+
+    var LogoBanner = document.createElement('div');
+
+    var logoImage = document.createElement('img');
+    logoImage.alt = 'logo';
+    logoImage.className = 'logo';
+    logoImage.setAttribute('role', 'presentation');
+    logoImage.style.backgroundColor = 'transparent';
+    logoImage.src = "https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg";
+
+    // Create logomark image
+    var logomarkImage = document.createElement('img');
+    logomarkImage.alt = 'logo';
+    logomarkImage.className = 'logomark';
+    logomarkImage.setAttribute('role', 'presentation');
+    logomarkImage.src = 'https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg';
+
+    var headerMessage = document.createElement('div');
+    headerMessage.className = 'header-message';
+    headerMessage.setAttribute('role', 'banner');
+    headerMessage.style.paddingLeft='15px';
+    headerMessage.style.paddingTop='5px';
     if (id === 'submission') {
-        header.innerHTML =
-        '<a href="#main" class="skip">Skip to main content</a> \
-        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
-        <div role="banner" class="header-message"> \
-            Welcome to experimental HTML. We invite you to report rendering errors using Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable. \
-        </div> \
-        <div></div>';
-    } else {
-        header.innerHTML =
-        `<a href="#main" class="skip">Skip to main content</a> \
-        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
-        <div role="banner" class="header-message"> \
-            <strong>Welcome to experimental HTML</strong>. We invite you to report rendering errors with the "Open Issue" button. <a href="#footer">Reference all keyboard commands</a> in the footer. \
-        </div>`;
+        headerMessage.innerHTML = '<strong>Experimental HTML</strong>.Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.'
+    }else{
+        headerMessage.innerHTML = '<strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button.'
     }
+
+    LogoBanner.appendChild(logoImage);
+    LogoBanner.appendChild(logomarkImage);
+    LogoBanner.appendChild(headerMessage);
+    LogoBanner.style.display = 'flex';
+    LogoBanner.style.width = '60%';
+
+    var Links = document.createElement('div');
+
+    var commandLink = document.createElement('a');
+    commandLink.setAttribute('class', 'ar5iv-footer-button');
+    commandLink.style.color = 'white'
+    commandLink.href = "#footer";
+    commandLink.textContent = 'Keyboard Commands';
+
     var issueLink = document.createElement('a');
     issueLink.setAttribute('class', 'ar5iv-footer-button');
     issueLink.setAttribute('target', '_blank');
     issueLink.style.color = 'white'
-    issueLink.href = '#myForm';
     issueLink.textContent = 'Open Issue';
+    issueLink.href = '#myForm';
+    issueLink.addEventListener('click', function(event) {
+        event.preventDefault(); 
+        var modal = document.getElementById('myForm');
+        modal.style.display = 'block'; 
+        bugReportState.setInitiateWay("Header");
+      });
 
     var night = document.createElement('a');
     night.setAttribute('class', 'ar5iv-toggle-color-scheme');
@@ -38,9 +86,14 @@ let create_header = () => {
     night.appendChild(nightSpan);
     night.style.float = 'right'
 
+    Links.appendChild(commandLink);
+    Links.appendChild(issueLink);
+    Links.appendChild(night);
+    Links.style.display = 'inline-flex';
+
     document.body.insertBefore(header, document.body.firstChild);
-    header.appendChild(issueLink)
-    header.appendChild(night)
+    header.appendChild(LogoBanner)
+    header.appendChild(Links)
 }
 
 let create_footer = () => {

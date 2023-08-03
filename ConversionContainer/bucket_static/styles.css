@@ -8,6 +8,7 @@ header {
   padding: .5em 4em;
   align-items: center;
 }
+
 header a {
   color: white;
 }
@@ -509,7 +510,7 @@ body:after {
 .ltx_TOC{
   position: fixed;
   overflow-y: auto;
-  top: 8%;
+  top: 4.5%;
   height: 90%;
   width: 20%;
   margin-bottom: 0.5rem;

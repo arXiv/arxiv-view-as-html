@@ -108,7 +108,7 @@ let create_footer = () => {
         <ul> \
             <li>Use the "Open Issue" button.</li> \
             <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li> \
-            <li>You can also highlight any text and use the "Open Issue" button that will display near your cursor to report on the preceding paragraph.</li> \
+            <li>You can also highlight any text via mouse or keyboard (screen-reader users) and use the "Open Issue" button that will display near your cursor to report on the preceding paragraph.</li> \
         </ul> \
         <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p> \
     </div>';

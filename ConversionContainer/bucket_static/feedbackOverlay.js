@@ -36,8 +36,12 @@ function detectColorScheme() {
       theme = "dark"; }
     if (theme=="dark") {
       document.documentElement.setAttribute("data-theme", "dark");
+      const colorSchemeIcon = document.querySelector('.color-scheme-icon');
+      colorSchemeIcon.setAttribute('aria-label', 'Dark mode');
     } else {
-      document.documentElement.setAttribute("data-theme", "light"); }
+      document.documentElement.setAttribute("data-theme", "light");
+      const colorSchemeIcon = document.querySelector('.color-scheme-icon');
+      colorSchemeIcon.setAttribute('aria-label', 'Light mode'); }
 }
 
 function toggleColorScheme(){

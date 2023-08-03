@@ -45,9 +45,9 @@ let create_header = () => {
     headerMessage.style.paddingLeft='15px';
     headerMessage.style.paddingTop='5px';
     if (id === 'submission') {
-        headerMessage.innerHTML = '<strong>Experimental HTML</strong>.Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.'
+        headerMessage.innerHTML = 'Welcome to <strong>Experimental HTML</strong>. We invite you to report rendering errors. Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.'
     }else{
-        headerMessage.innerHTML = '<strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button.'
+        headerMessage.innerHTML = 'Welcome to <strong>Experimental HTML</strong>. We invite you to report rendering errors with the "Open Issue" button.'
     }
 
     LogoBanner.appendChild(logoImage);
@@ -108,7 +108,7 @@ let create_footer = () => {
         <ul> \
             <li>Use the "Open Issue" button.</li> \
             <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li> \
-            <li>You can also highlight any text and click the "Open Issue" button that will display near your cursor.</li> \
+            <li>You can also highlight any text and use the "Open Issue" button that will display near your cursor to report on the preceding paragraph.</li> \
         </ul> \
         <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p> \
     </div>';

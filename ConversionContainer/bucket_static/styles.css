@@ -504,3 +504,60 @@ body:after {
   text-decoration: none;
   margin-right: 1rem;
 }
+
+/* Update: For toc */
+.ltx_TOC{
+  position: fixed;
+  overflow-y: auto;
+  top: 8%;
+  height: 90%;
+  width: 20%;
+  margin-bottom: 0.5rem;
+  user-select: none;
+  background-color: white;
+  z-index: 100;
+}
+
+[data-theme=dark] .ltx_TOC {
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.ltx_tocentry.ltx_tocentry_section {
+  margin-bottom: 0.5rem;
+  margin-left: 1.5rem;
+}
+
+.ltx_tocentry.ltx_tocentry_appendix {
+  margin-bottom: 0.5rem;
+  margin-left: 1.5rem;
+}
+
+.ltx_ref:hover{
+  background-color: #ffffd4;
+}
+
+
+#listIcon {
+  /* Customize your hamburger icon/button appearance */
+  width: 17px;
+  height: 17px;
+  margin-left: 1.4rem;
+  margin-top: 10px;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+#arrowIcon {
+  /* Customize your hamburger icon/button appearance */
+  width: 17px;
+  height: 17px;
+  margin-left: 1.4rem;
+  margin-top: 10px;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.ltx_page_content {
+  margin-left: 20%;
+}

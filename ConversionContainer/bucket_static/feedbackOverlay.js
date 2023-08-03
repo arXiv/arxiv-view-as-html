@@ -415,6 +415,24 @@ function submitBugReport (e) {
 function handleClickOutsideModal(e, modal) {
     if (e.target == modal)
         modal.style.display = 'none';
+    const listIcon= document.getElementById('listIcon');
+    const arrowIcon = document.getElementById('arrowIcon');
+    const toc = document.querySelector('.ltx_toclist');
+    if (e.target == listIcon)
+    {
+        console.log('listIcon clicked');
+        //show toc and arrowIcon
+        toc.style.display = 'block';
+        arrowIcon.style.display = 'block';
+        listIcon.style.display = 'none';
+    }
+    if (e.target == arrowIcon){
+        console.log('arrowIcon clicked');
+        //hide toc and arrowIcon
+        toc.style.display = 'none';
+        arrowIcon.style.display = 'none';
+        listIcon.style.display = 'block';
+    }
 }
 
 function postToDB (issueData) {

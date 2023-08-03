@@ -155,7 +155,7 @@ function addBugReportForm() {
     const submitButton = document.createElement("button");
     submitButton.setAttribute("type", "submit");
     submitButton.setAttribute("class", "btn btn-primary");
-    submitButton.setAttribute("id", "modal-submit");
+    submitButton.setAttribute("id", "modal-submit"); // This id will use in submitBugReport function !!!
     submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;" );
     submitButton.appendChild(document.createTextNode("Submit in Github"));
 
@@ -418,13 +418,16 @@ function submitBugReport (e) {
     form.append('title',`Improve article : ${arxivIdv}`)
     form.append('body', makeGithubBody(issueData));
 
-    const GITHUB_BASE_URL = 'https://github.com/arXiv/html_feedback/issues/new?'
-    const queryString = new URLSearchParams(form).toString()
-    const link = GITHUB_BASE_URL + queryString;
-
+    // Send to Database.
     postToDB(issueData);
-
-    window.open(link, '_blank');
+    
+    // Send to Github Issue. !!!NEED: make sure submitter id is same as the html submit button id.
+    if(e.submitter.id === 'modal-submit'){
+        const GITHUB_BASE_URL = 'https://github.com/arXiv/html_feedback/issues/new?'
+        const queryString = new URLSearchParams(form).toString()
+        const link = GITHUB_BASE_URL + queryString;
+        window.open(link, '_blank');
+    } 
 
     document.querySelector('#myFormContent').reset();
     bugReportState.clear();

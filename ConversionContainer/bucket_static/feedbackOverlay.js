@@ -129,13 +129,13 @@ function addBugReportForm() {
     const warningLabel = document.createElement("div");
     warningLabel.id = "warningLabel";
     warningLabel.setAttribute('class', 'form-text');
-    warningLabel.textContent = "Warning: Issue reports are not private. If you are an author submitting feedback about a pre-release submission, be advised that the contents of the bug report will be publicly available on Github.";
+    warningLabel.textContent = "Warning: Issue reports will be publicly available on Github, including the content of a pre-release submission.";
 
     // Create the description input field
     const descriptionLabel = document.createElement("label");
     descriptionLabel.setAttribute("for", "description");
     //descriptionLabel.setAttribute("class", "form-label");
-    descriptionLabel.appendChild(document.createTextNode("Description*"));
+    descriptionLabel.appendChild(document.createTextNode("Content selection saved. Describe the issue below:"));
 
     const descriptionTextarea = document.createElement("textarea");
     descriptionTextarea.setAttribute("class", "form-control");

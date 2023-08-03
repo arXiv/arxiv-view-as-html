@@ -196,7 +196,7 @@ function addSRButton(modal) {
         const button = document.createElement("button");
         button.setAttribute("class", "sr-only button");
         button.style.display = "none";
-        button.textContent = "Open Issue on Github";
+        button.textContent = "Open issue for preceding element";
 
         button.onfocus = () => previousFocusElement = document.activeElement;
 
@@ -237,13 +237,14 @@ function hideModal (modal) {
 }
 
 function showButtons (buttons) {
-    buttons.forEach((button) => {
-        console.log(button);
-        console.log(button.style.display);
-        button.style.display === 'none' ?
-            button.style.display = 'inline' :
-            button.style.display = 'none';
-    })
+    // buttons.forEach((button) => {
+    //     console.log(button);
+    //     console.log(button.style.display);
+    //     button.style.display === 'none' ?
+    //         button.style.display = 'inline' :
+    //         button.style.display = 'none';
+    // })
+    buttons.forEach((button) => button.style.display = 'inline');
 }
 
 function hideButtons (buttons) {
@@ -254,9 +255,15 @@ function hideButtons (buttons) {
 const handleKeyDown = (e, modal, buttons) => {
     const ctrlOrMeta = e.metaKey || e.ctrlKey;
 
-    if (e.shiftKey && e.code === 'KeyB') {
-        showButtons(buttons);
-    } else if (ctrlOrMeta && (e.key === '/' || e.key === '?')) {
+    // if(e.key === '¥'){
+    //     showButtons(buttons);
+    // } else if (e.key === 'Á'){
+    //     hideButtons(buttons)
+    // }
+    if (e.altKey && e.code === 'KeyY' && !ctrlOrMeta) {
+        e.shiftKey ? hideButtons(buttons) : showButtons(buttons);
+    }
+    else if (ctrlOrMeta && (e.key === '/' || e.key === '?')) {
         showModal(modal)
         bugReportState.setInitiateWay("ShortCut");
     } else if (ctrlOrMeta && (e.key === '}' || e.key === ']')) {
@@ -290,7 +297,7 @@ function createSmallButton (modal) {
     smallReportButton.type = 'button';
     smallReportButton.className = 'btn btn-secondary btn-sm';
     smallReportButton.style.backgroundColor = '#b31b1b';
-    smallReportButton.textContent = 'Open Issue';
+    smallReportButton.textContent = 'Open Issue for Selection';
     smallReportButton.style.position = 'fixed';
 
     document.body.appendChild(smallReportButton);

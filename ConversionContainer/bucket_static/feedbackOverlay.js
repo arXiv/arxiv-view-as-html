@@ -25,24 +25,39 @@ var bugReportState = {
 };
 
 function detectColorScheme() {
-    var theme="light";
+    var theme = "light";
     var current_theme = localStorage.getItem("ar5iv_theme");
-    if(current_theme){
-      if(current_theme == "dark"){
+  
+    if (current_theme) {
+      if (current_theme == "dark") {
         theme = "dark";
-      } }
-    else if(!window.matchMedia) { return false; }
-    else if(window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      theme = "dark"; }
-    if (theme=="dark") {
+      }
+    } else if (!window.matchMedia) {
+      return false;
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      theme = "dark";
+    }
+  
+    if (theme == "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
       const colorSchemeIcon = document.querySelector('.color-scheme-icon');
-      colorSchemeIcon.setAttribute('aria-label', 'Dark mode');
+      if (colorSchemeIcon) {
+        colorSchemeIcon.setAttribute('aria-label', 'Dark mode');
+      }
     } else {
       document.documentElement.setAttribute("data-theme", "light");
       const colorSchemeIcon = document.querySelector('.color-scheme-icon');
-      colorSchemeIcon.setAttribute('aria-label', 'Light mode'); }
-}
+      if (colorSchemeIcon) {
+        colorSchemeIcon.setAttribute('aria-label', 'Light mode');
+      }
+    }
+  }
+  
+  // Make sure the DOM content is loaded before running the script
+  document.addEventListener('DOMContentLoaded', function() {
+    detectColorScheme();
+  });
+  
 
 function toggleColorScheme(){
     var current_theme = localStorage.getItem("ar5iv_theme");

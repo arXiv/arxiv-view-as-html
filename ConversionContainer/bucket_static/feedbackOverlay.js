@@ -437,6 +437,7 @@ function handleClickOutsideModal(e, modal) {
     const listIcon= document.getElementById('listIcon');
     const arrowIcon = document.getElementById('arrowIcon');
     const toc = document.querySelector('.ltx_toclist');
+    const toc_main = document.querySelector('.ltx_TOC');
     if (e.target == listIcon)
     {
         console.log('listIcon clicked');
@@ -444,6 +445,7 @@ function handleClickOutsideModal(e, modal) {
         toc.style.display = 'block';
         arrowIcon.style.display = 'block';
         listIcon.style.display = 'none';
+        toc_main.style.backgroundColor = 'white';
     }
     if (e.target == arrowIcon){
         console.log('arrowIcon clicked');
@@ -451,6 +453,7 @@ function handleClickOutsideModal(e, modal) {
         toc.style.display = 'none';
         arrowIcon.style.display = 'none';
         listIcon.style.display = 'block';
+        toc_main.style.backgroundColor = 'transparent';
     }
 }
 

@@ -390,43 +390,6 @@ button.feedback-button {
   right: -99%;
 }
 
-/*mobile*/
-@media only screen and (max-width: 719px) {
-  header {
-    gap: .75em;
-  }
-
-  .header-message {
-    max-width: 100%;
-    display: none;
-  }
-
-  .body-message {
-    display: none;
-  }
-
-  .body-message-mobile {
-    display: block;
-    margin: 1em auto;
-    border: 1px solid #cecece;
-    padding: 1em;
-    max-width: 150px;
-    box-shadow: 1px 3px 8px 0.1px grey;
-    border-radius: .5em
-  }
-
-  .logo {
-    display: none;
-  }
-
-  .logomark {
-    display: inline-flex;
-  }
-
-  .banner {
-    display: none;
-  }
-}
 
 /*BETA corner banner*/
 body:after {
@@ -516,7 +479,6 @@ body:after {
   margin-bottom: 0.5rem;
   user-select: none;
   background-color: white;
-  z-index: 100;
 }
 
 [data-theme=dark] .ltx_TOC {
@@ -540,7 +502,6 @@ body:after {
 
 
 #listIcon {
-  /* Customize your hamburger icon/button appearance */
   width: 17px;
   height: 17px;
   margin-left: 1.4rem;
@@ -550,7 +511,6 @@ body:after {
 }
 
 #arrowIcon {
-  /* Customize your hamburger icon/button appearance */
   width: 17px;
   height: 17px;
   margin-left: 1.4rem;
@@ -561,4 +521,65 @@ body:after {
 
 .ltx_page_content {
   margin-left: auto;
+}
+
+.hover-effect:hover{
+  text-decoration: underline;
+}
+
+/*mobile*/
+@media only screen and (max-width: 719px) {
+  header {
+    gap: .75em;
+  }
+
+  .header-message {
+    max-width: 100%;
+    display: none;
+  }
+
+  .body-message {
+    display: none;
+  }
+
+  .body-message-mobile {
+    display: block;
+    margin: 1em auto;
+    border: 1px solid #cecece;
+    padding: 1em;
+    max-width: 150px;
+    box-shadow: 1px 3px 8px 0.1px grey;
+    border-radius: .5em
+  }
+
+  .logo {
+    display: none;
+  }
+
+  .logomark {
+    display: inline-flex;
+  }
+
+  .banner {
+    display: none;
+  }
+
+  .ltx_toclist{
+    display: none;
+    /*border-style: outset;*/
+    border-radius: 5px;
+    border-color: white;
+  }
+
+  .ltx_TOC{
+    background-color: transparent;
+  }
+
+  #listIcon {
+    display: block;
+  }
+  
+  #arrowIcon {
+    display: none;
+  }
 }

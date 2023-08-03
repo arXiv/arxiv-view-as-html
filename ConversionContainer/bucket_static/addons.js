@@ -59,13 +59,13 @@ let create_header = () => {
     var Links = document.createElement('div');
 
     var commandLink = document.createElement('a');
-    commandLink.setAttribute('class', 'ar5iv-footer-button');
+    commandLink.setAttribute('class', 'ar5iv-footer-button hover-effect');
     commandLink.style.color = 'white'
     commandLink.href = "#footer";
     commandLink.textContent = 'Keyboard Commands';
 
     var issueLink = document.createElement('a');
-    issueLink.setAttribute('class', 'ar5iv-footer-button');
+    issueLink.setAttribute('class', 'ar5iv-footer-button hover-effect');
     issueLink.setAttribute('target', '_blank');
     issueLink.style.color = 'white'
     issueLink.textContent = 'Open Issue';

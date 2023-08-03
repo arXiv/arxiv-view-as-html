@@ -562,3 +562,7 @@ body:after {
 .ltx_page_content {
   margin-left: auto;
 }
+
+.hover-effect:hover{
+  text-decoration: underline;
+}

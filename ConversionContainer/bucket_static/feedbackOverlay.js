@@ -129,13 +129,20 @@ function addBugReportForm() {
     const warningLabel = document.createElement("div");
     warningLabel.id = "warningLabel";
     warningLabel.setAttribute('class', 'form-text');
-    warningLabel.textContent = "Warning: Issue reports will be publicly available on Github, including the content of a pre-release submission.";
+    warningLabel.textContent = "Warning: Issue reports will be publicly available on Github, including the content of an unannounced submission.";
 
     // Create the description input field
-    const descriptionLabel = document.createElement("label");
-    descriptionLabel.setAttribute("for", "description");
+    const selectedTextDescriptionLabel = document.createElement("label");
+    selectedTextDescriptionLabel.setAttribute("for", "description");
     //descriptionLabel.setAttribute("class", "form-label");
-    descriptionLabel.appendChild(document.createTextNode("Content selection saved. Describe the issue below:"));
+    selectedTextDescriptionLabel.setAttribute("id", "selectedTextModalDescription");
+    selectedTextDescriptionLabel.appendChild(document.createTextNode("Content selection saved. Describe the issue below:"));
+
+    const NomralDescriptionLabel = document.createElement("label");
+    NomralDescriptionLabel.setAttribute("for", "description");
+    //descriptionLabel.setAttribute("class", "form-label");
+    NomralDescriptionLabel.setAttribute("id", "nomralModalDescription");
+    NomralDescriptionLabel.appendChild(document.createTextNode("Description:"));
 
     const descriptionTextarea = document.createElement("textarea");
     descriptionTextarea.setAttribute("class", "form-control");
@@ -173,7 +180,8 @@ function addBugReportForm() {
     // Append the elements to their respective parents
     // Update: Add warning label (next line)
     modalBody.appendChild(warningLabel);
-    modalBody.appendChild(descriptionLabel);
+    modalBody.appendChild(selectedTextDescriptionLabel);
+    modalBody.appendChild(NomralDescriptionLabel);
     modalBody.appendChild(descriptionTextarea);
 
     // Update: Add buttonsContainer (next line)
@@ -196,14 +204,26 @@ function addBugReportForm() {
         showModal(modal, 'button');
         bugReportState.setInitiateWay("Fixedbutton");
     }
-    closeButton.onclick = (e) => hideModal(modal);
-
+    closeButton.onclick = (e) => {
+        hideModal(modal);
+        selectedTextDescriptionLabel.style.display = 'none';
+        NomralDescriptionLabel.style.display = 'block';
+    }
+    selectedTextDescriptionLabel.style.display = 'none';
     return modal;
 }
 
 // Create SRButton that can open the report modal
 function addSRButton(modal) {
-    const contents = document.querySelectorAll('p, svg, figure, .ltx_title, .ltx_authors');
+    
+    // Make SR button will only show in the main content area. Careful for id.
+    const contentDiv = document.querySelector('.ltx_page_content');
+    if (!contentDiv) {
+        console.error("Element with class 'ltx_page_content' not found.");
+        return [];
+    }
+    
+    const contents = contentDiv.querySelectorAll('p, svg, figure, .ltx_title, .ltx_authors');
     const buttons = [];
 
     // Get all the paragraphs in the document
@@ -322,6 +342,8 @@ function createSmallButton (modal) {
     document.body.appendChild(smallReportButton);
 
     smallReportButton.onclick = (e) => {
+        document.getElementById('selectedTextModalDescription').style.display = 'block';
+        document.getElementById('nomralModalDescription').style.display = 'none';
         showModal(modal); // do something with window.getSelection()
         bugReportState.setInitiateWay("selectedText-smallButton");
     }

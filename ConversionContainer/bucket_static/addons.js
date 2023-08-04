@@ -25,6 +25,7 @@ let create_header = () => {
 
     var LogoBanner = document.createElement('div');
 
+    // Create full size logo for desktop
     var logoImage = document.createElement('img');
     logoImage.alt = 'logo';
     logoImage.className = 'logo';
@@ -32,22 +33,23 @@ let create_header = () => {
     logoImage.style.backgroundColor = 'transparent';
     logoImage.src = "https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg";
 
-    // Create logomark image
+    // Create logomark image for mobile
     var logomarkImage = document.createElement('img');
     logomarkImage.alt = 'logo';
     logomarkImage.className = 'logomark';
     logomarkImage.setAttribute('role', 'presentation');
     logomarkImage.src = 'https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg';
 
+    // Create header message
     var headerMessage = document.createElement('div');
     headerMessage.className = 'header-message';
     headerMessage.setAttribute('role', 'banner');
     headerMessage.style.paddingLeft='15px';
     headerMessage.style.paddingTop='5px';
     if (id === 'submission') {
-        headerMessage.innerHTML = 'Welcome to <strong>Experimental HTML</strong>. We invite you to report rendering errors. Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.'
+        headerMessage.innerHTML = 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>'
     }else{
-        headerMessage.innerHTML = 'Welcome to <strong>Experimental HTML</strong>. We invite you to report rendering errors with the "Open Issue" button.'
+        headerMessage.innerHTML = 'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>'
     }
 
     LogoBanner.appendChild(logoImage);
@@ -71,9 +73,9 @@ let create_header = () => {
     issueLink.textContent = 'Open Issue';
     issueLink.href = '#myForm';
     issueLink.addEventListener('click', function(event) {
-        event.preventDefault(); 
+        event.preventDefault();
         var modal = document.getElementById('myForm');
-        modal.style.display = 'block'; 
+        modal.style.display = 'block';
         bugReportState.setInitiateWay("Header");
       });
 
@@ -108,7 +110,8 @@ let create_footer = () => {
         <ul> \
             <li>Use the "Open Issue" button.</li> \
             <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li> \
-            <li>You can also highlight any text via mouse or via keyboard for screen-reader users and use the "Open Issue for Selection" button that will display near your cursor.</li> \
+            <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li> \
+            <li>MESSAGE here about screen readers and the alt+y toggle.</li> \
         </ul> \
         <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p> \
     </div>';

@@ -49,7 +49,7 @@ let create_header = () => {
     if (id === 'submission') {
         headerMessage.innerHTML = 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>'
     }else{
-        headerMessage.innerHTML = 'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>'
+        headerMessage.innerHTML = 'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span>'
     }
 
     LogoBanner.appendChild(logoImage);
@@ -111,7 +111,7 @@ let create_footer = () => {
             <li>Use the "Open Issue" button.</li> \
             <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li> \
             <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li> \
-            <li>MESSAGE here about screen readers and the alt+y toggle.</li> \
+            <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li> \
         </ul> \
         <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p> \
     </div>';

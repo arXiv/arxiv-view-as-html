@@ -100,7 +100,7 @@ let create_header = () => {
 
 let create_footer = () => {
     let footer = document.createElement('footer');
-    let footer1 = document.createElement('footer');
+    let ltx_page_footer = document.createElement('div');
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
     footer.innerHTML =

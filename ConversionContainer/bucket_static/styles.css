@@ -91,6 +91,10 @@ footer p, footer ul {
   font-size: 0.9em;
 }
 
+.ltx_page_footer {
+  font-family: arial, tahoma, sans-serif;
+}
+
 /*mobile*/
 @media only screen and (max-width: 719px) {
   header {

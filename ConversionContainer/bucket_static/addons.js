@@ -191,14 +191,14 @@ let create_footer = () => {
     TimeLogo.appendChild(logoLink);
 
     document.body.appendChild(footer);
-    document.body.appendChild(footer1);
-    //footer.appendChild(footer1);
-    footer1.appendChild(night)
-    footer1.appendChild(copyLink)
-    footer1.appendChild(policyLink)
-    footer1.appendChild(HTMLLink)
-    footer1.appendChild(TimeLogo)
-    footer1.setAttribute('class', 'ltx_page_footer');
+    document.body.appendChild(ltx_page_footer);
+    //footer.appendChild(ltx_page_footer);
+    ltx_page_footer.appendChild(night)
+    ltx_page_footer.appendChild(copyLink)
+    ltx_page_footer.appendChild(policyLink)
+    ltx_page_footer.appendChild(HTMLLink)
+    ltx_page_footer.appendChild(TimeLogo)
+    ltx_page_footer.setAttribute('class', 'ltx_page_footer');
 }
 
 document.addEventListener("DOMContentLoaded", () => {

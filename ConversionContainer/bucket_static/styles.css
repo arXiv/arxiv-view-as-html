@@ -1,7 +1,6 @@
 header {
   background-color: #b31313;
   display: flex;
-  position: fixed;
   top: 0;
   width: 100%;
   justify-content: space-between;
@@ -475,14 +474,38 @@ body:after {
 
 /* Update: For toc */
 .ltx_TOC{
-  position: fixed;
+  /* z-index: auto; */
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 10vh;
+  max-height: 95vh;
+  /* xxx */
   overflow-y: auto;
-  top: 4.5%;
-  height: 90%;
-  width: 20%;
-  margin-bottom: 0.5rem;
   user-select: none;
   background-color: white;
+}
+
+.ltx_page_main {
+  /* grid-gap: 3rem; */
+  display: grid;
+  /* gap: 3rem; */
+  grid-template-areas: "sidebar main";
+  grid-template-columns: minmax(0,1fr) minmax(0,5fr);
+  /* padding-left: 1.5rem;
+  padding-right: 3rem; */
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.ltx_page_content {
+  grid-area: main;
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+  min-height: 80vh;
+  --main-width: 60rem;
+  --main-with-margin: 20rem;
 }
 
 [data-theme=dark] .ltx_TOC {
@@ -521,10 +544,6 @@ body:after {
   margin-top: 10px;
   margin-bottom: 1rem;
   display: block;
-}
-
-.ltx_page_content {
-  margin-left: auto;
 }
 
 .hover-effect:hover{

@@ -605,4 +605,13 @@ body:after {
   #arrowIcon {
     display: none;
   }
+
+  .ltx_page_main {
+    grid-template-columns: minmax(0,0.02fr) minmax(0,1fr);
+  }
+
+  .ltx_TOC{
+    z-index: 10000; 
+    width: 20rem;
+  }
 }

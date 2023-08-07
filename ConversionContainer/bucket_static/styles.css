@@ -15,7 +15,7 @@ header a {
   max-height: 2em
 }
 .logomark {
-  max-height: 1.5em;
+  max-height: 2.5em;
   display: none;
 }
 svg.icon, [data-theme=dark] svg.icon {
@@ -320,11 +320,6 @@ header a {
   max-height: 2em;
 }
 
-.logomark {
-  max-height: 1.5em;
-  display: none;
-}
-
 #back-arrow {
   background-color: transparent !important;
 }
@@ -548,6 +543,43 @@ body:after {
 
 .hover-effect:hover{
   text-decoration: underline;
+}
+
+.back-to-reference-btn {
+  /* background-color: #FFFFFF; */
+  background-color: var(--background-color);
+  color: var(--border-color);
+  border: 1px solid var(--border-color);
+  border-radius: .5rem;
+  box-sizing: border-box;
+  /* color: #111827; */
+  font-family: "Inter var",ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: .75rem 1rem;
+  text-align: center;
+  text-decoration: none #D1D5DB solid;
+  text-decoration-thickness: auto;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.back-to-reference-btn:hover {
+  color: var(--background-color);
+  background-color: var(--border-light-color);
+}
+
+.back-to-reference-btn:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.back-to-reference-btn:focus-visible {
+  box-shadow: none;
 }
 
 /*mobile*/

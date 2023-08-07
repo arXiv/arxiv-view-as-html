@@ -38,6 +38,7 @@ let create_header = () => {
     logomarkImage.alt = 'logo';
     logomarkImage.className = 'logomark';
     logomarkImage.setAttribute('role', 'presentation');
+    logomarkImage.style.backgroundColor='transparent'
     logomarkImage.src = 'https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg';
 
     // Create header message
@@ -92,6 +93,7 @@ let create_header = () => {
     Links.appendChild(issueLink);
     Links.appendChild(night);
     Links.style.display = 'inline-flex';
+    Links.style.alignItems = 'center';
 
     document.body.insertBefore(header, document.body.firstChild);
     header.appendChild(LogoBanner)
@@ -205,3 +207,71 @@ document.addEventListener("DOMContentLoaded", () => {
     create_header();
     create_footer();
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+    const referenceItems = document.querySelectorAll(".ltx_bibitem");
+  
+    referenceItems.forEach(item => {
+      const referenceId = item.getAttribute("id");
+      const backToReferenceBtn = document.createElement("button");
+      backToReferenceBtn.textContent = "Back to Article";
+      backToReferenceBtn.classList.add("back-to-reference-btn");
+  
+      let scrollPosition = 0;
+      let clickedCite = false;
+  
+      backToReferenceBtn.addEventListener("click", function() {
+        if (clickedCite) {
+          window.scrollTo(0, scrollPosition);
+        } else {
+          const citeElement = document.querySelector(`cite a[href="#${referenceId}"]`);
+          if (citeElement) {
+            citeElement.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      });
+  
+      const citeElements = document.querySelectorAll(`cite a[href="#${referenceId}"]`);
+      citeElements.forEach(citeElement => {
+        citeElement.addEventListener("click", function() {
+          scrollPosition = window.scrollY;
+          clickedCite = true;
+        });
+      });
+  
+      item.insertBefore(backToReferenceBtn, item.firstChild);
+    });
+  });
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  

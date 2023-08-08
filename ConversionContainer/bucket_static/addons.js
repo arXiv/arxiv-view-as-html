@@ -11,7 +11,8 @@ let create_favicon = () => {
   favicon16.href = 'https://static.arxiv.org/static/browse/0.3.4/images/icons/favicon-16x16.png';
   favicon16.sizes = '16x16';
 
-  document.head.append([favicon16, favicon32])
+  document.head.appendChild(favicon16);
+  document.head.appendChild(favicon32);
 }
 
 let create_header = () => {

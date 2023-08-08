@@ -972,10 +972,9 @@ span.ltx_font_bold>.ltx_break:last-child {
     display: table-cell;
     position: relative;
     left: -2.5rem;
-    top: .24rem;
     line-height: 1.5rem;
     text-align: left;
-    vertical-align: text-top;
+    vertical-align: middle;
     word-break: normal;
     overflow-wrap: break-word
 }
@@ -998,11 +997,11 @@ span.ltx_font_bold>.ltx_break:last-child {
     padding-left: .5em;
     max-width: 40em;
     line-height: 1.5rem;
-    vertical-align: text-top
+    vertical-align: middle;
 }
 
 .ltx_bib_title {
-    font-style: italic
+    font-style: italic;
 }
 
 .ltx_bib_article .bib-title {

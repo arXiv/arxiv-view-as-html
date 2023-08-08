@@ -1,7 +1,6 @@
 header {
   background-color: #b31313;
   display: flex;
-  position: fixed;
   top: 0;
   width: 100%;
   justify-content: space-between;
@@ -16,7 +15,7 @@ header a {
   max-height: 2em
 }
 .logomark {
-  max-height: 1.5em;
+  max-height: 2.5em;
   display: none;
 }
 svg.icon, [data-theme=dark] svg.icon {
@@ -321,11 +320,6 @@ header a {
   max-height: 2em;
 }
 
-.logomark {
-  max-height: 1.5em;
-  display: none;
-}
-
 #back-arrow {
   background-color: transparent !important;
 }
@@ -475,14 +469,38 @@ body:after {
 
 /* Update: For toc */
 .ltx_TOC{
-  position: fixed;
+  /* z-index: auto; */
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 10vh;
+  max-height: 95vh;
+  /* xxx */
   overflow-y: auto;
-  top: 4.5%;
-  height: 90%;
-  width: 20%;
-  margin-bottom: 0.5rem;
   user-select: none;
   background-color: white;
+}
+
+.ltx_page_main {
+  /* grid-gap: 3rem; */
+  display: grid;
+  /* gap: 3rem; */
+  grid-template-areas: "sidebar main";
+  grid-template-columns: minmax(0,1fr) minmax(0,5fr);
+  /* padding-left: 1.5rem;
+  padding-right: 3rem; */
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.ltx_page_content {
+  grid-area: main;
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+  min-height: 80vh;
+  --main-width: 60rem;
+  --main-with-margin: 20rem;
 }
 
 [data-theme=dark] .ltx_TOC {
@@ -523,12 +541,45 @@ body:after {
   display: block;
 }
 
-.ltx_page_content {
-  margin-left: auto;
-}
-
 .hover-effect:hover{
   text-decoration: underline;
+}
+
+.back-to-reference-btn {
+  /* background-color: #FFFFFF; */
+  background-color: var(--background-color);
+  color: var(--border-color);
+  border: 1px solid var(--border-color);
+  border-radius: .5rem;
+  box-sizing: border-box;
+  /* color: #111827; */
+  font-family: "Inter var",ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: .75rem 1rem;
+  text-align: center;
+  text-decoration: none #D1D5DB solid;
+  text-decoration-thickness: auto;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.back-to-reference-btn:hover {
+  color: var(--background-color);
+  background-color: var(--border-light-color);
+}
+
+.back-to-reference-btn:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.back-to-reference-btn:focus-visible {
+  box-shadow: none;
 }
 
 /*mobile*/
@@ -585,5 +636,14 @@ body:after {
   
   #arrowIcon {
     display: none;
+  }
+
+  .ltx_page_main {
+    grid-template-columns: minmax(0,0.02fr) minmax(0,1fr);
+  }
+
+  .ltx_TOC{
+    z-index: 10000; 
+    width: 20rem;
   }
 }

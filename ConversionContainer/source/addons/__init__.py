@@ -47,20 +47,21 @@ def _fix_nav (soup: BeautifulSoup) -> BeautifulSoup:
 
     main = soup.find('div', {'id': 'main'})
     main.insert(0, nav)
-    
+
     return soup
 
 def post_process (src_fpath: str, identifier: str, is_submission: bool):
 
     with open(f'{src_fpath}', 'r+') as source:
         soup = BeautifulSoup(source.read(), 'html.parser')
+
+        soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'
         
         soup = _strip_footer(soup)
 
         soup = _fix_nav(soup)
 
         # Add id="main" to <div class="ltx_page_main">
-        soup.find('div', {'class': 'ltx_page_main'})['id'] = 'main'
         
         # Overwrite original file with the new addons
         source.truncate(0)

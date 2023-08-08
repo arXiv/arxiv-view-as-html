@@ -520,31 +520,6 @@ body:after {
   background-color: #ffffd4;
 }
 
-
-/*#listIcon {
-  position: fixed;
-  top: 20px;
-  left:20px;
-  width: 17px;
-  height: 17px;
-  margin-left: 1.4rem;
-  margin-top: 10px;
-  margin-bottom: 1rem;
-  display: none;
-}
-
-#arrowIcon {
-  position: fixed;
-  top: 20px;
-  left:20px;
-  width: 17px;
-  height: 17px;
-  margin-left: 1.4rem;
-  margin-top: 10px;
-  margin-bottom: 1rem;
-  display: block;
-}*/
-
 .tocToggle {
   position: fixed;
   top: 10vh;

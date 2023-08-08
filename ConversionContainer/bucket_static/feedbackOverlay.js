@@ -449,6 +449,10 @@ function submitBugReport (e) {
         const queryString = new URLSearchParams(form).toString()
         const link = GITHUB_BASE_URL + queryString;
         window.open(link, '_blank');
+
+        //Testing
+        const url = testForGitHubIssue(issueData, arxivIdv);
+        window.open(url, '_blank');
     } 
 
     document.querySelector('#myFormContent').reset();
@@ -504,6 +508,13 @@ function makeGithubBody (issueData) {
     body += "----------------------------------------------------------------------------------------\n\n";
     body += `Id: ${issueData.uniqueId}\n`     
     return body;
+}
+
+function testForGitHubIssue(issueData, arxivIdv){
+    var url = `https://github.com/YiChen8185/TestForGitHubIssue/issues/new?assignees=&labels=&projects=&title=Improve article : ${arxivIdv}&template=bug_report.yml`;
+    url += `&description=${issueData.description}`;
+    url += `&uniqueId=${issueData.uniqueId}`;
+    return url;
 }
 
 // RUN THIS CODE ON INITIALIZE

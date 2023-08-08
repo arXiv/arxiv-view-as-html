@@ -192,8 +192,8 @@ let create_footer = () => {
     logoLink.appendChild(logoImage);
     TimeLogo.appendChild(logoLink);
 
-    document.body.appendChild(footer);
     document.body.appendChild(ltx_page_footer);
+    document.body.appendChild(footer);
     //footer.appendChild(ltx_page_footer);
     ltx_page_footer.appendChild(night)
     ltx_page_footer.appendChild(copyLink)

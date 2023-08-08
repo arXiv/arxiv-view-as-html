@@ -499,8 +499,6 @@ body:after {
   width: 100%;
   display: flex;
   min-height: 80vh;
-  --main-width: 60rem;
-  --main-with-margin: 20rem;
 }
 
 [data-theme=dark] .ltx_TOC {
@@ -523,7 +521,10 @@ body:after {
 }
 
 
-#listIcon {
+/*#listIcon {
+  position: fixed;
+  top: 20px;
+  left:20px;
   width: 17px;
   height: 17px;
   margin-left: 1.4rem;
@@ -533,12 +534,31 @@ body:after {
 }
 
 #arrowIcon {
+  position: fixed;
+  top: 20px;
+  left:20px;
   width: 17px;
   height: 17px;
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
   display: block;
+}*/
+
+.tocToggle {
+  position: fixed;
+  top: 6vh;
+  left: 0;
+  /* width: 17px; */
+  /* height: 17px; */
+  margin-left: 1.4rem;
+  margin-top: 10px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: transparent;
 }
 
 .hover-effect:hover{
@@ -639,11 +659,16 @@ body:after {
   }
 
   .ltx_page_main {
-    grid-template-columns: minmax(0,0.02fr) minmax(0,1fr);
+    grid-template-columns: minmax(0,0fr) minmax(0,1fr);
   }
 
   .ltx_TOC{
     z-index: 10000; 
     width: 20rem;
+  }
+
+  .tocToggle {
+    top: 10vh;
+    left:0vw;
   }
 }

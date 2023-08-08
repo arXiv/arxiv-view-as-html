@@ -27,47 +27,49 @@ var bugReportState = {
 function detectColorScheme() {
     var theme = "light";
     var current_theme = localStorage.getItem("ar5iv_theme");
-  
-    if (current_theme) {
-      if (current_theme == "dark") {
-        theme = "dark";
-      }
-    } else if (!window.matchMedia) {
-      return false;
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      theme = "dark";
-    }
-  
-    if (theme == "dark") {
-      document.documentElement.setAttribute("data-theme", "dark");
-      const colorSchemeIcon = document.querySelector('.color-scheme-icon');
-      if (colorSchemeIcon) {
-        colorSchemeIcon.setAttribute('aria-label', 'Dark mode');
-      }
-    } else {
-      document.documentElement.setAttribute("data-theme", "light");
-      const colorSchemeIcon = document.querySelector('.color-scheme-icon');
-      if (colorSchemeIcon) {
-        colorSchemeIcon.setAttribute('aria-label', 'Light mode');
-      }
-    }
-  }
-  
-  // Make sure the DOM content is loaded before running the script
-  document.addEventListener('DOMContentLoaded', function() {
-    detectColorScheme();
-  });
-  
 
-function toggleColorScheme(){
+    if (current_theme) {
+        if (current_theme == "dark") {
+            theme = "dark";
+        }
+    } else if (!window.matchMedia) {
+        return false;
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        theme = "dark";
+    }
+
+    if (theme == "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+        const colorSchemeIcon = document.querySelector('.color-scheme-icon');
+        if (colorSchemeIcon) {
+            colorSchemeIcon.setAttribute('aria-label', 'Dark mode');
+        }
+    } else {
+        document.documentElement.setAttribute("data-theme", "light");
+        const colorSchemeIcon = document.querySelector('.color-scheme-icon');
+        if (colorSchemeIcon) {
+            colorSchemeIcon.setAttribute('aria-label', 'Light mode');
+        }
+    }
+}
+
+// Make sure the DOM content is loaded before running the script
+document.addEventListener('DOMContentLoaded', function () {
+    detectColorScheme();
+});
+
+
+function toggleColorScheme() {
     var current_theme = localStorage.getItem("ar5iv_theme");
     if (current_theme) {
-      if (current_theme == "light") {
-        localStorage.setItem("ar5iv_theme", "dark"); }
-      else {
-        localStorage.setItem("ar5iv_theme", "light"); } }
-    else {
-        localStorage.setItem("ar5iv_theme", "dark"); }
+        if (current_theme == "light") {
+            localStorage.setItem("ar5iv_theme", "dark");
+        } else {
+            localStorage.setItem("ar5iv_theme", "light");
+        }
+    } else {
+        localStorage.setItem("ar5iv_theme", "dark");
+    }
     detectColorScheme();
 }
 
@@ -117,8 +119,8 @@ function addBugReportForm() {
     modalHeader.appendChild(modalTitle);
     modalHeader.appendChild(closeButton);
 
-    if(theme==='dark'){
-        modalHeader.setAttribute('data-bs-theme',"dark");
+    if (theme === 'dark') {
+        modalHeader.setAttribute('data-bs-theme', "dark");
     }
 
     // Create the modal body
@@ -152,7 +154,7 @@ function addBugReportForm() {
     descriptionTextarea.setAttribute("style", "height: 80px;");
     // Update: Change to 500 for next two lines.
     descriptionTextarea.setAttribute("maxlength", "500"); // Set the maximum length to 200 characters
-    descriptionTextarea.setAttribute("placeholder","500 characters maximum");
+    descriptionTextarea.setAttribute("placeholder", "500 characters maximum");
 
     // Create the modal footer
     const modalFooter = document.createElement("div");
@@ -163,7 +165,7 @@ function addBugReportForm() {
     submitButton.setAttribute("type", "submit");
     submitButton.setAttribute("class", "btn btn-primary");
     submitButton.setAttribute("id", "modal-submit"); // This id will use in submitBugReport function !!!
-    submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;" );
+    submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;");
     submitButton.appendChild(document.createTextNode("Submit in Github"));
 
     // Update: ScreenReader Submit Buttons. Needed for Submit without Github Function.
@@ -215,14 +217,14 @@ function addBugReportForm() {
 
 // Create SRButton that can open the report modal
 function addSRButton(modal) {
-    
+
     // Make SR button will only show in the main content area. Careful for id.
     const contentDiv = document.querySelector('.ltx_page_content');
     if (!contentDiv) {
         console.error("Element with class 'ltx_page_content' not found.");
         return [];
     }
-    
+
     const contents = contentDiv.querySelectorAll('p, svg, figure, .ltx_title, .ltx_authors');
     const buttons = [];
 
@@ -265,17 +267,17 @@ function addSRButton(modal) {
     return buttons;
 }
 
-function showModal (modal) {
+function showModal(modal) {
     modal.style.display = 'block';
     modal.setAttribute('tabindex', '-1'); // Ensure the modal is focusable
     modal.focus();
 }
 
-function hideModal (modal) {
+function hideModal(modal) {
     modal.style.display = 'none';
 }
 
-function showButtons (buttons) {
+function showButtons(buttons) {
     // buttons.forEach((button) => {
     //     console.log(button);
     //     console.log(button.style.display);
@@ -286,7 +288,7 @@ function showButtons (buttons) {
     buttons.forEach((button) => button.style.display = 'inline');
 }
 
-function hideButtons (buttons) {
+function hideButtons(buttons) {
     buttons.forEach((button) => button.style.display = 'none');
 }
 
@@ -301,8 +303,7 @@ const handleKeyDown = (e, modal, buttons) => {
     // }
     if (e.altKey && e.code === 'KeyY' && !ctrlOrMeta) {
         e.shiftKey ? hideButtons(buttons) : showButtons(buttons);
-    }
-    else if (ctrlOrMeta && (e.key === '/' || e.key === '?')) {
+    } else if (ctrlOrMeta && (e.key === '/' || e.key === '?')) {
         showModal(modal)
         bugReportState.setInitiateWay("ShortCut");
     } else if (ctrlOrMeta && (e.key === '}' || e.key === ']')) {
@@ -311,26 +312,25 @@ const handleKeyDown = (e, modal, buttons) => {
 }
 
 //The highlight initiation way
-function handleMouseUp (e, smallButton) {
-        if (e.target.id === "small-report-button")
-            return;
-        if (!window.getSelection().isCollapsed) {
-            selection = window.getSelection();
-            currentAnchorNode = selection.anchorNode;
-            bugReportState.setSelectedHtmlSmallButton(selection);
-            // var range = selection.getRangeAt(0);
-            // var container = document.createElement('div');
-            // container.appendChild(range.cloneContents());
-            // // Use the selected text to generate the dataURI
-            // selectedHtml = 'data:text/html;charset=utf-8,' + encodeURIComponent(container.innerHTML);
-            //Comment: Need to get the selected text and pass it to the backend
-            //reference: var selectedhtml in app.js
-            showSmallButton(smallButton);
-        }
-        else hideSmallButton(smallButton);
+function handleMouseUp(e, smallButton) {
+    if (e.target.id === "small-report-button")
+        return;
+    if (!window.getSelection().isCollapsed) {
+        selection = window.getSelection();
+        currentAnchorNode = selection.anchorNode;
+        bugReportState.setSelectedHtmlSmallButton(selection);
+        // var range = selection.getRangeAt(0);
+        // var container = document.createElement('div');
+        // container.appendChild(range.cloneContents());
+        // // Use the selected text to generate the dataURI
+        // selectedHtml = 'data:text/html;charset=utf-8,' + encodeURIComponent(container.innerHTML);
+        //Comment: Need to get the selected text and pass it to the backend
+        //reference: var selectedhtml in app.js
+        showSmallButton(smallButton);
+    } else hideSmallButton(smallButton);
 }
 
-function createSmallButton (modal) {
+function createSmallButton(modal) {
     const smallReportButton = document.createElement('button');
     smallReportButton.id = 'small-report-button';
     smallReportButton.type = 'button';
@@ -371,12 +371,12 @@ function showSmallButton(smallReportButton) {
     smallReportButton.style.display = 'inline';
 }
 
-function hideSmallButton (smallReportButton) {
+function hideSmallButton(smallReportButton) {
     smallReportButton.style.display = 'none';
 }
 
 //submit to the backend, next step: finish
-function submitBugReport (e) {
+function submitBugReport(e) {
     e.preventDefault();
     //document.getElementById('notification').style = 'display: block';
     const issueData = {};
@@ -437,32 +437,34 @@ function submitBugReport (e) {
 
     form = new FormData();
     form.append('template', 'bug_report.md');
-    form.append('title',`Improve article : ${arxivIdv}`)
+    form.append('title', `Improve article : ${arxivIdv}`)
     form.append('body', makeGithubBody(issueData));
 
     // Send to Database.
     postToDB(issueData);
-    
+
     // Send to Github Issue. !!!NEED: make sure submitter id is same as the html submit button id.
-    if(e.submitter.id === 'modal-submit'){
+    if (e.submitter.id === 'modal-submit') {
         const GITHUB_BASE_URL = 'https://github.com/arXiv/html_feedback/issues/new?'
         const queryString = new URLSearchParams(form).toString()
         const link = GITHUB_BASE_URL + queryString;
         window.open(link, '_blank');
-    } 
+    }
 
     document.querySelector('#myFormContent').reset();
     bugReportState.clear();
     hideModal(document.getElementById('myForm'));
 }
 
+let isTocVisible = false;
 function handleClickOutsideModal(e, modal) {
     if (e.target == modal)
         modal.style.display = 'none';
-    const listIcon= document.getElementById('listIcon');
+    /*const listIcon= document.getElementById('listIcon');
     const arrowIcon = document.getElementById('arrowIcon');
     const toc = document.querySelector('.ltx_toclist');
     const toc_main = document.querySelector('.ltx_TOC');
+    const main= document.querySelector('.ltx_page_main');
     if (e.target == listIcon)
     {
         console.log('listIcon clicked');
@@ -471,6 +473,7 @@ function handleClickOutsideModal(e, modal) {
         arrowIcon.style.display = 'block';
         listIcon.style.display = 'none';
         toc_main.style.backgroundColor = 'white';
+        main.style.gridTemplateColumns = 'minmax(0,1fr) minmax(0,5fr)';
     }
     if (e.target == arrowIcon){
         console.log('arrowIcon clicked');
@@ -479,30 +482,61 @@ function handleClickOutsideModal(e, modal) {
         arrowIcon.style.display = 'none';
         listIcon.style.display = 'block';
         toc_main.style.backgroundColor = 'transparent';
+        main.style.gridTemplateColumns = 'minmax(0,0fr) minmax(0,5fr)';
+    }*/
+
+    const tocToggle = document.querySelector('.tocToggle');
+    const toc = document.querySelector('.ltx_toclist');
+    const toc_main = document.querySelector('.ltx_TOC');
+    const main = document.querySelector('.ltx_page_main');
+
+    if (e.target == tocToggle) {
+        // Toggle the TOC visibility
+        if (isTocVisible) {
+            toc.style.display = 'none';
+            toc_main.style.backgroundColor = 'transparent';
+            main.style.gridTemplateColumns = 'minmax(0, 0fr) minmax(0, 5fr)';
+        } else {
+            toc.style.display = 'block';
+            toc_main.style.backgroundColor = 'white';
+            main.style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 5fr)';
+        }
+        isTocVisible = !isTocVisible; // Toggle the state
+        console.log(isTocVisible);
+
+        // Toggle the class to change the SVG icon
+        const svgIcon = tocToggle.querySelector('svg');
+        if (isTocVisible) {
+            // Change the SVG path to arrow icon
+            svgIcon.innerHTML = '<path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>';
+        } else {
+            // Change the SVG path back to list icon
+            svgIcon.innerHTML = '<path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>';
+        }
     }
 }
 
-function postToDB (issueData) {
+function postToDB(issueData) {
     const DB_BACKEND_URL = 'https://services.arxiv.org/latexml/feedback';
     const queryString = new URLSearchParams(issueData).toString();
     fetch(DB_BACKEND_URL, {
         method: "POST",
         mode: "no-cors",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: queryString, // body data type must match "Content-Type" header
     });
 }
 
-function makeGithubBody (issueData) {
+function makeGithubBody(issueData) {
     let body = "## Describe the issue\n\n";
     body += `**Description**: ${issueData.description}\n\n`;
     body += "Feel free to attach a screenshot (or document) link below: \n\n\n\n";
     // Auto Fill Data
     body += "## Auto Fill Data - !!! Please do not edit below this line !!!\n";
     body += "----------------------------------------------------------------------------------------\n\n";
-    body += `Id: ${issueData.uniqueId}\n`     
+    body += `Id: ${issueData.uniqueId}\n`
     return body;
 }
 
@@ -523,10 +557,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
         if (currentScrollPosition > lastScrollPosition || currentScrollPosition < lastScrollPosition) {
             smallReportButton.style.display = "none";
-          } else {
+        } else {
             smallReportButton.style.display = "block";
-          }
-          lastScrollPosition = currentScrollPosition;
+        }
+        lastScrollPosition = currentScrollPosition;
     });
 
     document.getElementById('myFormContent').onsubmit = submitBugReport;

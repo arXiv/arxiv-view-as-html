@@ -1,4 +1,18 @@
+let create_favicon = () => {
+  let favicon32 = document.createElement('link');
+  favicon32.rel = 'icon';
+  favicon32.type = 'image/png';
+  favicon32.href = 'https://static.arxiv.org/static/browse/0.3.4/images/icons/favicon-32x32.png';
+  favicon32.sizes = '32x32';
 
+  let favicon16 = document.createElement('link');
+  favicon16.rel = 'icon';
+  favicon16.type = 'image/png';
+  favicon16.href = 'https://static.arxiv.org/static/browse/0.3.4/images/icons/favicon-16x16.png';
+  favicon16.sizes = '16x16';
+
+  document.head.append([favicon16, favicon32])
+}
 
 let create_header = () => {
     let header = document.createElement('header');
@@ -204,6 +218,7 @@ let create_footer = () => {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    create_favicon();
     create_header();
     create_footer();
 });

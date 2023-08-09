@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function () {
     detectColorScheme();
 });
 
-
 function toggleColorScheme() {
     var current_theme = localStorage.getItem("ar5iv_theme");
     if (current_theme) {
@@ -456,6 +455,7 @@ function submitBugReport(e) {
     hideModal(document.getElementById('myForm'));
 }
 
+let isTocVisible = false;
 function handleClickOutsideModal(e, modal) {
     if (e.target == modal)
         modal.style.display = 'none';

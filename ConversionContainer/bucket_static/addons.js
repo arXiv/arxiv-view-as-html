@@ -1,3 +1,20 @@
+let create_favicon = () => {
+  let favicon32 = document.createElement('link');
+  favicon32.rel = 'icon';
+  favicon32.type = 'image/png';
+  favicon32.href = 'https://static.arxiv.org/static/browse/0.3.4/images/icons/favicon-32x32.png';
+  favicon32.sizes = '32x32';
+
+  let favicon16 = document.createElement('link');
+  favicon16.rel = 'icon';
+  favicon16.type = 'image/png';
+  favicon16.href = 'https://static.arxiv.org/static/browse/0.3.4/images/icons/favicon-16x16.png';
+  favicon16.sizes = '16x16';
+
+  document.head.appendChild(favicon16);
+  document.head.appendChild(favicon32);
+}
+
 let create_header = () => {
     let header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
@@ -79,14 +96,15 @@ let create_footer = () => {
             </a>
         </div>`;
 
-    footer.appendChild(ltx_page_footer);
     ltx_page_footer.innerHTML = night + copyLink + policyLink + HTMLLink + TimeLogo;
     ltx_page_footer.setAttribute('class', 'ltx_page_footer');
 
+    document.body.appendChild(ltx_page_footer);
     document.body.appendChild(footer);
-};
+};  
 
 document.addEventListener("DOMContentLoaded", () => {
+    create_favicon();
     create_header();
     create_footer();
 });

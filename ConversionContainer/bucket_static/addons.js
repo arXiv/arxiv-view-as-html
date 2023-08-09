@@ -27,8 +27,8 @@ let create_header = () => {
             <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
         </a>
         <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
-            ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>' :
-                                  'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span>'}
+            ${id === 'submission' ? 'This is <strong>Experimentall HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>' :
+                                  'This is <strong>Experimentall HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span>'}
         </div>
     </div>`;
 

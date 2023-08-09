@@ -123,7 +123,8 @@ document.addEventListener("DOMContentLoaded", function() {
       });
   
       const refNumElement = item.querySelector(".ltx_role_refnum");
-      if (refNumElement) {
+      const bibitem = item.querySelector(".ltx_tag_bibitem");
+      if (refNumElement || bibitem) {
         refNumElement.appendChild(backToReferenceBtn);
       }
     });

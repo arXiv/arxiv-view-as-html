@@ -42,7 +42,6 @@ let create_header = () => {
                 <span class="color-scheme-icon"></span>
             </a>
         </div>`;
-
     header.innerHTML = LogoBanner + Links;
     document.body.insertBefore(header, document.body.firstChild);
 };
@@ -117,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const backToReferenceBtn = document.createElement("button");
       backToReferenceBtn.innerHTML = "&#x2191;";
       backToReferenceBtn.classList.add("back-to-reference-btn");
+      backToReferenceBtn.setAttribute("aria-label", "Back to the article");
   
       let scrollPosition = 0;
       let clickedCite = false;
@@ -140,11 +140,10 @@ document.addEventListener("DOMContentLoaded", function() {
         });
       });
   
-      const refNumElement = item.querySelector(".ltx_role_refnum");
-      const bibitem = item.querySelector(".ltx_tag_bibitem");
-      if (refNumElement || bibitem) {
+      const refNumElement = item.querySelector(".ltx_tag_bibitem");
+      if (refNumElement) {
         refNumElement.appendChild(backToReferenceBtn);
-      }
+    }
     });
   });
 

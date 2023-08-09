@@ -506,32 +506,23 @@ function makeGithubBody(issueData) {
 }
 
 function addTOCToggleButton() {
-    // Create a <div> element to contain the SVGs
-    const svgContainer = document.createElement("div");
+    const olElement = document.querySelector('.ltx_toclist');
 
-    // Create the first SVG element
-    const listIconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    listIconSvg.setAttribute("height", "1em");
-    listIconSvg.setAttribute("viewBox", "0 0 512 512");
-    listIconSvg.id = "listIcon";
-    listIconSvg.innerHTML = '<path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>';
+    const listIconHTML = `
+    <div id="listIcon" type="button">
+        <svg width='17px' height='17px' viewBox="0 0 512 512" style="pointer-events: none;">
+        <path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>
+        </svg>
+    </div>`;
 
-    // Create the second SVG element
-    const arrowIconSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    arrowIconSvg.setAttribute("height", "1em");
-    arrowIconSvg.setAttribute("viewBox", "0 0 448 512");
-    arrowIconSvg.id = "arrowIcon";
-    arrowIconSvg.innerHTML = '<path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>';
+    const arrowIconHTML = `
+    <div id="arrowIcon" type="button">
+        <svg width='17px' height='17px' viewBox="0 0 448 512" style="pointer-events: none;">
+        <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
+        </svg>
+    </div>`;
 
-    // Append the SVG elements to the container
-    svgContainer.appendChild(listIconSvg);
-    svgContainer.appendChild(arrowIconSvg);
-
-    // Find the <nav> element and append the container
-    const tocListElement = document.querySelector(".ltx_TOC .ltx_toclist");
-
-    // Insert the SVG container before the .ltx_toclist element
-    tocListElement.insertAdjacentElement("beforebegin", svgContainer);
+    olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
 }
 
 // RUN THIS CODE ON INITIALIZE

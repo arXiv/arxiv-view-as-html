@@ -55,19 +55,6 @@ let create_footer = () => {
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
 
-    footer.innerHTML = `
-        <div class="keyboard-glossary ltx_page_content">
-            <h2>Keyboard commands and instructions for reporting errors</h2>
-            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
-            <ul>
-                <li>Use the "Open Issue" button.</li>
-                <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
-                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
-                <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
-            </ul>
-            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
-        </div>`;
-
     var night = `
         <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme">
             <span class="color-scheme-icon"></span>
@@ -97,7 +84,27 @@ let create_footer = () => {
             </a>
         </div>`;
 
-    ltx_page_footer.innerHTML = night + copyLink + policyLink + HTMLLink + TimeLogo;
+    footer.innerHTML = `
+        <div class="keyboard-glossary ltx_page_content">
+            <h2>Keyboard commands and instructions for reporting errors</h2>
+            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
+            <ul>
+                <li>Use the "Open Issue" button.</li>
+                <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
+                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
+                <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
+            </ul>
+            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
+        </div>
+        <nav>
+            ${night}
+            ${copyLink}
+            ${policyLink}
+            ${HTMLLink}
+        </nav>
+    `;
+
+    ltx_page_footer.innerHTML = TimeLogo;
     ltx_page_footer.setAttribute('class', 'ltx_page_footer');
 
     document.body.appendChild(ltx_page_footer);
@@ -106,7 +113,8 @@ let create_footer = () => {
 
 let unwrap_nav = () => {
     let nav = document.querySelector('.ltx_page_navbar');
-    nav.replaceWith(...nav.childNodes);
+    document.querySelector('#main').prepend(...nav.childNodes);
+    nav.remove();
 
     document.querySelector('.ltx_TOC').setAttribute('aria-labelledby', 'toc_header');
 }

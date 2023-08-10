@@ -35,7 +35,7 @@ let create_header = () => {
 
     var Links = `
         <div style="display: inline-flex; align-items: center;">
-            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Keyboard Commands</a>
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Give Feedback</a>
             <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Open Issue</a>
             <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
                 <span class="color-scheme-icon"></span>

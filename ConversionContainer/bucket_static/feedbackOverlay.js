@@ -101,6 +101,7 @@ function addBugReportForm() {
     // Create the modal header
     const modalHeader = document.createElement("div");
     modalHeader.setAttribute("class", "modal-header");
+    modalHeader.setAttribute("id", "modal-header");
 
     // Create the modal title
     const modalTitle = document.createElement("h5");
@@ -118,7 +119,9 @@ function addBugReportForm() {
     modalHeader.appendChild(modalTitle);
     modalHeader.appendChild(closeButton);
 
+    console.log("Test theme:" + theme);
     if (theme === 'dark') {
+        console.log("Dark Enter!")
         modalHeader.setAttribute('data-bs-theme', "dark");
     }
 
@@ -267,6 +270,14 @@ function addSRButton(modal) {
 }
 
 function showModal(modal) {
+    const theme = document.documentElement.getAttribute("data-theme");
+    const modalHeader = document.getElementById("modal-header");
+    if (theme === 'dark') {  
+        modalHeader.setAttribute('data-bs-theme', "dark");
+    }else{
+        modalHeader.setAttribute('data-bs-theme', "light");
+    }
+        
     modal.style.display = 'block';
     modal.setAttribute('tabindex', '-1'); // Ensure the modal is focusable
     modal.focus();

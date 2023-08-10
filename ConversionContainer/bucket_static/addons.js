@@ -46,6 +46,8 @@ let create_header = () => {
     document.body.insertBefore(header, document.body.firstChild);
 };
 
+let delete_footer = () => document.querySelector('footer').remove();
+
 let create_footer = () => {
     let footer = document.createElement('footer');
     let ltx_page_footer = document.createElement('div');
@@ -100,15 +102,25 @@ let create_footer = () => {
 
     document.body.appendChild(ltx_page_footer);
     document.body.appendChild(footer);
-};  
+};
+
+let unwrap_nav = () => {
+    let nav = document.querySelector('.ltx_page_navbar');
+    nav.replaceWith(...nav.childNodes);
+
+    document.querySelector('.ltx_TOC').setAttribute('aria-labelledby', 'toc_header');
+}
 
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector('.ltx_page_main').id = 'main';
+
     create_favicon();
     create_header();
-    create_footer();
-});
+    unwrap_nav();
 
-document.addEventListener("DOMContentLoaded", function() {
+    delete_footer();
+    create_footer();
+
     const referenceItems = document.querySelectorAll(".ltx_bibitem");
   
     referenceItems.forEach(item => {

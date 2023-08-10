@@ -666,3 +666,30 @@ body:after {
 .ltx_page_content{
   min-height: 0;
 }
+.ltx_text{
+  white-space: normal;
+}
+.ltx_listingline{
+  white-space: normal;
+}
+article{
+  box-sizing: border-box;
+  width: 100%;
+}
+.ltx_bibblock{
+  box-sizing: border-box;
+  width: 100%;
+}
+header{
+  width: 100%;
+  box-sizing: border-box;
+}
+.ltx_page_main{
+  padding:1em;
+}
+.ltx_table{
+  overflow-x: scroll;
+}
+.ltx_page_content{
+  margin: 3em 0em;
+}

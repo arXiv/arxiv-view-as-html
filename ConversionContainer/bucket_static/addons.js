@@ -42,16 +42,6 @@ let create_header = () => {
             </a>
         </div>`;
 
-    /*var LinksTest = `
-    <div style="display: inline-flex; align-items: center;">
-        <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Keyboard Commands</a>
-        <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Open Issue</a>
-        <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>
-        <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
-            <span class="color-scheme-icon"></span>
-        </a>
-    </div>`;*/
-
     header.innerHTML = LogoBanner + Links;
     document.body.insertBefore(header, document.body.firstChild);
 };
@@ -126,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const backToReferenceBtn = document.createElement("button");
       backToReferenceBtn.innerHTML = "&#x2191;";
       backToReferenceBtn.classList.add("back-to-reference-btn");
+      backToReferenceBtn.setAttribute("aria-label", "Back to the article");
   
       let scrollPosition = 0;
       let clickedCite = false;
@@ -149,10 +140,10 @@ document.addEventListener("DOMContentLoaded", function() {
         });
       });
   
-      const refNumElement = item.querySelector(".ltx_role_refnum");
+      const refNumElement = item.querySelector(".ltx_tag_bibitem");
       if (refNumElement) {
         refNumElement.appendChild(backToReferenceBtn);
-      }
+    }
     });
   });
 

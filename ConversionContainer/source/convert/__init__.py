@@ -68,12 +68,8 @@ def process(id: str, blob: str, bucket: str) -> bool:
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
             _do_latexml(main, outer_bucket_dir, id)
-
-            # Post process html
-            logging.info(f"Step 6: Upload html for {id}")
-            _post_process(bucket_dir_container, id, is_submission)
             
-            logging.info(f"Step 7: Upload html for {id}")
+            logging.info(f"Step 6: Upload html for {id}")
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
@@ -227,24 +223,6 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
             f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
     os.remove(errpath)
 
-
-def _post_process (src_dir: str, id: str, is_submission: bool):
-    """
-    Adds the arxiv overlay to the latexml output. This
-    includes injecting html and moving static assets
-
-    Parameters
-    ----------
-    src_dir : str
-        path to the directory to be uploaded. This should be 
-        in the form of ./extracted/{id}/html/
-    bucket_name : str
-        submission_id for submissions and paper_id for 
-        published documents
-    """
-    post_process(os.path.join(src_dir, f'{id}/{id}.html'), id, is_submission)
-
-    
 def _clean_up (tar, id):
     os.remove(tar)
     shutil.rmtree(f'extracted/{id}')

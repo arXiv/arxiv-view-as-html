@@ -659,6 +659,13 @@ body:after {
     top: 20vh;
     left:0vw;
   }
+
+  header{
+    padding: 1em;
+  }
+  .ar5iv-footer-button{
+    margin-right: 0em;
+  }
 }
 .ltx_bibitem{
   padding-left: 10px;

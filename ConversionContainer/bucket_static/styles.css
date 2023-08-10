@@ -666,6 +666,9 @@ body:after {
   .ar5iv-footer-button{
     margin-right: 0em;
   }
+  .ltx_para{
+    overflow: scroll;
+  }
 }
 .ltx_bibitem{
   padding-left: 10px;

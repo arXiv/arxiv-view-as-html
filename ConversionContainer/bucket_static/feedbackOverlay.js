@@ -462,7 +462,7 @@ function handleClickOutsideModal(e, modal) {
 
 function handleClickTOCToggle(e,listIcon,arrowIcon) {
     const toc = document.querySelector('.ltx_toclist');
-    const toc_main = document.querySelector('.ltx_TOC');
+    const toc_main = document.querySelector('.ltx_page_main>.ltx_TOC');
     const content=document.querySelector('.ltx_content');
     if (e.target == listIcon) {
         //show toc and arrowIcon
@@ -490,34 +490,6 @@ function handleClickTOCToggle(e,listIcon,arrowIcon) {
         content.style.flex='1 1 100%';
     }
 }
-
-/*function handleClickTOC(e) {
-    const tocLinks = document.querySelectorAll('.ltx_toclist a');
-    const toc = document.querySelector('.ltx_toclist');
-
-    // Add click event listeners to each TOC link
-    tocLinks.forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
-            
-            // Scroll to the target section
-            const targetId = link.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-            targetSection.scrollIntoView({ behavior: 'smooth' });
-            // Remove the 'active' class from all links
-            tocLinks.forEach(link => link.classList.remove('active'));
-
-            // Add the 'active' class to the clicked link
-            link.classList.add('active');
-
-            // Check if the screen width is less than 719px (mobile view)
-            /*if (window.innerWidth < 719) {
-                // Hide the TOC by adding the hiding class
-                toc.style.display='none';
-            }
-        });
-    });
-}*/
 
 function postToDB(issueData) {
     const DB_BACKEND_URL = 'https://services.arxiv.org/latexml/feedback';
@@ -572,7 +544,7 @@ function handleClickMobileTOC(){
 
     tocItems.forEach(item => {
         item.addEventListener('click', () => {
-            toc.classList.add('hide');
+            toc.classList.remove('show');
         });
     });
 }
@@ -598,6 +570,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.onmouseup = (e) => handleMouseUp(e, smallReportButton);
+
+    if(window.innerWidth < 719){
+        //change toc to non-flex
+        const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
+        toc.classList.remove('flex');
+    }
 
     let lastScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
     window.addEventListener('scroll', () => {

@@ -468,9 +468,9 @@ body:after {
 }
 
 /* Update: For toc */
-.ltx_page_main >.ltx_TOC{
+.ltx_page_main >.ltx_TOC.flex{
   /* z-index: auto; */
-  /*display: flex;*/
+  display: flex;
   flex:1;
   flex-direction: column;
   position: sticky;
@@ -482,6 +482,10 @@ body:after {
   user-select: none;
   background-color: var(--background-color);
   color: var(--text-color);
+}
+
+.hide{
+  display: none;
 }
 
 #toc_header{
@@ -637,18 +641,6 @@ body:after {
   #listIcon, #arrowIcon {
     display: none;
   }
-
-  .ltx_page_main{
-    display: block;
-  }
-
-  .ltx_page_main>.ltx_TOC{
-    width: 100%;
-  }
-}
-
-.hide{
-  display: none;
 }
 
 .ltx_bibitem{

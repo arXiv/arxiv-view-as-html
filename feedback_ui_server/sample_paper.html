@@ -18,6 +18,31 @@
 </head>
 
 <body>
+    <header class="navbar bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="https://arxiv.org/" style="text-decoration: none; width:80px">
+          <img alt="logo" class="logo" role="presentation" style="background-color: transparent;"
+            src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
+          <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;"
+            src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+        </a>
+            <!--toc button-->
+            <div class='subcontainer-fluid'>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <!--back to abstract-->
+              <a class="nav-link ar5iv-footer-button hover-effect" style="color: white;" href="#">Back to Abstract</a>
+              <!--dark mode-->
+              <a class="nav-link ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()"
+                title="Toggle ar5iv color scheme" style="float: right;">
+                <span class="color-scheme-icon"></span>
+              </a>
+          </div>
+      </div>
+    </header>
   <div class="ltx_page_main" id="main">
     <nav aria-labelledby="toc_header" class="ltx_TOC">
       <ol class="ltx_toclist">

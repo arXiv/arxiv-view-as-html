@@ -104,7 +104,7 @@ let create_footer = () => {
 
 document.addEventListener("DOMContentLoaded", () => {
     create_favicon();
-    create_header();
+    //create_header();
     create_footer();
 });
 

@@ -696,3 +696,7 @@ header{
 .ltx_page_content{
   margin: 3em 0em;
 }
+
+.bg-body-tertiary{
+  background-color: #b31313 !important;
+}

@@ -468,42 +468,37 @@ body:after {
 }
 
 /* Update: For toc */
-.ltx_TOC{
+.ltx_page_main >.ltx_TOC{
   /* z-index: auto; */
   display: flex;
+  flex:1;
   flex-direction: column;
   position: sticky;
-  top: 10vh;
+  top: 5vh;
   max-height: 95vh;
+  margin-top: 0;
   /* xxx */
   overflow-y: auto;
   user-select: none;
-  background-color: white;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+#toc_header{
+  display: none;
 }
 
 .ltx_page_main {
-  /* grid-gap: 3rem; */
-  display: grid;
-  /* gap: 3rem; */
-  grid-template-areas: "sidebar main";
-  grid-template-columns: minmax(0,1fr) minmax(0,5fr);
-  /* padding-left: 1.5rem;
-  padding-right: 3rem; */
+  display: flex;
   width: 100%;
   flex-wrap: wrap;
 }
 
 .ltx_page_content {
-  grid-area: main;
-  flex-direction: column;
+  flex:5;
   width: 100%;
   display: flex;
   min-height: 80vh;
-}
-
-[data-theme=dark] .ltx_TOC {
-  background-color: #0d1117;
-  color: #c9d1d9;
 }
 
 .ltx_tocentry.ltx_tocentry_section {
@@ -516,8 +511,12 @@ body:after {
   margin-left: 1.5rem;
 }
 
+.ltx_toclist.ltx_toclist_section{
+  display: none;
+}
+
 .ltx_ref:hover{
-  background-color: #ffffd4;
+  background-color: var(--note-highlight-color);
 }
 
 #listIcon {
@@ -541,11 +540,21 @@ body:after {
   align-items: center;
 }
 
+#listIcon svg, #arrowIcon svg {
+  background-color:var(--background-color);
+  fill:var(--text-color);
+}
+
 #toc_header {
   font-size: 1.5rem;
   margin-bottom: 1.3rem;
   font-family: var(--text-font-family);
   font-weight: 1000;
+}
+
+.ltx_toclist a.active {
+  font-weight: bold; /* You can apply any styling you want to indicate the active link */
+  background-color: var(--note-highlight-color);
 }
 
 .hover-effect:hover{
@@ -634,10 +643,6 @@ body:after {
     border-color: white;
   }
 
-  .ltx_TOC{
-    background-color: transparent;
-  }
-
   #listIcon {
     display: block;
   }
@@ -646,20 +651,18 @@ body:after {
     display: none;
   }
 
-  .ltx_page_main {
-    grid-template-columns: minmax(0,0fr) minmax(0,1fr);
+  .ltx_page_main{
+    display: block;
   }
 
-  .ltx_TOC{
+  .ltx_page_main >.ltx_TOC{
     z-index: 10000; 
-    width: 20rem;
-  }
-
-  .tocToggle {
-    top: 20vh;
-    left:0vw;
+    width: 30rem;
+    background-color: transparent;
   }
 }
+
+
 .ltx_bibitem{
   padding-left: 10px;
 }

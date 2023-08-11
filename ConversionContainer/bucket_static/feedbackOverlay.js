@@ -455,31 +455,63 @@ function submitBugReport(e) {
     hideModal(document.getElementById('myForm'));
 }
 
-let isTocVisible = false;
 function handleClickOutsideModal(e, modal) {
     if (e.target == modal)
         modal.style.display = 'none';
-    const listIcon = document.getElementById('listIcon');
-    const arrowIcon = document.getElementById('arrowIcon');
+}
+
+function handleClickTOCToggle(e,listIcon,arrowIcon) {
     const toc = document.querySelector('.ltx_toclist');
     const toc_main = document.querySelector('.ltx_TOC');
+    const content=document.querySelector('.ltx_content');
     if (e.target == listIcon) {
-        console.log('listIcon clicked');
         //show toc and arrowIcon
         toc.style.display = 'block';
         arrowIcon.style.display = 'block';
         listIcon.style.display = 'none';
-        toc_main.style.backgroundColor = 'white';
+        toc_main.style.backgroundColor = 'var(--background-color)';
+        //change 
+        toc_main.style.flex='1';
+        content.style.flex='5';
     }
     if (e.target == arrowIcon) {
-        console.log('arrowIcon clicked');
         //hide toc and arrowIcon
         toc.style.display = 'none';
         arrowIcon.style.display = 'none';
         listIcon.style.display = 'block';
         toc_main.style.backgroundColor = 'transparent';
+        toc_main.style.flex='0 0 3rem';
+        content.style.flex='1 1 100%';
     }
 }
+
+/*function handleClickTOC(e) {
+    const tocLinks = document.querySelectorAll('.ltx_toclist a');
+    const toc = document.querySelector('.ltx_toclist');
+
+    // Add click event listeners to each TOC link
+    tocLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            // Scroll to the target section
+            const targetId = link.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            targetSection.scrollIntoView({ behavior: 'smooth' });
+            // Remove the 'active' class from all links
+            tocLinks.forEach(link => link.classList.remove('active'));
+
+            // Add the 'active' class to the clicked link
+            link.classList.add('active');
+
+            // Check if the screen width is less than 719px (mobile view)
+            /*if (window.innerWidth < 719) {
+                // Hide the TOC by adding the hiding class
+                toc.style.display='none';
+            }
+        });
+    });
+}*/
 
 function postToDB(issueData) {
     const DB_BACKEND_URL = 'https://services.arxiv.org/latexml/feedback';
@@ -506,8 +538,10 @@ function makeGithubBody(issueData) {
 }
 
 function addTOCToggleButton() {
-    const olElement = document.querySelector('.ltx_toclist');
+    const tocHeader = document.getElementById('toc_header');;
+    tocHeader.setAttribute("class", "sr-only");
 
+    const olElement = document.querySelector('.ltx_toclist');
     const listIconHTML = `
     <div id="listIcon" type="button">
         <svg width='17px' height='17px' viewBox="0 0 512 512" style="pointer-events: none;">
@@ -523,6 +557,7 @@ function addTOCToggleButton() {
     </div>`;
 
     olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
+    return [document.getElementById('listIcon'),document.getElementById('arrowIcon')];
 }
 
 // RUN THIS CODE ON INITIALIZE
@@ -532,10 +567,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = addBugReportForm();
     const reportButtons = addSRButton(modal);
     const smallReportButton = createSmallButton(modal);
-    addTOCToggleButton();
+    const tocToggle= addTOCToggleButton();
+    const listIcon= tocToggle[0];
+    const arrowIcon= tocToggle[1];
 
     document.onkeydown = (e) => handleKeyDown(e, modal, reportButtons);
-    document.onclick = (e) => handleClickOutsideModal(e, modal);
+    document.onclick = (e) => {
+        handleClickOutsideModal(e, modal);
+        handleClickTOCToggle(e, listIcon, arrowIcon);
+        handleClickTOC(e);
+    }
+
     document.onmouseup = (e) => handleMouseUp(e, smallReportButton);
 
     let lastScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;

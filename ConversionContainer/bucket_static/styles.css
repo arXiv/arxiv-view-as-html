@@ -470,7 +470,7 @@ body:after {
 /* Update: For toc */
 .ltx_page_main >.ltx_TOC{
   /* z-index: auto; */
-  display: flex;
+  /*display: flex;*/
   flex:1;
   flex-direction: column;
   position: sticky;
@@ -525,7 +525,6 @@ body:after {
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
-  display: none;
   align-items: center;
   z-index: 100;
 }
@@ -536,7 +535,6 @@ body:after {
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
-  display: block;
   align-items: center;
 }
 
@@ -636,18 +634,7 @@ body:after {
     display: none;
   }
 
-  .ltx_toclist{
-    display: none;
-    /*border-style: outset;*/
-    border-radius: 5px;
-    border-color: white;
-  }
-
-  #listIcon {
-    display: block;
-  }
-  
-  #arrowIcon {
+  #listIcon, #arrowIcon {
     display: none;
   }
 
@@ -655,13 +642,14 @@ body:after {
     display: block;
   }
 
-  .ltx_page_main >.ltx_TOC{
-    z-index: 10000; 
-    width: 30rem;
-    background-color: transparent;
+  .ltx_page_main>.ltx_TOC{
+    width: 100%;
   }
 }
 
+.hide{
+  display: none;
+}
 
 .ltx_bibitem{
   padding-left: 10px;

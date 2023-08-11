@@ -703,3 +703,8 @@ header{
 .ltx_page_content{
   margin: 3em 0em;
 }
+
+/* use for overwrite footnote css. */
+.ltx_note_outer{
+  padding-right: 6rem;
+}

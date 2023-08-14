@@ -37,6 +37,7 @@ let create_header = () => {
         <div style="display: inline-flex; align-items: center;">
             <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Keyboard Commands</a>
             <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Open Issue</a>
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to abstract</a >
             <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
                 <span class="color-scheme-icon"></span>
             </a>
@@ -68,7 +69,7 @@ let create_mobile_header = () => {
           </button>          
           <!--back to abstract-->
           <!-- <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; display:inline-flex; flex-direction: column; align-items:center; text-align:center" href="#"> -->
-            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="#"> 
+            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}"> 
             <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" viewBox="0 0 512 512" style="background-color:transparent; z-index:2">
                 <style>svg{fill:rgb(255, 255, 255)}</style>
                 <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/>

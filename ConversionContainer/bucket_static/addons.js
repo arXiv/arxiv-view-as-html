@@ -46,6 +46,49 @@ let create_header = () => {
     document.body.insertBefore(header, document.body.firstChild);
 };
 
+let create_mobile_header = () => {
+    let header = document.createElement('header');
+    let ABS_URL_BASE = 'https://arxiv.org/abs';
+    let id = window.location.pathname.split('/')[2];
+
+    var mobile_header= `
+    <div class="container-fluid">
+    <a class="navbar-brand" href="https://arxiv.org/" style="text-decoration: none; width:80px">
+      <img alt="logo" class="logo" role="presentation" style="background-color: transparent;"
+        src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
+      <img alt="logo" class="logomark" role="presentation" style="background-color: transparent; margin-left:40px;"
+        src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+    </a>
+        <!--toc button-->
+        <div class='subcontainer-fluid'>
+          <button class="navbar-toggler ar5iv-footer-button" type="button" data-bs-toggle="collapse" data-bs-theme="dark"
+            data-bs-target=".ltx_page_main >.ltx_TOC" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation" style="border:none; margin-right: 0em;">
+            <span class="navbar-toggler-icon" style="width:1em;height:1em;margin-top: 0.1em;"></span>
+          </button>            
+          <!--back to abstract-->
+          <!-- <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; display:inline-flex; flex-direction: column; align-items:center; text-align:center" href="#"> -->
+            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="#"> 
+            <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" viewBox="0 0 512 512" style="background-color:transparent; z-index:2">
+                <style>svg{fill:rgb(255, 255, 255)}</style>
+                <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/>
+            </svg>
+            <!-- <span style="font-size: 0.75em;">Abstract</span> -->
+            </a>
+          <!--dark mode-->
+          <a class="nav-link ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()"
+            title="Toggle ar5iv color scheme" style="padding: 0.6rem;margin-top: 0rem;">
+            <span class="color-scheme-icon"></span>
+          </a>
+      </div>
+  </div>
+    `;
+    header.innerHTML=mobile_header
+    header.classList.add('navbar');
+    header.classList.add('bg-body-tertiary');
+    document.body.insertBefore(header, document.body.firstChild);
+}
+
 let create_footer = () => {
     let footer = document.createElement('footer');
     let ltx_page_footer = document.createElement('div');
@@ -105,6 +148,11 @@ let create_footer = () => {
 document.addEventListener("DOMContentLoaded", () => {
     create_favicon();
     //create_header();
+    if (window.innerWidth > 719) {
+      create_header();
+  } else {
+      create_mobile_header();
+  }
     create_footer();
 });
 

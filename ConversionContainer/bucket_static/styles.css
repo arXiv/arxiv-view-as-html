@@ -703,3 +703,24 @@ header{
 .ltx_page_content{
   margin: 3em 0em;
 }
+
+/* use for overwrite footnote css. */
+.ltx_note_outer{
+  padding-right: 6rem;
+}
+
+@media only screen and (max-width: 719px) {
+  .ltx_note > .ltx_note_mark{
+    font-size: 1.2em;
+    padding: 0.5rem;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}
+
+:not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_portrait {
+    width: 100%;
+}
+
+
+

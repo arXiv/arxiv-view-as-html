@@ -19,7 +19,6 @@ from . import (
     _remove_ltxml, 
     _find_main_tex_source, 
     _do_latexml,
-    _post_process,
     _clean_up
 )
 
@@ -77,9 +76,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             _do_latexml(main, outer_bucket_dir, id)
 
             # Post process html
-            logging.info(f"Step 6: Upload html for {id}")
-            _post_process(bucket_dir_container, id, is_submission)
-            
+            logging.info(f"Step 6: Upload html for {id}")            
             upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
             
             write_success(id, tar_gz, is_submission)

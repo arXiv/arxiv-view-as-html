@@ -47,25 +47,14 @@ let create_header = () => {
     document.body.insertBefore(header, document.body.firstChild);
 };
 
+let delete_footer = () => document.querySelector('footer').remove();
+
 let create_footer = () => {
     let footer = document.createElement('footer');
     let ltx_page_footer = document.createElement('div');
     ltx_page_footer.setAttribute('class', 'ltx_page_footer');
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
-
-    footer.innerHTML = `
-        <div class="keyboard-glossary ltx_page_content">
-            <h2>Instructions for reporting errors</h2>
-            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
-            <ul>
-                <li>Use the "Open Issue" button.</li>
-                <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
-                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
-                <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
-            </ul>
-            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
-        </div>`;
 
     var night = `
         <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme">
@@ -96,20 +85,51 @@ let create_footer = () => {
             </a>
         </div>`;
 
-    ltx_page_footer.innerHTML = night + copyLink + policyLink + HTMLLink + TimeLogo;
+    footer.innerHTML = `
+        <div class="keyboard-glossary ltx_page_content">
+            <h2>Instructions for reporting errors</h2>
+            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
+            <ul>
+                <li>Use the "Open Issue" button.</li>
+                <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
+                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
+                <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
+            </ul>
+            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
+        </div>
+        <nav>
+            ${night}
+            ${copyLink}
+            ${policyLink}
+            ${HTMLLink}
+        </nav>
+    `;
+
+    ltx_page_footer.innerHTML = TimeLogo;
     ltx_page_footer.setAttribute('class', 'ltx_page_footer');
 
     document.body.appendChild(ltx_page_footer);
     document.body.appendChild(footer);
-};  
+};
+
+let unwrap_nav = () => {
+    let nav = document.querySelector('.ltx_page_navbar');
+    document.querySelector('#main').prepend(...nav.childNodes);
+    nav.remove();
+
+    document.querySelector('.ltx_TOC').setAttribute('aria-labelledby', 'toc_header');
+}
 
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector('.ltx_page_main').id = 'main';
+
     create_favicon();
     create_header();
-    create_footer();
-});
+    unwrap_nav();
 
-document.addEventListener("DOMContentLoaded", function() {
+    delete_footer();
+    create_footer();
+
     const referenceItems = document.querySelectorAll(".ltx_bibitem");
   
     referenceItems.forEach(item => {
@@ -117,6 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const backToReferenceBtn = document.createElement("button");
       backToReferenceBtn.innerHTML = "&#x2191;";
       backToReferenceBtn.classList.add("back-to-reference-btn");
+      backToReferenceBtn.setAttribute("aria-label", "Back to the article");
   
       let scrollPosition = 0;
       let clickedCite = false;
@@ -140,10 +161,10 @@ document.addEventListener("DOMContentLoaded", function() {
         });
       });
   
-      const refNumElement = item.querySelector(".ltx_role_refnum");
+      const refNumElement = item.querySelector(".ltx_tag_bibitem");
       if (refNumElement) {
         refNumElement.appendChild(backToReferenceBtn);
-      }
+    }
     });
   });
 

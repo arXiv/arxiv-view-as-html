@@ -520,21 +520,32 @@ body:after {
   background-color: #ffffd4;
 }
 
-.tocToggle {
-  position: fixed;
-  top: 10vh;
-  left: 0;
-  /* width: 17px; */
-  /* height: 17px; */
+#listIcon {
+  width: 20px;
+  height: 20px;
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
-  display: flex;
-  justify-content: center;
+  display: none;
   align-items: center;
-  border: none;
-  background: transparent;
   z-index: 100;
+}
+
+#arrowIcon {
+  width: 20px;
+  height: 20px;
+  margin-left: 1.4rem;
+  margin-top: 10px;
+  margin-bottom: 1rem;
+  display: block;
+  align-items: center;
+}
+
+#toc_header {
+  font-size: 1.5rem;
+  margin-bottom: 1.3rem;
+  font-family: var(--text-font-family);
+  font-weight: 1000;
 }
 
 .hover-effect:hover{
@@ -648,10 +659,47 @@ body:after {
     top: 20vh;
     left:0vw;
   }
+
+  header{
+    padding: 1em;
+  }
+  .ar5iv-footer-button{
+    margin-right: 0em;
+  }
+  .ltx_para{
+    overflow: scroll;
+  }
 }
 .ltx_bibitem{
   padding-left: 10px;
 }
 .ltx_page_content{
   min-height: 0;
+}
+.ltx_text{
+  white-space: normal;
+}
+.ltx_listingline{
+  white-space: normal;
+}
+article{
+  box-sizing: border-box;
+  width: 100%;
+}
+.ltx_bibblock{
+  box-sizing: border-box;
+  width: 100%;
+}
+header{
+  width: 100%;
+  box-sizing: border-box;
+}
+.ltx_page_main{
+  padding:1em;
+}
+.ltx_table{
+  overflow-x: scroll;
+}
+.ltx_page_content{
+  margin: 3em 0em;
 }

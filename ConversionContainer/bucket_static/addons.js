@@ -87,7 +87,7 @@ let create_footer = () => {
 
     footer.innerHTML = `
         <div class="keyboard-glossary ltx_page_content">
-            <h2>Keyboard commands and instructions for reporting errors</h2>
+            <h2>Instructions for reporting errors</h2>
             <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
             <ul>
                 <li>Use the "Open Issue" button.</li>

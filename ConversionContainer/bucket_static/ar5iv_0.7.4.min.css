@@ -8,9 +8,7 @@
 [data-theme=light] {
     --main-width: 52rem;
     --main-width-margin: 54rem;
-    /* --headings-font-family: "freight-text-pro", sans-serif; */
     --headings-font-family: "Noto Sans", sans-serif;
-    /* --text-font-family: "freight-sans-pro", serif; */
     --text-font-family: "Noto Serif", serif;
     --math-font-family: "STIX Two Math", "Cambria Math", "Noto Serif", serif;
     --math-caligraphic-font-family: "Lucida Calligraphy", "Zapf Chancery", "URW Chancery L";

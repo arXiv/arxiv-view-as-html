@@ -1,3 +1,15 @@
+:root,[data-theme=light] {
+  --headings-font-family: "freight-text-pro";
+  --text-font-family: "freight-sans-pro";
+  --toc-font-family: "ibm-plex-sans-condensed";
+  --other-font-family: "freight-sans-pro";
+  /*  var(--text-color); */
+}
+
+.btn {
+  font: var(--other-font-family);
+}
+
 header {
   background-color: #b31313;
   display: flex;
@@ -29,7 +41,7 @@ svg.icon, [data-theme=dark] svg.icon {
   background: transparent;
   border-radius: 6px;
   /* max-width: 50%; */
-  font-family: sans-serif;
+  font-family: var(--other-font-family);
   font-size: smaller;
   color: white;
 }
@@ -81,7 +93,7 @@ button.feedback-button {
   right: -99%;
 }
 footer {
-  font-family: arial, tahoma, sans-serif;
+  font-family: var(--other-font-family);
 }
 footer h2 {
   font-size: 1em;
@@ -479,6 +491,7 @@ body:after {
   overflow-y: auto;
   user-select: none;
   background-color: white;
+  font: var(--toc-font-family);
 }
 
 .ltx_page_main {

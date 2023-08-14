@@ -601,6 +601,10 @@ body:after {
   box-shadow: none;
 }
 
+.ltx_page_main{
+  padding:1em;
+}
+
 /*mobile*/
 @media only screen and (max-width: 719px) {
   header {
@@ -641,6 +645,34 @@ body:after {
   #listIcon, #arrowIcon {
     display: none;
   }
+
+  .ltx_page_main >.ltx_TOC{
+    max-height: 60vh;
+    overflow-y: scroll;
+    margin-bottom: 0;
+    background-color: #f1f1f1;
+    position: fixed;
+    width:100vw;
+    z-index:1;
+  }
+
+  [data-theme=dark] .ltx_page_main >.ltx_TOC{
+    background-color: #5e5e5e;
+  }
+
+
+  .ltx_toclist{
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+  }
+
+  .ltx_page_content{
+    padding:1em;
+  }
+
+  .ltx_page_main{
+    padding: 0;
+  }
 }
 
 .ltx_bibitem{
@@ -667,9 +699,7 @@ header{
   width: 100%;
   box-sizing: border-box;
 }
-.ltx_page_main{
-  padding:1em;
-}
+
 .ltx_table{
   overflow-x: scroll;
 }
@@ -679,6 +709,8 @@ header{
 
 .bg-body-tertiary{
   background-color: #b31313 !important;
+  position: fixed;
+  z-index:1000;
 }
 
 .navbar-toggler:focus {

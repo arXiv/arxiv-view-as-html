@@ -65,7 +65,7 @@ let create_mobile_header = () => {
             data-bs-target=".ltx_page_main >.ltx_TOC" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border:none; margin-right: 0em;">
             <span class="navbar-toggler-icon" style="width:1em;height:1em;margin-top: 0.1em;"></span>
-          </button>            
+          </button>          
           <!--back to abstract-->
           <!-- <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; display:inline-flex; flex-direction: column; align-items:center; text-align:center" href="#"> -->
             <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="#"> 
@@ -145,13 +145,49 @@ let create_footer = () => {
     document.body.appendChild(footer);
 };  
 
+let create_mobile_TOC=() =>{
+  const tocHeader = document.getElementById('toc_header');;
+  tocHeader.setAttribute("class", "sr-only");
+
+  const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
+  toc.classList.add('collapse');
+};
+
+let create_destop_TOC=() =>{
+  const tocHeader = document.getElementById('toc_header');;
+  tocHeader.setAttribute("class", "sr-only");
+
+  const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
+  toc.classList.add('flex');
+
+  const olElement = document.querySelector('.ltx_toclist');
+  const listIconHTML = `
+    <div id="listIcon" type="button" class='hide'>
+        <svg width='17px' height='17px' viewBox="0 0 512 512" style="pointer-events: none;">
+        <path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>
+        </svg>
+    </div>`;
+
+    const arrowIconHTML = `
+    <div id="arrowIcon" type="button">
+        <svg width='17px' height='17px' viewBox="0 0 448 512" style="pointer-events: none;">
+        <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
+        </svg>
+    </div>`;
+
+    olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
+    //return [document.getElementById('listIcon'),document.getElementById('arrowIcon')];
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     create_favicon();
     //create_header();
     if (window.innerWidth > 719) {
       create_header();
+      create_destop_TOC();
   } else {
       create_mobile_header();
+      create_mobile_TOC();
   }
     create_footer();
 });

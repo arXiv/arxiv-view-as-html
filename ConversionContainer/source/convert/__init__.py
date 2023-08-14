@@ -10,7 +10,7 @@ import uuid
 
 from flask import current_app
 
-from ..util import untar, id_lock, timeout
+from ..util import untar, id_lock
 from ..buckets.util import get_google_storage_client
 from ..buckets import download_blob, upload_dir_to_gcs, \
     upload_tar_to_gcs
@@ -18,7 +18,6 @@ from ..models.db import db
 from ..exceptions import *
 from .concurrency_control import \
     write_start, write_success, write_failure
-from ..addons import inject_addons, copy_static_assets
 
 def process(id: str, blob: str, bucket: str) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
@@ -68,12 +67,8 @@ def process(id: str, blob: str, bucket: str) -> bool:
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
             _do_latexml(main, outer_bucket_dir, id)
-
-            # Post process html
-            logging.info(f"Step 6: Upload html for {id}")
-            _post_process(bucket_dir_container, id, is_submission)
             
-            logging.info(f"Step 7: Upload html for {id}")
+            logging.info(f"Step 6: Upload html for {id}")
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
@@ -191,6 +186,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
     sub_id: str
         submission id of the article
     """
+    LATEXML_URL_BASE = current_app.config['LATEXML_URL_BASE']
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
@@ -199,12 +195,12 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
                       "--timeout=300",
                       "--nodefaultresources",
                       "--css=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
-                      "--css=https://services.dev.arxiv.org/html/ar5iv_0.7.4.min.css",
-                      "--css=https://services.dev.arxiv.org/html/styles.css",
+                      f"--css={LATEXML_URL_BASE}/ar5iv_0.7.4.min.css",
+                      f"--css={LATEXML_URL_BASE}/styles.css",
                       "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
                       "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
-                      "--javascript=https://services.dev.arxiv.org/html/addons.js",
-                      "--javascript=https://services.dev.arxiv.org/html/feedbackOverlay.js",
+                      f"--javascript={LATEXML_URL_BASE}/addons.js",
+                      f"--javascript={LATEXML_URL_BASE}/feedbackOverlay.js",
                       "--navigationtoc=context",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(
@@ -226,25 +222,6 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
             f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
     os.remove(errpath)
 
-
-def _post_process (src_dir: str, id: str, is_submission: bool):
-    """
-    Adds the arxiv overlay to the latexml output. This
-    includes injecting html and moving static assets
-
-    Parameters
-    ----------
-    src_dir : str
-        path to the directory to be uploaded. This should be 
-        in the form of ./extracted/{id}/html/
-    bucket_name : str
-        submission_id for submissions and paper_id for 
-        published documents
-    """
-    inject_addons(os.path.join(src_dir, f'{id}/{id}.html'), id, is_submission)
-    copy_static_assets(os.path.join(src_dir, str(id)))
-
-    
 def _clean_up (tar, id):
     os.remove(tar)
     shutil.rmtree(f'extracted/{id}')

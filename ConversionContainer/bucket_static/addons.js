@@ -1,68 +1,202 @@
+let create_favicon = () => {
+  let favicon32 = document.createElement('link');
+  favicon32.rel = 'icon';
+  favicon32.type = 'image/png';
+  favicon32.href = 'https://static.arxiv.org/static/browse/0.3.4/images/icons/favicon-32x32.png';
+  favicon32.sizes = '32x32';
+
+  let favicon16 = document.createElement('link');
+  favicon16.rel = 'icon';
+  favicon16.type = 'image/png';
+  favicon16.href = 'https://static.arxiv.org/static/browse/0.3.4/images/icons/favicon-16x16.png';
+  favicon16.sizes = '16x16';
+
+  document.head.appendChild(favicon16);
+  document.head.appendChild(favicon32);
+}
+
 let create_header = () => {
     let header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
-    if (id === 'submission') {
-        header.innerHTML =
-        '<a href="#main" class="skip">Skip to main content</a> \
-        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
-        <div role="banner" class="header-message"> \
-            <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
-        </div> \
-        <div></div>';
-    } else {
-        header.innerHTML =
-        `<a href="#main" class="skip">Skip to main content</a> \
-        <img src="images/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-        <img src="images/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
-        <div role="banner" class="header-message"> \
-            <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button or click <strong>Shift+b</strong> to toggle accessible section reporting links. <a href="#footer">Reference all keyboard commands</a> in the footer. \
-        </div> \
-        <a href="${ABS_URL_BASE}/${id}"> \
-            Back to Abstract \
-            <svg id="back-arrow" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><path fill="#ffffff" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/></svg> \
-        </a>`;
-    }
 
+    var LogoBanner = `
+    <div style="display: flex; width: 60%;">
+        <a href="https://arxiv.org/" style="text-decoration: none; width:80px">
+            <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
+            <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+        </a>
+        <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
+            ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>' :
+                                  'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span>'}
+        </div>
+    </div>`;
+
+
+    var Links = `
+        <div style="display: inline-flex; align-items: center;">
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Give Feedback</a>
+            <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Open Issue</a>
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>
+            <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
+                <span class="color-scheme-icon"></span>
+            </a>
+        </div>`;
+
+    header.innerHTML = LogoBanner + Links;
     document.body.insertBefore(header, document.body.firstChild);
-}
+};
+
+let delete_footer = () => document.querySelector('footer').remove();
 
 let create_footer = () => {
     let footer = document.createElement('footer');
+    let ltx_page_footer = document.createElement('div');
+    ltx_page_footer.setAttribute('class', 'ltx_page_footer');
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
-    footer.innerHTML =
-    '<div class="ltx_page_footer"> \
-        <div class="ltx_page_logo"> \
-            Generated  on Tue Jul 25 18:10:32 2023 by \
-            <a class="ltx_LaTeXML_logo" href="http://dlmf.nist.gov/LaTeXML/"> \
-                <span style="letter-spacing:-0.2em; margin-right:0.1em;">L \
-                <span style="font-size:70%;position:relative; bottom:2.2pt;">A \
-                </span>T \
-                <span style="position:relative; bottom:-0.4ex;">E \
-                </span></span><span class="ltx_font_smallcaps">xml</span> \
-                <img alt="[LOGO]" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg=="> \
-            </a> \
-        </div> \
-    </div> \
-    <div class="keyboard-glossary ltx_page_content"> \
-        <h2>Keyboard commands and instructions for reporting errors</h2> \
-        <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p> \
-        <ul> \
-            <li>Use the "Open Issue" button.</li> \
-            <li><strong>Ctrl + ?</strong> will open the report feedback form via keyboard.</li> \
-            <li>If using a screen reader, <strong>Shift + b</strong> will toggle individual reporting buttons at each section on and off. Useful when you want to report an issue just within a specific section, as highligting is not screen reader compatible.</li> \
-            <li>You can also highlight any text and click the "Open Issue" button that will display near your cursor. Highlighting is not screen reader compatible so the method above is also available.</li> \
-            <li>Reporting will prompt you to login to Github to complete the process. Need an account? <a href="https://github.com/account/organizations/new?plan=free" target="_blank">Create a GitHub account for free</a>.</li> \
-        </ul> \
-        <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field. <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why is it important that research papers be accessible?</a>.</p> \
-    </div>';
 
+    var night = `
+        <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme">
+            <span class="color-scheme-icon"></span>
+        </a>`;
+
+    var copyLink = `
+        <a class="ar5iv-footer-button" href="https://arxiv.org/help/license" target="_blank">Copyright</a>`;
+
+    var policyLink = `
+        <a class="ar5iv-footer-button" href="https://arxiv.org/help/policies/privacy_policy" target="_blank">Privacy Policy</a>`;
+
+    var HTMLLink = `
+        <a class="ar5iv-footer-button" href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why HTML?</a>`;
+
+    var TimeLogo = `
+        <div class="ltx_page_logo">
+            Generated on Wed Dec 14 18:01:44 2022 by
+            <a href="https://math.nist.gov/~BMiller/LaTeXML/" class="ltx_LaTeXML_logo">
+                <span style="letter-spacing: -0.2em; margin-right: 0.1em;">
+                    L
+                    <span style="font-size: 70%; position: relative; bottom: 2.2pt;">A</span>
+                    T
+                    <span style="position: relative; bottom: -0.4ex;">E</span>
+                </span>
+                <span class="ltx_font_smallcaps">xml</span>
+                <img alt="[LOGO]" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg==">
+            </a>
+        </div>`;
+
+    footer.innerHTML = `
+        <div class="keyboard-glossary ltx_page_content">
+            <h2>Instructions for reporting errors</h2>
+            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
+            <ul>
+                <li>Use the "Open Issue" button.</li>
+                <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
+                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
+                <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
+            </ul>
+            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
+        </div>
+        <nav>
+            ${night}
+            ${copyLink}
+            ${policyLink}
+            ${HTMLLink}
+        </nav>
+    `;
+
+    ltx_page_footer.innerHTML = TimeLogo;
+    ltx_page_footer.setAttribute('class', 'ltx_page_footer');
+
+    document.body.appendChild(ltx_page_footer);
     document.body.appendChild(footer);
+};
+
+let unwrap_nav = () => {
+    let nav = document.querySelector('.ltx_page_navbar');
+    document.querySelector('#main').prepend(...nav.childNodes);
+    nav.remove();
+
+    document.querySelector('.ltx_TOC').setAttribute('aria-labelledby', 'toc_header');
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector('.ltx_page_main').id = 'main';
+
+    create_favicon();
     create_header();
+    unwrap_nav();
+
+    delete_footer();
     create_footer();
-});
+
+    const referenceItems = document.querySelectorAll(".ltx_bibitem");
+  
+    referenceItems.forEach(item => {
+      const referenceId = item.getAttribute("id");
+      const backToReferenceBtn = document.createElement("button");
+      backToReferenceBtn.innerHTML = "&#x2191;";
+      backToReferenceBtn.classList.add("back-to-reference-btn");
+      backToReferenceBtn.setAttribute("aria-label", "Back to the article");
+  
+      let scrollPosition = 0;
+      let clickedCite = false;
+  
+      backToReferenceBtn.addEventListener("click", function() {
+        if (clickedCite) {
+          window.scrollTo(0, scrollPosition);
+        } else {
+          const citeElement = document.querySelector(`cite a[href="#${referenceId}"]`);
+          if (citeElement) {
+            citeElement.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+      });
+  
+      const citeElements = document.querySelectorAll(`cite a[href="#${referenceId}"]`);
+      citeElements.forEach(citeElement => {
+        citeElement.addEventListener("click", function() {
+          scrollPosition = window.scrollY;
+          clickedCite = true;
+        });
+      });
+  
+      const refNumElement = item.querySelector(".ltx_tag_bibitem");
+      if (refNumElement) {
+        refNumElement.appendChild(backToReferenceBtn);
+    }
+    });
+  });
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+  

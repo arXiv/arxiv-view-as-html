@@ -484,8 +484,10 @@ function handleClickTOCToggle(e) {
         listIcon.classList.add('hide');
         toc_main.style.backgroundColor = 'var(--background-color)';
         //change 
-        toc_main.style.flex='1';
-        content.style.flex='5';
+        /*toc_main.style.flex='1';
+        content.style.flex='5';*/
+        toc_main.style.flex = '1 0 20%';  // This means it will start with 20% of the parent width but won't grow or shrink.
+        content.style.flex = '1 1 80%';  // This will make it take the remaining 80% but allows it to adjust as needed.
     }
     if (e.target == arrowIcon) {
         //hide toc and arrowIcon
@@ -494,7 +496,7 @@ function handleClickTOCToggle(e) {
         listIcon.classList.remove('hide');
         toc_main.style.backgroundColor = 'transparent';
         toc_main.style.flex='0 0 3rem';
-        content.style.flex='1 1 100%';
+        content.style.flex='1';
     }
 }
 
@@ -553,6 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.onmouseup = (e) => handleMouseUp(e, smallReportButton);
+    document.ontouchend = (e) => handleMouseUp(e, smallReportButton);
 
     let lastScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
     window.addEventListener('scroll', () => {
@@ -566,27 +569,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById('myFormContent').onsubmit = submitBugReport;
-
-
-    // var noteMarks = document.querySelectorAll('.ltx_note_mark');
-
-    // noteMarks.forEach(function(noteMark) {
-    //   noteMark.addEventListener('click', function() {
-    //     var parentNote = noteMark.closest('.ltx_note');
-    //     if (parentNote) {
-    //       if (parentNote.classList.contains('active')) {
-    //         parentNote.classList.remove('active');
-    //       } else {
-    //         // Remove active class from all other notes
-    //         var allNotes = document.querySelectorAll('.ltx_note');
-    //         allNotes.forEach(function(innerNote) {
-    //           innerNote.classList.remove('active');
-    //         });
-            
-    //         // Add active class to the clicked note
-    //         parentNote.classList.add('active');
-    //       }
-    //     }
-    //   });
-    // });
 });

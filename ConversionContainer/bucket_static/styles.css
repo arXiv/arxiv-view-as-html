@@ -1,3 +1,68 @@
+:root,[data-theme=light] {
+  --headings-font-family: "freight-text-pro";
+  --text-font-family: "freight-sans-pro";
+  --toc-font-family: "ibm-plex-sans-condensed";
+  --other-font-family: "freight-sans-pro";
+  --note-highlight-color: #f9f7f7;
+}
+
+[data-theme=dark] {
+  --note-highlight-color: #6b6459;
+}
+
+.btn {
+  font: var(--other-font-family);
+}
+
+.form-text{
+  font: var(--other-font-family);
+}
+
+.ltx_cite>.ltx_ref{
+  text-decoration: underline;
+  border-bottom: none;
+}
+
+.ltx_p>.ltx_ref {
+  text-decoration: underline;
+  border-bottom: none;
+}
+
+.freight-text-pro {
+  font-family: "freight-text-pro";
+}
+
+.modal-header{
+  font: var(--other-font-family);
+}
+
+/* For Footnote */
+@media only screen and (min-width: 104.5rem){
+  .ltx_note_outer {
+      display: block;
+      opacity: 100;
+      position: relative;
+      clear: both;
+      float: right;
+      padding-bottom: 2rem;
+      padding-right: 2rem;
+  }
+}
+
+@media only screen and (max-width: 104.5rem){
+  .ltx_note_outer {
+    display: none;
+    opacity: 0;
+  }
+}
+
+@media only screen and (min-width: 104.5rem) and (max-width: 108.99rem){
+  .ltx_note_outer {
+      width: 20rem;
+      margin-right: -24rem;
+  }
+}
+
 header {
   background-color: #b31313;
   display: flex;
@@ -29,7 +94,7 @@ svg.icon, [data-theme=dark] svg.icon {
   background: transparent;
   border-radius: 6px;
   /* max-width: 50%; */
-  font-family: sans-serif;
+  font-family: var(--other-font-family);
   font-size: smaller;
   color: white;
 }
@@ -81,7 +146,7 @@ button.feedback-button {
   right: -99%;
 }
 footer {
-  font-family: arial, tahoma, sans-serif;
+  font-family: var(--other-font-family);
 }
 footer h2 {
   font-size: 1em;
@@ -461,6 +526,7 @@ body:after {
 
 .ar5iv-footer-button {
   color: var(--link-text-color);
+  font: var(--other-font-family);
   padding: 0.5rem;
   display: inline-block;
   text-decoration: none;
@@ -470,9 +536,9 @@ body:after {
 /* Update: For toc */
 .ltx_page_main >.ltx_TOC.flex{
   /* z-index: auto; */
-  display: flex;
-  flex:1;
-  flex-direction: column;
+  /*display: flex;*/
+  /*flex:1;
+  flex-direction: column;*/
   position: sticky;
   top: 5vh;
   max-height: 95vh;
@@ -482,6 +548,11 @@ body:after {
   user-select: none;
   background-color: var(--background-color);
   color: var(--text-color);
+  flex-basis: 20vw;
+  flex-grow: 1;  /* It does grow */
+  flex-shrink: 0;  /* It doesn't shrink */
+  min-width: 200px;  /* Minimum width */
+  font: var(--toc-font-family);
 }
 
 .hide{
@@ -494,15 +565,20 @@ body:after {
 
 .ltx_page_main {
   display: flex;
-  width: 100%;
-  flex-wrap: wrap;
+  /*flex-wrap: wrap;*/
+  padding:1em;
 }
 
-.ltx_page_content {
-  flex:5;
+.ltx_page_main > .ltx_page_content {
+  /*flex:5;*/
   width: 100%;
-  display: flex;
+  /*display: flex;*/
   min-height: 80vh;
+  margin: 3em 0em;
+  padding-left: 2em;
+  flex-grow: 0;  /* This allows the content to grow and consume remaining space */
+  flex-shrink: 1;
+  flex-basis: 80vw;  /* Initial size */
   /*--main-width: 60rem;
   --main-with-margin: 20rem;*/
 }
@@ -566,9 +642,9 @@ body:after {
   background-color: var(--note-highlight-color);
 }
 
-.hover-effect:hover{
+/* .hover-effect:hover{
   text-decoration: underline;
-}
+} */
 
 .back-to-reference-btn {
   /* background-color: #FFFFFF; */
@@ -606,10 +682,6 @@ body:after {
 
 .back-to-reference-btn:focus-visible {
   box-shadow: none;
-}
-
-.ltx_page_main{
-  padding:1em;
 }
 
 /*mobile*/
@@ -659,7 +731,7 @@ body:after {
     margin-bottom: 0;
     background-color: #f1f1f1;
     position: fixed;
-    width:100vw;
+    width:100%;
     z-index:1;
   }
 
@@ -673,12 +745,13 @@ body:after {
     padding-top: 2rem;
   }
 
-  .ltx_page_content{
+  .ltx_page_main > .ltx_page_content{
     padding:1em;
+    width: 100%;
   }
 
   .ltx_page_main{
-    padding: 0;
+    padding:0;
   }
 }
 
@@ -690,14 +763,15 @@ body:after {
   footer,
   body::after,
   .ltx_page_footer,
-  .ltx_TOC,
+  .ltx_page_main >.ltx_TOC.flex,
   .back-to-reference-btn,
+  #small-report-button,
   #openForm{
     display: none;
   }
 
+  /*problem*/
   .ltx_page_main {
-    grid-template-columns: none;
     display: block;
     width:95%;
   }
@@ -716,9 +790,7 @@ body:after {
 .ltx_bibitem{
   padding-left: 10px;
 }
-.ltx_page_content{
-  min-height: 0;
-}
+
 .ltx_text{
   white-space: normal;
 }
@@ -726,7 +798,6 @@ body:after {
   white-space: normal;
 }
 article{
-  box-sizing: border-box;
   width: 100%;
 }
 .ltx_bibblock{
@@ -740,9 +811,6 @@ header{
 
 .ltx_table{
   overflow-x: scroll;
-}
-.ltx_page_content{
-  margin: 3em 0em;
 }
 
 .bg-body-tertiary{
@@ -760,7 +828,9 @@ header{
 }
 /* use for overwrite footnote css. */
 .ltx_note_outer{
-  padding-right: 6rem;
+  /*padding-right: 6rem;*/
+  width: auto;
+  max-width: 30rem;
 }
 
 @media only screen and (max-width: 719px) {
@@ -772,6 +842,12 @@ header{
   }
 }
 
+
+/* Set Image/math equation width. */
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_portrait {
     width: 100%;
+}
+
+:not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_square {
+  width: 100%;
 }

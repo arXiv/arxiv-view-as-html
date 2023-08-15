@@ -842,6 +842,12 @@ header{
   }
 }
 
+
+/* Set Image/math equation width. */
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_portrait {
     width: 100%;
+}
+
+:not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_square {
+  width: 100%;
 }

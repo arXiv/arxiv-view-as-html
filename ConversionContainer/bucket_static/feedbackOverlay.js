@@ -555,6 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.onmouseup = (e) => handleMouseUp(e, smallReportButton);
+    document.ontouchend = (e) => handleMouseUp(e, smallReportButton);
 
     let lastScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
     window.addEventListener('scroll', () => {
@@ -568,27 +569,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById('myFormContent').onsubmit = submitBugReport;
-
-
-    // var noteMarks = document.querySelectorAll('.ltx_note_mark');
-
-    // noteMarks.forEach(function(noteMark) {
-    //   noteMark.addEventListener('click', function() {
-    //     var parentNote = noteMark.closest('.ltx_note');
-    //     if (parentNote) {
-    //       if (parentNote.classList.contains('active')) {
-    //         parentNote.classList.remove('active');
-    //       } else {
-    //         // Remove active class from all other notes
-    //         var allNotes = document.querySelectorAll('.ltx_note');
-    //         allNotes.forEach(function(innerNote) {
-    //           innerNote.classList.remove('active');
-    //         });
-            
-    //         // Add active class to the clicked note
-    //         parentNote.classList.add('active');
-    //       }
-    //     }
-    //   });
-    // });
 });

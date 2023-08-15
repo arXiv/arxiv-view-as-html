@@ -717,7 +717,7 @@ body:after {
     margin-bottom: 0;
     background-color: #f1f1f1;
     position: fixed;
-    width:100vw;
+    width:100%;
     z-index:1;
   }
 
@@ -733,6 +733,11 @@ body:after {
 
   .ltx_page_main > .ltx_page_content{
     padding:1em;
+    margin: left 1.2em;
+  }
+
+  .ltx_page_main{
+    padding:0;
   }
 }
 

@@ -673,6 +673,16 @@ body:after {
   .ltx_page_main{
     padding: 0;
   }
+
+  header{
+    padding: 1em;
+  }
+  .ar5iv-footer-button{
+    margin-right: 0em;
+  }
+  .ltx_para{
+    overflow: scroll;
+  }
 }
 
 .ltx_bibitem{
@@ -719,4 +729,21 @@ header{
 
 [data-bs-theme=dark] .navbar-toggler-icon {
   --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='1em' viewBox='0 0 448 512'%3E%3Cstyle%3Esvg%7Bfill%3A%23fdf7f7%7D%3C/style%3E%3Cpath d='M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z'/%3E%3C/svg%3E");
+}
+/* use for overwrite footnote css. */
+.ltx_note_outer{
+  padding-right: 6rem;
+}
+
+@media only screen and (max-width: 719px) {
+  .ltx_note > .ltx_note_mark{
+    font-size: 1.2em;
+    padding: 0.5rem;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}
+
+:not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_portrait {
+    width: 100%;
 }

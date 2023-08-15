@@ -3,6 +3,11 @@
   --text-font-family: "freight-sans-pro";
   --toc-font-family: "ibm-plex-sans-condensed";
   --other-font-family: "freight-sans-pro";
+  --note-highlight-color: #f9f7f7;
+}
+
+[data-theme=dark] {
+  --note-highlight-color: #1c1a17;
 }
 
 .btn {
@@ -628,9 +633,9 @@ body:after {
   background-color: var(--note-highlight-color);
 }
 
-.hover-effect:hover{
+/* .hover-effect:hover{
   text-decoration: underline;
-}
+} */
 
 .back-to-reference-btn {
   /* background-color: #FFFFFF; */

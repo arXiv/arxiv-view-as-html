@@ -748,15 +748,15 @@ body:after {
   footer,
   body::after,
   .ltx_page_footer,
-  .ltx_TOC,
+  .ltx_page_main >.ltx_TOC.flex,
   .back-to-reference-btn,
+  #small-report-button,
   #openForm{
     display: none;
   }
 
   /*problem*/
   .ltx_page_main {
-    grid-template-columns: none;
     display: block;
     width:95%;
   }

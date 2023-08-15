@@ -130,7 +130,7 @@ let create_footer = () => {
         </div>`;
 
     footer.innerHTML = `
-        <div class="keyboard-glossary ltx_page_content">
+        <div class="keyboard-glossary">
             <h2>Instructions for reporting errors</h2>
             <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
             <ul>
@@ -203,9 +203,17 @@ let create_destop_TOC=() =>{
     //return [document.getElementById('listIcon'),document.getElementById('arrowIcon')];
 }
 
+function ref_ArXivFont(){
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://use.typekit.net/rwr5zpx.css";
+  document.head.appendChild(link);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.ltx_page_main').id = 'main';
 
+    ref_ArXivFont();
     create_favicon();
     unwrap_nav();
 

@@ -480,43 +480,42 @@ body:after {
 }
 
 /* Update: For toc */
-.ltx_TOC{
+.ltx_page_main >.ltx_TOC.flex{
   /* z-index: auto; */
   display: flex;
+  flex:1;
   flex-direction: column;
   position: sticky;
-  top: 10vh;
+  top: 5vh;
   max-height: 95vh;
+  margin-top: 0;
   /* xxx */
   overflow-y: auto;
   user-select: none;
-  background-color: white;
+  background-color: var(--background-color);
+  color: var(--text-color);
   font: var(--toc-font-family);
 }
 
+.hide{
+  display: none;
+}
+
+#toc_header{
+  display: none;
+}
+
 .ltx_page_main {
-  /* grid-gap: 3rem; */
-  display: grid;
-  /* gap: 3rem; */
-  grid-template-areas: "sidebar main";
-  grid-template-columns: minmax(0,1fr) minmax(0,5fr);
-  /* padding-left: 1.5rem;
-  padding-right: 3rem; */
+  display: flex;
   width: 100%;
   flex-wrap: wrap;
 }
 
 .ltx_page_content {
-  grid-area: main;
-  flex-direction: column;
+  flex:5;
   width: 100%;
   display: flex;
   min-height: 80vh;
-}
-
-[data-theme=dark] .ltx_TOC {
-  background-color: #0d1117;
-  color: #c9d1d9;
 }
 
 .ltx_tocentry.ltx_tocentry_section {
@@ -529,8 +528,12 @@ body:after {
   margin-left: 1.5rem;
 }
 
+.ltx_toclist.ltx_toclist_section{
+  display: none;
+}
+
 .ltx_ref:hover{
-  background-color: #ffffd4;
+  background-color: var(--note-highlight-color);
 }
 
 #listIcon {
@@ -539,7 +542,6 @@ body:after {
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
-  display: none;
   align-items: center;
   z-index: 100;
 }
@@ -550,8 +552,12 @@ body:after {
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
-  display: block;
   align-items: center;
+}
+
+#listIcon svg, #arrowIcon svg {
+  background-color:var(--background-color);
+  fill:var(--text-color);
 }
 
 #toc_header {
@@ -559,6 +565,11 @@ body:after {
   margin-bottom: 1.3rem;
   font-family: var(--text-font-family);
   font-weight: 1000;
+}
+
+.ltx_toclist a.active {
+  font-weight: bold; /* You can apply any styling you want to indicate the active link */
+  background-color: var(--note-highlight-color);
 }
 
 .hover-effect:hover{
@@ -603,6 +614,10 @@ body:after {
   box-shadow: none;
 }
 
+.ltx_page_main{
+  padding:1em;
+}
+
 /*mobile*/
 @media only screen and (max-width: 719px) {
   header {
@@ -640,37 +655,36 @@ body:after {
     display: none;
   }
 
+  #listIcon, #arrowIcon {
+    display: none;
+  }
+
+  .ltx_page_main >.ltx_TOC{
+    max-height: 60vh;
+    overflow-y: scroll;
+    margin-bottom: 0;
+    background-color: #f1f1f1;
+    position: fixed;
+    width:100vw;
+    z-index:1;
+  }
+
+  [data-theme=dark] .ltx_page_main >.ltx_TOC{
+    background-color: #5e5e5e;
+  }
+
+
   .ltx_toclist{
-    display: none;
-    /*border-style: outset;*/
-    border-radius: 5px;
-    border-color: white;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
   }
 
-  .ltx_TOC{
-    background-color: transparent;
+  .ltx_page_content{
+    padding:1em;
   }
 
-  #listIcon {
-    display: block;
-  }
-  
-  #arrowIcon {
-    display: none;
-  }
-
-  .ltx_page_main {
-    grid-template-columns: minmax(0,0fr) minmax(0,1fr);
-  }
-
-  .ltx_TOC{
-    z-index: 10000; 
-    width: 20rem;
-  }
-
-  .tocToggle {
-    top: 20vh;
-    left:0vw;
+  .ltx_page_main{
+    padding: 0;
   }
 
   header{
@@ -683,6 +697,7 @@ body:after {
     overflow: scroll;
   }
 }
+
 .ltx_bibitem{
   padding-left: 10px;
 }
@@ -707,9 +722,7 @@ header{
   width: 100%;
   box-sizing: border-box;
 }
-.ltx_page_main{
-  padding:1em;
-}
+
 .ltx_table{
   overflow-x: scroll;
 }
@@ -717,23 +730,16 @@ header{
   margin: 3em 0em;
 }
 
-/* use for overwrite footnote css. */
-.ltx_note_outer{
-  padding-right: 6rem;
+.bg-body-tertiary{
+  background-color: #b31313 !important;
+  position: fixed;
+  z-index:1000;
 }
 
-@media only screen and (max-width: 719px) {
-  .ltx_note > .ltx_note_mark{
-    font-size: 1.2em;
-    padding: 0.5rem;
-    font-weight: bold;
-    text-decoration: underline;
-  }
+.navbar-toggler:focus {
+  box-shadow: none;
 }
 
-:not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_portrait {
-    width: 100%;
+[data-bs-theme=dark] .navbar-toggler-icon {
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='1em' viewBox='0 0 448 512'%3E%3Cstyle%3Esvg%7Bfill%3A%23fdf7f7%7D%3C/style%3E%3Cpath d='M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z'/%3E%3C/svg%3E");
 }
-
-
-

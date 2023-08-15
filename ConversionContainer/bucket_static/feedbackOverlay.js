@@ -466,29 +466,35 @@ function submitBugReport(e) {
     hideModal(document.getElementById('myForm'));
 }
 
-let isTocVisible = false;
 function handleClickOutsideModal(e, modal) {
     if (e.target == modal)
         modal.style.display = 'none';
-    const listIcon = document.getElementById('listIcon');
-    const arrowIcon = document.getElementById('arrowIcon');
+}
+
+function handleClickTOCToggle(e) {
+    const listIcon= document.getElementById('listIcon');
+    const arrowIcon= document.getElementById('arrowIcon');
     const toc = document.querySelector('.ltx_toclist');
-    const toc_main = document.querySelector('.ltx_TOC');
+    const toc_main = document.querySelector('.ltx_page_main>.ltx_TOC');
+    const content=document.querySelector('.ltx_content');
     if (e.target == listIcon) {
-        console.log('listIcon clicked');
         //show toc and arrowIcon
-        toc.style.display = 'block';
-        arrowIcon.style.display = 'block';
-        listIcon.style.display = 'none';
-        toc_main.style.backgroundColor = 'white';
+        toc.classList.remove('hide');
+        arrowIcon.classList.remove('hide');
+        listIcon.classList.add('hide');
+        toc_main.style.backgroundColor = 'var(--background-color)';
+        //change 
+        toc_main.style.flex='1';
+        content.style.flex='5';
     }
     if (e.target == arrowIcon) {
-        console.log('arrowIcon clicked');
         //hide toc and arrowIcon
-        toc.style.display = 'none';
-        arrowIcon.style.display = 'none';
-        listIcon.style.display = 'block';
+        toc.classList.add('hide');
+        arrowIcon.classList.add('hide');
+        listIcon.classList.remove('hide');
         toc_main.style.backgroundColor = 'transparent';
+        toc_main.style.flex='0 0 3rem';
+        content.style.flex='1 1 100%';
     }
 }
 
@@ -516,24 +522,15 @@ function makeGithubBody(issueData) {
     return body;
 }
 
-function addTOCToggleButton() {
-    const olElement = document.querySelector('.ltx_toclist');
+function handleClickMobileTOC(){
+    const tocItems = document.querySelectorAll('.ltx_ref');
+    const toc = document.querySelector('.ltx_page_main >.ltx_TOC');
 
-    const listIconHTML = `
-    <div id="listIcon" type="button">
-        <svg width='17px' height='17px' viewBox="0 0 512 512" style="pointer-events: none;">
-        <path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>
-        </svg>
-    </div>`;
-
-    const arrowIconHTML = `
-    <div id="arrowIcon" type="button">
-        <svg width='17px' height='17px' viewBox="0 0 448 512" style="pointer-events: none;">
-        <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
-        </svg>
-    </div>`;
-
-    olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
+    tocItems.forEach(item => {
+        item.addEventListener('click', () => {
+            toc.classList.remove('show');
+        });
+    });
 }
 
 // RUN THIS CODE ON INITIALIZE
@@ -543,10 +540,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = addBugReportForm();
     const reportButtons = addSRButton(modal);
     const smallReportButton = createSmallButton(modal);
-    addTOCToggleButton();
 
     document.onkeydown = (e) => handleKeyDown(e, modal, reportButtons);
-    document.onclick = (e) => handleClickOutsideModal(e, modal);
+    document.onclick = (e) => {
+        handleClickOutsideModal(e, modal);
+        if(window.innerWidth < 719){
+            handleClickMobileTOC(e);
+        }
+        else{
+            handleClickTOCToggle(e);
+        }
+    }
+
     document.onmouseup = (e) => handleMouseUp(e, smallReportButton);
 
     let lastScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;

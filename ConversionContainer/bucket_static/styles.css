@@ -18,6 +18,16 @@
   font: var(--other-font-family);
 }
 
+.ltx_cite>.ltx_ref{
+  text-decoration: underline;
+  border-bottom: none;
+}
+
+.ltx_p>.ltx_ref {
+  text-decoration: underline;
+  border-bottom: none;
+}
+
 .freight-text-pro {
   font-family: "freight-text-pro";
 }

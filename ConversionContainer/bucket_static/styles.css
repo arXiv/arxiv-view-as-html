@@ -1,3 +1,53 @@
+:root,[data-theme=light] {
+  --headings-font-family: "freight-text-pro";
+  --text-font-family: "freight-sans-pro";
+  --toc-font-family: "ibm-plex-sans-condensed";
+  --other-font-family: "freight-sans-pro";
+}
+
+.btn {
+  font: var(--other-font-family);
+}
+
+.form-text{
+  font: var(--other-font-family);
+}
+
+.freight-text-pro {
+  font-family: "freight-text-pro";
+}
+
+.modal-header{
+  font: var(--other-font-family);
+}
+
+/* For Footnote */
+@media only screen and (min-width: 104.5rem){
+  .ltx_note_outer {
+      display: block;
+      opacity: 100;
+      position: relative;
+      clear: both;
+      float: right;
+      padding-bottom: 2rem;
+      padding-right: 2rem;
+  }
+}
+
+@media only screen and (max-width: 104.5rem){
+  .ltx_note_outer {
+    display: none;
+    opacity: 0;
+  }
+}
+
+@media only screen and (min-width: 104.5rem) and (max-width: 108.99rem){
+  .ltx_note_outer {
+      width: 20rem;
+      margin-right: -24rem;
+  }
+}
+
 header {
   background-color: #b31313;
   display: flex;
@@ -29,7 +79,7 @@ svg.icon, [data-theme=dark] svg.icon {
   background: transparent;
   border-radius: 6px;
   /* max-width: 50%; */
-  font-family: sans-serif;
+  font-family: var(--other-font-family);
   font-size: smaller;
   color: white;
 }
@@ -81,7 +131,7 @@ button.feedback-button {
   right: -99%;
 }
 footer {
-  font-family: arial, tahoma, sans-serif;
+  font-family: var(--other-font-family);
 }
 footer h2 {
   font-size: 1em;
@@ -461,6 +511,7 @@ body:after {
 
 .ar5iv-footer-button {
   color: var(--link-text-color);
+  font: var(--other-font-family);
   padding: 0.5rem;
   display: inline-block;
   text-decoration: none;
@@ -486,6 +537,7 @@ body:after {
   flex-grow: 1;  /* It does grow */
   flex-shrink: 0;  /* It doesn't shrink */
   min-width: 200px;  /* Minimum width */
+  font: var(--toc-font-family);
 }
 
 .hide{

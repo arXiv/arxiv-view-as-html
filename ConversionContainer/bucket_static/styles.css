@@ -749,10 +749,6 @@ body:after {
   .ltx_page_main > .ltx_page_content{
     padding:1em;
   }
-
-  .ltx_page_main{
-    padding: 0;
-  }
 }
 
 /*print style*/
@@ -828,7 +824,9 @@ header{
 }
 /* use for overwrite footnote css. */
 .ltx_note_outer{
-  padding-right: 6rem;
+  /*padding-right: 6rem;*/
+  width: auto;
+  max-width: 30rem;
 }
 
 @media only screen and (max-width: 719px) {

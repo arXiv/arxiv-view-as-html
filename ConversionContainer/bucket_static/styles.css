@@ -565,14 +565,13 @@ body:after {
 
 .ltx_page_main {
   display: flex;
-  width: 100%;
   /*flex-wrap: wrap;*/
   padding:1em;
 }
 
 .ltx_page_main > .ltx_page_content {
   /*flex:5;*/
-  /*width: 100%;*/
+  width: 100%;
   /*display: flex;*/
   min-height: 80vh;
   margin: 3em 0em;
@@ -748,7 +747,7 @@ body:after {
 
   .ltx_page_main > .ltx_page_content{
     padding:1em;
-    margin: left 1.2em;
+    width: 100%;
   }
 
   .ltx_page_main{

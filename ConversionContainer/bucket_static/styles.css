@@ -565,7 +565,6 @@ body:after {
 
 .ltx_page_main {
   display: flex;
-  width: 100%;
   /*flex-wrap: wrap;*/
   padding:1em;
 }
@@ -748,7 +747,7 @@ body:after {
 
   .ltx_page_main > .ltx_page_content{
     padding:1em;
-    margin: left 1.2em;
+    width: 100%;
   }
 
   .ltx_page_main{

@@ -3,10 +3,21 @@
   --text-font-family: "freight-sans-pro";
   --toc-font-family: "ibm-plex-sans-condensed";
   --other-font-family: "freight-sans-pro";
-  /*  var(--text-color); */
 }
 
 .btn {
+  font: var(--other-font-family);
+}
+
+.form-text{
+  font: var(--other-font-family);
+}
+
+.freight-text-pro {
+  font-family: "freight-text-pro";
+}
+
+.modal-header{
   font: var(--other-font-family);
 }
 
@@ -473,6 +484,7 @@ body:after {
 
 .ar5iv-footer-button {
   color: var(--link-text-color);
+  font: var(--other-font-family);
   padding: 0.5rem;
   display: inline-block;
   text-decoration: none;

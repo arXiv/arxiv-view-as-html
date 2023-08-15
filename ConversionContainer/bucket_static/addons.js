@@ -161,7 +161,12 @@ let unwrap_nav = () => {
     document.querySelector('#main').prepend(...nav.childNodes);
     nav.remove();
 
-    document.querySelector('.ltx_TOC').setAttribute('aria-labelledby', 'toc_header');
+    let toc = document.querySelector('.ltx_TOC');
+    let toc_header = document.createElement('h2');
+    toc_header.innerText = 'Table of Contents';
+    toc_header.id = 'toc_header';
+    toc.prepend(toc_header);
+    toc.setAttribute('aria-labelledby', 'toc_header');
 }
 
 let create_mobile_TOC=() =>{
@@ -202,6 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.ltx_page_main').id = 'main';
 
     create_favicon();
+    unwrap_nav();
+
     if (window.innerWidth > 719) {
       create_header();
       create_destop_TOC();
@@ -209,8 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
         create_mobile_header();
         create_mobile_TOC();
     }
-    create_header();
-    unwrap_nav();
 
     delete_footer();
     create_footer();

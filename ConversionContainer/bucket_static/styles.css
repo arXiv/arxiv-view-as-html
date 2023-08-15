@@ -572,7 +572,7 @@ body:after {
 
 .ltx_page_main > .ltx_page_content {
   /*flex:5;*/
-  /*width: 100%;*/
+  width: 100%;
   /*display: flex;*/
   min-height: 80vh;
   margin: 3em 0em;

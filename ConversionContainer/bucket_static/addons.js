@@ -203,9 +203,17 @@ let create_destop_TOC=() =>{
     //return [document.getElementById('listIcon'),document.getElementById('arrowIcon')];
 }
 
+function ref_ArXivFont(){
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://use.typekit.net/rwr5zpx.css";
+  document.head.appendChild(link);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.ltx_page_main').id = 'main';
 
+    ref_ArXivFont();
     create_favicon();
     unwrap_nav();
 

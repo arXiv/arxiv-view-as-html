@@ -162,3 +162,5 @@ cython_debug/
 # Scripts to move converted papers from VM to bucket
 transition_converted.sh
 transition_converted.py
+
+.VSCodeCounter/

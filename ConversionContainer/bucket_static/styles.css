@@ -503,6 +503,13 @@ body:after {
   width: 100%;
   display: flex;
   min-height: 80vh;
+  /*--main-width: 60rem;
+  --main-with-margin: 20rem;*/
+}
+
+[data-theme=dark] .ltx_TOC {
+  background-color: #0d1117;
+  color: #c9d1d9;
 }
 
 .ltx_tocentry.ltx_tocentry_section {
@@ -672,6 +679,27 @@ body:after {
 
   .ltx_page_main{
     padding: 0;
+  }
+}
+
+/*print style*/
+@media print {
+  /* All your print styles go here */
+  header,
+  nav,
+  footer,
+  body::after,
+  .ltx_page_footer,
+  .ltx_TOC,
+  .back-to-reference-btn,
+  #openForm{
+    display: none;
+  }
+
+  .ltx_page_main {
+    grid-template-columns: none;
+    display: block;
+    width:95%;
   }
 
   header{

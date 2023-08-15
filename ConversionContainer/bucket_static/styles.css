@@ -470,9 +470,9 @@ body:after {
 /* Update: For toc */
 .ltx_page_main >.ltx_TOC.flex{
   /* z-index: auto; */
-  display: flex;
-  flex:1;
-  flex-direction: column;
+  /*display: flex;*/
+  /*flex:1;
+  flex-direction: column;*/
   position: sticky;
   top: 5vh;
   max-height: 95vh;
@@ -482,6 +482,10 @@ body:after {
   user-select: none;
   background-color: var(--background-color);
   color: var(--text-color);
+  flex-basis: 20vw;
+  flex-grow: 1;  /* It does grow */
+  flex-shrink: 0;  /* It doesn't shrink */
+  min-width: 200px;  /* Minimum width */
 }
 
 .hide{
@@ -495,14 +499,20 @@ body:after {
 .ltx_page_main {
   display: flex;
   width: 100%;
-  flex-wrap: wrap;
+  /*flex-wrap: wrap;*/
+  padding:1em;
 }
 
 .ltx_page_content {
-  flex:5;
-  width: 100%;
-  display: flex;
+  /*flex:5;*/
+  /*width: 100%;*/
+  /*display: flex;*/
   min-height: 80vh;
+  margin: 3em 0em;
+  padding-left: 2em;
+  flex-grow: 0;  /* This allows the content to grow and consume remaining space */
+  flex-shrink: 1;
+  flex-basis: 80vw;  /* Initial size */
   /*--main-width: 60rem;
   --main-with-margin: 20rem;*/
 }
@@ -608,10 +618,6 @@ body:after {
   box-shadow: none;
 }
 
-.ltx_page_main{
-  padding:1em;
-}
-
 /*mobile*/
 @media only screen and (max-width: 719px) {
   header {
@@ -696,6 +702,7 @@ body:after {
     display: none;
   }
 
+  /*problem*/
   .ltx_page_main {
     grid-template-columns: none;
     display: block;
@@ -716,9 +723,7 @@ body:after {
 .ltx_bibitem{
   padding-left: 10px;
 }
-.ltx_page_content{
-  min-height: 0;
-}
+
 .ltx_text{
   white-space: normal;
 }
@@ -726,7 +731,6 @@ body:after {
   white-space: normal;
 }
 article{
-  box-sizing: border-box;
   width: 100%;
 }
 .ltx_bibblock{
@@ -740,9 +744,6 @@ header{
 
 .ltx_table{
   overflow-x: scroll;
-}
-.ltx_page_content{
-  margin: 3em 0em;
 }
 
 .bg-body-tertiary{

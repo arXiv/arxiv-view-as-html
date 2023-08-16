@@ -6,12 +6,35 @@
   --note-highlight-color: #f9f7f7;
   --toc-text-highlight-color: #b31b1b; /* Cornell Red */
   --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
+  --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
+ /* 
+ #1e8bc3    Link Blue 
+ 
+ */
 [data-theme=dark] {
   --note-highlight-color: #6b6459; /* Open Blue */ 
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
-  --inpage-text-highlight-color:#a5d6fe; /* Open Blue */
+  --inpage-text-highlight-color:#1f5e96;
+  /* --inpage-text-highlight-color:#a5d6fe;  Open Blue */
+  --rp-button-hover-color: #fb595a; /* Publishing Pink */
+}
+
+/* Hover for button */
+/* .hover-rp-button:hover{
+  text-decoration: underline;
+  background-color: var(--rp-button-hover-color);
+} */
+#modal-submit{
+  background-color: #b31b1b;
+  border-color: #690604;
+}
+
+#openForm:hover,
+#modal-submit:hover{
+  text-decoration: underline;
+  background-color: var(--rp-button-hover-color);
 }
 
 .btn {
@@ -667,8 +690,10 @@ body:after {
   background-color: var(--note-highlight-color);
 }
 
+/* Build for header */
 .hover-effect:hover{
   text-decoration: underline;
+  color: var(--note-highlight-color);
 }
 
 .back-to-reference-btn {

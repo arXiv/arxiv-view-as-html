@@ -74,10 +74,11 @@ function toggleColorScheme() {
 
 function addBugReportForm() {
     const theme = document.documentElement.getAttribute("data-theme");
-    // Create the button element
+    
+    // Create the button element(the right bottom button)
     const button = document.createElement("button");
     button.setAttribute("type", "button");
-    button.setAttribute("class", "btn btn-primary");
+    button.setAttribute("class", "btn btn-primary hover-rp-button");
     button.setAttribute("id", "openForm");
     button.appendChild(document.createTextNode("Open Issue"));
 
@@ -167,7 +168,7 @@ function addBugReportForm() {
     submitButton.setAttribute("type", "submit");
     submitButton.setAttribute("class", "btn btn-primary");
     submitButton.setAttribute("id", "modal-submit"); // This id will use in submitBugReport function !!!
-    submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;");
+    // submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;");
     submitButton.appendChild(document.createTextNode("Submit in Github"));
 
     // Update: ScreenReader Submit Buttons. Needed for Submit without Github Function.

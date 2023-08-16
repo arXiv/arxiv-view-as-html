@@ -16,7 +16,7 @@ let create_favicon = () => {
 }
 
 let create_header = () => {
-    let header = document.createElement('header');
+    let desktop_header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
 
@@ -44,12 +44,13 @@ let create_header = () => {
             </a>
         </div>`;
 
-    header.innerHTML = LogoBanner + Links;
-    document.body.insertBefore(header, document.body.firstChild);
+    desktop_header.innerHTML = LogoBanner + Links;
+    desktop_header.classList.add('desktop_header');
+    document.body.insertBefore(desktop_header, document.body.firstChild);
 };
 
 let create_mobile_header = () => {
-    let header = document.createElement('header');
+    let mob_header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
 
@@ -63,7 +64,7 @@ let create_mobile_header = () => {
     </a>
         <!--toc button-->
         <div class='subcontainer-fluid'>
-          <button class="navbar-toggler ar5iv-footer-button" type="button" data-bs-toggle="collapse" data-bs-theme="dark"
+          <button class="navbar-toggler ar5iv-footer-button" type="button" data-bs-theme="dark"
             data-bs-target=".ltx_page_main >.ltx_TOC" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border:none; margin-right: 0em;">
             <span class="navbar-toggler-icon" style="width:1em;height:1em;margin-top: 0.1em;"></span>
@@ -85,10 +86,11 @@ let create_mobile_header = () => {
       </div>
   </div>
     `;
-    header.innerHTML=mobile_header
-    header.classList.add('navbar');
-    header.classList.add('bg-body-tertiary');
-    document.body.insertBefore(header, document.body.firstChild);
+    mob_header.innerHTML=mobile_header
+    mob_header.classList.add('navbar');
+    mob_header.classList.add('bg-body-tertiary');
+    mob_header.classList.add('mob_header');
+    document.body.insertBefore(mob_header, document.body.firstChild);
 }
 
 let delete_footer = () => document.querySelector('footer').remove();
@@ -165,25 +167,14 @@ let unwrap_nav = () => {
     let toc_header = document.createElement('h2');
     toc_header.innerText = 'Table of Contents';
     toc_header.id = 'toc_header';
+    toc_header.setAttribute('class', 'sr-only');
     toc.prepend(toc_header);
     toc.setAttribute('aria-labelledby', 'toc_header');
 }
 
-let create_mobile_TOC=() =>{
-  const tocHeader = document.getElementById('toc_header');;
-  tocHeader.setAttribute("class", "sr-only");
-
-  const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
-  toc.classList.add('collapse');
-};
-
-let create_destop_TOC=() =>{
-  const tocHeader = document.getElementById('toc_header');;
-  tocHeader.setAttribute("class", "sr-only");
-
-  const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
-  toc.classList.add('flex');
-
+let create_TOC=() =>{
+  /*const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
+  toc.classList.add('flex');*/
   const olElement = document.querySelector('.ltx_toclist');
   const listIconHTML = `
     <div id="listIcon" type="button" class='hide'>
@@ -216,17 +207,28 @@ document.addEventListener("DOMContentLoaded", () => {
     ref_ArXivFont();
     create_favicon();
     unwrap_nav();
-
-    if (window.innerWidth > 719) {
-      create_header();
-      create_destop_TOC();
-    } else {
-        create_mobile_header();
-        create_mobile_TOC();
-    }
+    create_header();
+    create_mobile_header();
+    create_TOC();
 
     delete_footer();
     create_footer();
+
+    window.addEventListener('resize', function() {
+      const toc= document.querySelector('.ltx_toclist');
+      if (window.innerWidth <719) {
+        if(toc.classList.contains('show')){
+          toc.classList.remove('show');
+          toc.classList.add('hide');
+        }
+      }
+      else{
+        if(toc.classList.contains('hide')){
+          toc.classList.remove('hide');
+          toc.classList.add('show');
+        }
+      }
+    });
 
     const referenceItems = document.querySelectorAll(".ltx_bibitem");
   

@@ -37,6 +37,7 @@
   background-color: var(--rp-button-hover-color);
 }
 
+/* Overwrite font */
 .btn {
   font: var(--other-font-family);
 }
@@ -59,7 +60,19 @@
   font-family: "freight-text-pro";
 }
 
+.modal-title,
+textarea.form-control{
+  font: var(--other-font-family);
+}
+
+
 .modal-header{
+  font: var(--other-font-family);
+  font-size: 1.25rem;
+}
+
+
+#nomralModalDescription{
   font: var(--other-font-family);
 }
 

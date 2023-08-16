@@ -4,10 +4,14 @@
   --toc-font-family: "ibm-plex-sans-condensed";
   --other-font-family: "freight-sans-pro";
   --note-highlight-color: #f9f7f7;
+  --toc-text-highlight-color: #b31b1b; /* Cornell Red */
+  --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
 }
 
 [data-theme=dark] {
-  --note-highlight-color: #6b6459;
+  --note-highlight-color: #6b6459; /* Open Blue */ 
+  --toc-text-highlight-color: #a5d6fe; /* Open Blue */
+  --inpage-text-highlight-color:#a5d6fe; /* Open Blue */
 }
 
 .btn {
@@ -613,8 +617,18 @@ body:after {
   display: none;
 }
 
+/* Hover for TOC */
 .ltx_ref:hover{
-  background-color: var(--note-highlight-color);
+  /* background-color: var(--note-highlight-color); */
+  /* Add underline */
+  text-decoration: underline;
+  /* Chaneg text color */
+  color: var(--toc-text-highlight-color);
+}
+
+.ltx_p>.ltx_ref:hover,
+.ltx_cite>.ltx_ref:hover{
+  color: var(--inpage-text-highlight-color);
 }
 
 #listIcon {
@@ -653,9 +667,9 @@ body:after {
   background-color: var(--note-highlight-color);
 }
 
-/* .hover-effect:hover{
+.hover-effect:hover{
   text-decoration: underline;
-} */
+}
 
 .back-to-reference-btn {
   /* background-color: #FFFFFF; */

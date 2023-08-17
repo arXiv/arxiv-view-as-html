@@ -4,12 +4,44 @@
   --toc-font-family: "ibm-plex-sans-condensed";
   --other-font-family: "freight-sans-pro";
   --note-highlight-color: #f9f7f7;
+  --toc-text-highlight-color: #b31b1b; /* Cornell Red */
+  --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
+  --rp-button-hover-color: #fb595a; /* Publishing Pink */
+  --text-color: black;
 }
 
+
+ /* 
+ https://info.arxiv.org/brand/colors.html
+ #1e8bc3    Link Blue 
+ */
 [data-theme=dark] {
-  --note-highlight-color: #6b6459;
+  --note-highlight-color: #6b6459; /* Open Blue */ 
+  --toc-text-highlight-color: #a5d6fe; /* Open Blue */
+  --inpage-text-highlight-color:#1f5e96;
+  --text-color: #FFFFFF;
+  --background-color: #282623;
+  /* --inpage-text-highlight-color:#a5d6fe;  Open Blue */
+  --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
+/* Hover for button */
+/* .hover-rp-button:hover{
+  text-decoration: underline;
+  background-color: var(--rp-button-hover-color);
+} */
+#modal-submit{
+  background-color: #b31b1b;
+  border-color: #690604;
+}
+
+#openForm:hover,
+#modal-submit:hover{
+  text-decoration: underline;
+  background-color: var(--rp-button-hover-color);
+}
+
+/* Overwrite font */
 .btn {
   font: var(--other-font-family);
 }
@@ -32,7 +64,8 @@
   font-family: "freight-text-pro";
 }
 
-.modal-header{
+.modal-title,
+textarea.form-control{
   font: var(--other-font-family);
 }
 
@@ -57,15 +90,26 @@
   .ltx_note_outer {
     display: none;
     opacity: 0;
+    width: auto;
+    max-width: 30rem;
   }
 }
 
 @media only screen and (min-width: 104.5rem) and (max-width: 108.99rem){
   .ltx_note_outer {
-      width: 20rem;
-      margin-right: -24rem;
+    width: 14rem;
+    margin-right: -17rem;
   }
 }
+
+@media only screen and (min-width: 109rem){
+  .ltx_note_outer {
+    width: 18rem;
+    margin-right: -23rem;
+  }
+}
+
+
 
 header {
   background-color: #b31313;
@@ -161,6 +205,7 @@ footer p, footer ul {
 
 .ltx_page_footer {
   font-family: arial, tahoma, sans-serif;
+  user-select: none;
 }
 
 /*mobile*/
@@ -344,14 +389,23 @@ label {
 }
 
 [data-theme=dark] .btn.btn-primary {
-  color:  #c9d1d9;
-  border-color:  #c9d1d9;
+  color:  var(--text-color);
+  border-color: var(--text-color);
 }
 
 [data-theme=dark] .btn.btn-outline-secondary#take-screenshot {
   color:  #c9d1d9;
   border-color:  #c9d1d9;
 }
+
+header{
+  user-select: none;
+}
+
+footer{
+  user-select: none;
+}
+
 
 /* Submit button */
 .modal-submit {
@@ -591,6 +645,10 @@ body:after {
   color: #c9d1d9;
 }
 
+[data-theme=dark] .ltx_ref {
+  color: var(--text-color);
+}
+
 .ltx_tocentry.ltx_tocentry_section {
   margin-bottom: 0.5rem;
   margin-left: 1.5rem;
@@ -605,8 +663,18 @@ body:after {
   display: none;
 }
 
+/* Hover for TOC */
 .ltx_ref:hover{
-  background-color: var(--note-highlight-color);
+  /* background-color: var(--note-highlight-color); */
+  /* Add underline */
+  text-decoration: underline;
+  /* Chaneg text color */
+  color: var(--toc-text-highlight-color);
+}
+
+.ltx_p>.ltx_ref:hover,
+.ltx_cite>.ltx_ref:hover{
+  color: var(--inpage-text-highlight-color);
 }
 
 #listIcon {
@@ -647,9 +715,11 @@ body:after {
   background-color: var(--note-highlight-color);
 }
 
-/* .hover-effect:hover{
+/* Build for header */
+.hover-effect:hover{
   text-decoration: underline;
-} */
+  color: var(--note-highlight-color);
+}
 
 .back-to-reference-btn {
   /* background-color: #FFFFFF; */
@@ -847,12 +917,6 @@ header{
 
 [data-bs-theme=dark] .navbar-toggler-icon {
   --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='1em' viewBox='0 0 448 512'%3E%3Cstyle%3Esvg%7Bfill%3A%23fdf7f7%7D%3C/style%3E%3Cpath d='M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z'/%3E%3C/svg%3E");
-}
-/* use for overwrite footnote css. */
-.ltx_note_outer{
-  /*padding-right: 6rem;*/
-  width: auto;
-  max-width: 30rem;
 }
 
 @media only screen and (max-width: 719px) {

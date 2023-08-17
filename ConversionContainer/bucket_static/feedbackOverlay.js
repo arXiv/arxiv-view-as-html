@@ -477,13 +477,16 @@ function handleClickTOCToggle(e) {
     const arrowIcon= document.getElementById('arrowIcon');
     const toc = document.querySelector('.ltx_toclist');
     const toc_main = document.querySelector('.ltx_page_main>.ltx_TOC');
-    const content=document.querySelector('.ltx_content');
+    const content=document.querySelector('.ltx_page_content');
     if (e.target == listIcon) {
         //show toc and arrowIcon
         toc.classList.remove('hide');
+        // toc.classList.add('show');
         arrowIcon.classList.remove('hide');
+        // arrowIcon.classList.add('show');
         listIcon.classList.add('hide');
-        toc_main.style.backgroundColor = 'var(--background-color)';
+        // listIcon.classList.remove('show');
+        // toc_main.style.backgroundColor = 'var(--background-color)';
         //change 
         /*toc_main.style.flex='1';
         content.style.flex='5';*/
@@ -493,11 +496,14 @@ function handleClickTOCToggle(e) {
     if (e.target == arrowIcon) {
         //hide toc and arrowIcon
         toc.classList.add('hide');
+        // toc.classList.remove('show');
         arrowIcon.classList.add('hide');
+        // arrowIcon.classList.remove('show');
         listIcon.classList.remove('hide');
-        toc_main.style.backgroundColor = 'transparent';
+        // listIcon.classList.add('show');
+        // toc_main.style.backgroundColor = 'transparent';
         toc_main.style.flex='0 0 3rem';
-        content.style.flex='1';
+        content.style.flex='1 1 100%';
     }
 }
 
@@ -525,10 +531,26 @@ function makeGithubBody(issueData) {
     return body;
 }
 
-function handleClickMobileTOC(){
+function handleClickMobileTOC(e){
     const tocItems = document.querySelectorAll('.ltx_ref');
-    const toc = document.querySelector('.ltx_page_main >.ltx_TOC');
+    const toc = document.querySelector('.ltx_page_main >.ltx_TOC.mobile')
+    // //const toggle=document.getElementById('navbar-mobile-toggler')
+    // const toggle=document.querySelector('.navbar-toggler-icon');
 
+    // if(e.target==toggle){
+    //     if(toc.classList.contains('show')){
+    //         //toc.setAttribute('display','none');
+    //         //toc.style.setProperty('display','none','important');
+    //         toc.classList.add('hide');
+    //         toc.classList.remove('show');
+    //     }
+    //     else{
+    //         //toc.setAttribute('display','block');
+    //         //toc.style.setProperty('display','block','important');
+    //         toc.classList.remove('hide');
+    //         toc.classList.add('show');
+    //     }
+    // }
     tocItems.forEach(item => {
         item.addEventListener('click', () => {
             toc.classList.remove('show');

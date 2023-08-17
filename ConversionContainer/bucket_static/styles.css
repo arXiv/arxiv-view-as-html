@@ -7,6 +7,7 @@
   --toc-text-highlight-color: #b31b1b; /* Cornell Red */
   --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
+  --text-color: black;
 }
 
 
@@ -18,6 +19,8 @@
   --note-highlight-color: #6b6459; /* Open Blue */ 
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
   --inpage-text-highlight-color:#1f5e96;
+  --text-color: #FFFFFF;
+  --background-color: #282623;
   /* --inpage-text-highlight-color:#a5d6fe;  Open Blue */
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
@@ -209,6 +212,7 @@ footer p, footer ul {
 
 .ltx_page_footer {
   font-family: arial, tahoma, sans-serif;
+  user-select: none;
 }
 
 /*mobile*/
@@ -392,14 +396,23 @@ label {
 }
 
 [data-theme=dark] .btn.btn-primary {
-  color:  #c9d1d9;
-  border-color:  #c9d1d9;
+  color:  var(--text-color);
+  border-color: var(--text-color);
 }
 
 [data-theme=dark] .btn.btn-outline-secondary#take-screenshot {
   color:  #c9d1d9;
   border-color:  #c9d1d9;
 }
+
+header{
+  user-select: none;
+}
+
+footer{
+  user-select: none;
+}
+
 
 /* Submit button */
 .modal-submit {
@@ -638,6 +651,10 @@ body:after {
 [data-theme=dark] .ltx_TOC {
   background-color: #0d1117;
   color: #c9d1d9;
+}
+
+[data-theme=dark] .ltx_ref {
+  color: var(--text-color);
 }
 
 .ltx_tocentry.ltx_tocentry_section {

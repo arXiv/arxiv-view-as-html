@@ -16,7 +16,7 @@ let create_favicon = () => {
 }
 
 let create_header = () => {
-    let header = document.createElement('header');
+    let desktop_header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
 
@@ -44,12 +44,13 @@ let create_header = () => {
             </a>
         </div>`;
 
-    header.innerHTML = LogoBanner + Links;
-    document.body.insertBefore(header, document.body.firstChild);
+    desktop_header.innerHTML = LogoBanner + Links;
+    desktop_header.classList.add('desktop_header');
+    document.body.insertBefore(desktop_header, document.body.firstChild);
 };
 
 let create_mobile_header = () => {
-    let header = document.createElement('header');
+    let mob_header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
 
@@ -63,8 +64,8 @@ let create_mobile_header = () => {
     </a>
         <!--toc button-->
         <div class='subcontainer-fluid'>
-          <button class="navbar-toggler ar5iv-footer-button" type="button" data-bs-toggle="collapse" data-bs-theme="dark"
-            data-bs-target=".ltx_page_main >.ltx_TOC" aria-controls="navbarSupportedContent" aria-expanded="false"
+          <button class="navbar-toggler ar5iv-footer-button" type="button" data-bs-theme="dark" data-bs-toggle="collapse" aria-expanded="false"
+            data-bs-target=".ltx_page_main >.ltx_TOC.mobile" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border:none; margin-right: 0em;">
             <span class="navbar-toggler-icon" style="width:1em;height:1em;margin-top: 0.1em;"></span>
           </button>          
@@ -85,10 +86,11 @@ let create_mobile_header = () => {
       </div>
   </div>
     `;
-    header.innerHTML=mobile_header
-    header.classList.add('navbar');
-    header.classList.add('bg-body-tertiary');
-    document.body.insertBefore(header, document.body.firstChild);
+    mob_header.innerHTML=mobile_header
+    mob_header.classList.add('navbar');
+    mob_header.classList.add('bg-body-tertiary');
+    mob_header.classList.add('mob_header');
+    document.body.insertBefore(mob_header, document.body.firstChild);
 }
 
 let delete_footer = () => document.querySelector('footer').remove();
@@ -165,42 +167,30 @@ let unwrap_nav = () => {
     let toc_header = document.createElement('h2');
     toc_header.innerText = 'Table of Contents';
     toc_header.id = 'toc_header';
+    toc_header.setAttribute('class', 'sr-only');
     toc.prepend(toc_header);
     toc.setAttribute('aria-labelledby', 'toc_header');
-}
 
-let create_mobile_TOC=() =>{
-  const tocHeader = document.getElementById('toc_header');;
-  tocHeader.setAttribute("class", "sr-only");
+    const olElement = document.querySelector('.ltx_toclist');
+    const listIconHTML = `
+      <div id="listIcon" type="button" class='hide'>
+          <svg width='17px' height='17px' viewBox="0 0 512 512" style="pointer-events: none;">
+          <path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>
+          </svg>
+      </div>`;
 
-  const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
-  toc.classList.add('collapse');
-};
-
-let create_destop_TOC=() =>{
-  const tocHeader = document.getElementById('toc_header');;
-  tocHeader.setAttribute("class", "sr-only");
-
-  const toc= document.querySelector('.ltx_page_main >.ltx_TOC');
-  toc.classList.add('flex');
-
-  const olElement = document.querySelector('.ltx_toclist');
-  const listIconHTML = `
-    <div id="listIcon" type="button" class='hide'>
-        <svg width='17px' height='17px' viewBox="0 0 512 512" style="pointer-events: none;">
-        <path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>
-        </svg>
-    </div>`;
-
-    const arrowIconHTML = `
-    <div id="arrowIcon" type="button">
-        <svg width='17px' height='17px' viewBox="0 0 448 512" style="pointer-events: none;">
-        <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
-        </svg>
-    </div>`;
-
+      const arrowIconHTML = `
+      <div id="arrowIcon" type="button">
+          <svg width='17px' height='17px' viewBox="0 0 448 512" style="pointer-events: none;">
+          <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
+          </svg>
+      </div>`;
     olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
-    //return [document.getElementById('listIcon'),document.getElementById('arrowIcon')];
+
+    if(window.innerWidth <719){
+      toc.classList.add('mobile');
+      toc.classList.add('collapse');
+    }
 }
 
 function ref_ArXivFont(){
@@ -216,17 +206,36 @@ document.addEventListener("DOMContentLoaded", () => {
     ref_ArXivFont();
     create_favicon();
     unwrap_nav();
-
-    if (window.innerWidth > 719) {
-      create_header();
-      create_destop_TOC();
-    } else {
-        create_mobile_header();
-        create_mobile_TOC();
-    }
+    create_header();
+    create_mobile_header();
 
     delete_footer();
     create_footer();
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth <719) {
+        const toc= document.querySelector('.ltx_page_main>.ltx_TOC');
+        toc.classList.add('mobile');
+        toc.classList.add('collapse');
+      }
+      else{
+        //TOC is shown
+        const toc_m= document.querySelector('.ltx_page_main>.ltx_TOC.mobile');
+        toc_m.classList.remove('mobile');
+        toc_m.classList.remove('collapse');
+        toc_m.classList.remove('show');
+        toc_m.style.flex="1 0 20%";
+        //arrow Icon is shown
+        const arrowIcon = document.getElementById('arrowIcon');
+        arrowIcon.classList.remove('hide');
+        //list Icon is hidden
+        const listIcon = document.getElementById('listIcon');
+        listIcon.classList.add('hide');
+        //TOC list is shown
+        const toc_list= document.querySelector('.ltx_toclist');
+        toc_list.classList.remove('hide');
+      }
+    });
 
     const referenceItems = document.querySelectorAll(".ltx_bibitem");
   

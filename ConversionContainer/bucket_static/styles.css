@@ -36,6 +36,10 @@
   font: var(--other-font-family);
 }
 
+.mob_header{
+  display: none;
+}
+
 /* For Footnote */
 @media only screen and (min-width: 104.5rem){
   .ltx_note_outer {
@@ -534,7 +538,7 @@ body:after {
 }
 
 /* Update: For toc */
-.ltx_page_main >.ltx_TOC.flex{
+.ltx_page_main >.ltx_TOC{
   /* z-index: auto; */
   /*display: flex;*/
   /*flex:1;
@@ -553,10 +557,7 @@ body:after {
   flex-shrink: 0;  /* It doesn't shrink */
   min-width: 200px;  /* Minimum width */
   font: var(--toc-font-family);
-}
-
-.hide{
-  display: none;
+  /* display: block; */
 }
 
 #toc_header{
@@ -579,6 +580,8 @@ body:after {
   flex-grow: 0;  /* This allows the content to grow and consume remaining space */
   flex-shrink: 1;
   flex-basis: 80vw;  /* Initial size */
+  overflow-x: auto;
+  overflow-y: clip;
   /*--main-width: 60rem;
   --main-with-margin: 20rem;*/
 }
@@ -612,8 +615,9 @@ body:after {
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
-  align-items: center;
+  /* align-items: center; */
   z-index: 100;
+  /* display: none; */
 }
 
 #arrowIcon {
@@ -622,7 +626,8 @@ body:after {
   margin-left: 1.4rem;
   margin-top: 10px;
   margin-bottom: 1rem;
-  align-items: center;
+  /* align-items: center; */
+  /* display: block; */
 }
 
 #listIcon svg, #arrowIcon svg {
@@ -725,17 +730,18 @@ body:after {
     display: none;
   }
 
-  .ltx_page_main >.ltx_TOC{
+  .ltx_page_main >.ltx_TOC.mobile{
     max-height: 60vh;
     overflow-y: scroll;
     margin-bottom: 0;
-    background-color: #f1f1f1;
+    background-color: #f1f1f1; 
     position: fixed;
     width:100%;
     z-index:1;
+    /* display: none; */
   }
 
-  [data-theme=dark] .ltx_page_main >.ltx_TOC{
+  [data-theme=dark] .ltx_page_main >.ltx_TOC.mobile{
     background-color: #5e5e5e;
   }
 
@@ -743,6 +749,7 @@ body:after {
   .ltx_toclist{
     margin-top: 2.5rem;
     padding-top: 2rem;
+    display: block !important;
   }
 
   .ltx_page_main > .ltx_page_content{
@@ -753,7 +760,22 @@ body:after {
   .ltx_page_main{
     padding:0;
   }
+
+  .mob_header{
+    display:flex;
+  }
+  .desktop_header{
+    display:none;
+  }
 }
+ 
+.hide{
+  display: none;
+}
+
+ .collapse.show{
+  display: block !important;
+} 
 
 /*print style*/
 @media print {

@@ -238,6 +238,9 @@ footer p, footer ul {
   .banner {
     display: none;
   }
+  #footer{
+    margin-bottom: 8vh;
+  }
 }
 
 /*BETA corner banner*/
@@ -824,6 +827,7 @@ body:after {
 
   .ltx_page_main{
     padding:0;
+    display: inline-block;
   }
 
   .mob_header{

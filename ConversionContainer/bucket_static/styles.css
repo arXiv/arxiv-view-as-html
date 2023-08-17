@@ -14,31 +14,45 @@
  /* 
  https://info.arxiv.org/brand/colors.html
  #1e8bc3    Link Blue 
+ #a5d6fe; /* Open Blue 
  */
 [data-theme=dark] {
   --note-highlight-color: #6b6459; /* Open Blue */ 
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
-  --inpage-text-highlight-color:#1f5e96;
+  --inpage-text-highlight-color:#a5d6fe;
   --text-color: #FFFFFF;
   --background-color: #282623;
-  /* --inpage-text-highlight-color:#a5d6fe;  Open Blue */
+  --link-text-color: #282623;
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
 /* Hover for button */
-/* .hover-rp-button:hover{
-  text-decoration: underline;
-  background-color: var(--rp-button-hover-color);
-} */
+
 #modal-submit{
   background-color: #b31b1b;
   border-color: #690604;
 }
 
-#openForm:hover,
+/* #openForm:hover,
 #modal-submit:hover{
   text-decoration: underline;
   background-color: var(--rp-button-hover-color);
+} */
+
+/* Hover effects for devices assumed to be desktops based on their width */
+@media (min-width: 768px) { /* You can adjust this value to best suit your needs */
+  #openForm:hover, #modal-submit:hover {
+    text-decoration: underline;
+    background-color: var(--rp-button-hover-color);
+  }
+}
+
+/* Active effects for devices assumed to be mobiles based on their width */
+@media (max-width: 767px) {
+  #openForm:active, #modal-submit:active {
+    text-decoration: underline;
+    background-color: var(--rp-button-hover-color);
+  }
 }
 
 /* Overwrite font */
@@ -237,6 +251,9 @@ footer p, footer ul {
   }
   .banner {
     display: none;
+  }
+  #footer{
+    margin-bottom: 8vh;
   }
 }
 
@@ -641,7 +658,8 @@ body:after {
 }
 
 [data-theme=dark] .ltx_TOC {
-  background-color: #0d1117;
+  /* background-color: #0d1117; */
+  background-color: var(--background-color);
   color: #c9d1d9;
 }
 
@@ -660,7 +678,7 @@ body:after {
 }
 
 .ltx_toclist.ltx_toclist_section{
-  display: none;
+  display: none !important;
 }
 
 /* Hover for TOC */
@@ -829,6 +847,7 @@ body:after {
 
   .ltx_page_main{
     padding:0;
+    display: inline-block;
   }
 
   .mob_header{

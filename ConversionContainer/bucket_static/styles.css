@@ -22,24 +22,37 @@
   --inpage-text-highlight-color:#a5d6fe;
   --text-color: #FFFFFF;
   --background-color: #282623;
-  /* --inpage-text-highlight-color:#a5d6fe;  Open Blue */
+  --link-text-color: #282623;
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
 /* Hover for button */
-/* .hover-rp-button:hover{
-  text-decoration: underline;
-  background-color: var(--rp-button-hover-color);
-} */
+
 #modal-submit{
   background-color: #b31b1b;
   border-color: #690604;
 }
 
-#openForm:hover,
+/* #openForm:hover,
 #modal-submit:hover{
   text-decoration: underline;
   background-color: var(--rp-button-hover-color);
+} */
+
+/* Hover effects for devices assumed to be desktops based on their width */
+@media (min-width: 768px) { /* You can adjust this value to best suit your needs */
+  #openForm:hover, #modal-submit:hover {
+    text-decoration: underline;
+    background-color: var(--rp-button-hover-color);
+  }
+}
+
+/* Active effects for devices assumed to be mobiles based on their width */
+@media (max-width: 767px) {
+  #openForm:active, #modal-submit:active {
+    text-decoration: underline;
+    background-color: var(--rp-button-hover-color);
+  }
 }
 
 /* Overwrite font */

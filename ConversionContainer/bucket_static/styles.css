@@ -14,11 +14,12 @@
  /* 
  https://info.arxiv.org/brand/colors.html
  #1e8bc3    Link Blue 
+ #a5d6fe; /* Open Blue 
  */
 [data-theme=dark] {
   --note-highlight-color: #6b6459; /* Open Blue */ 
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
-  --inpage-text-highlight-color:#1f5e96;
+  --inpage-text-highlight-color:#a5d6fe;
   --text-color: #FFFFFF;
   --background-color: #282623;
   /* --inpage-text-highlight-color:#a5d6fe;  Open Blue */

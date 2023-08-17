@@ -640,11 +640,6 @@ body:after {
   --main-with-margin: 20rem;*/
 }
 
-[data-theme=dark] .ltx_TOC {
-  background-color: #0d1117;
-  color: #c9d1d9;
-}
-
 [data-theme=dark] .ltx_ref {
   color: var(--text-color);
 }

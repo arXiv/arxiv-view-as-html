@@ -602,7 +602,7 @@ body:after {
 }
 
 .ltx_toclist.ltx_toclist_section{
-  display: none;
+  display: none !important;
 }
 
 .ltx_ref:hover{

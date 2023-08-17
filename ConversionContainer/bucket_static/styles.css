@@ -9,9 +9,10 @@
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
+
  /* 
+ https://info.arxiv.org/brand/colors.html
  #1e8bc3    Link Blue 
- 
  */
 [data-theme=dark] {
   --note-highlight-color: #6b6459; /* Open Blue */ 

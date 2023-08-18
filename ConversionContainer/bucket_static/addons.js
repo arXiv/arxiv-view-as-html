@@ -187,7 +187,7 @@ let unwrap_nav = () => {
       </div>`;
     olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
 
-    if(window.innerWidth <719){
+    if(window.innerWidth <=719){
       toc.classList.add('mobile');
       toc.classList.add('collapse');
     }
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
     create_footer();
 
     window.addEventListener('resize', function() {
-      if (window.innerWidth <719) {
+      if (window.innerWidth <=719) {
         const toc= document.querySelector('.ltx_page_main>.ltx_TOC');
         toc.classList.add('mobile');
         toc.classList.add('collapse');

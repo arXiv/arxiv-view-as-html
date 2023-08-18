@@ -571,7 +571,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.onkeydown = (e) => handleKeyDown(e, modal, reportButtons);
     document.onclick = (e) => {
         handleClickOutsideModal(e, modal);
-        if(window.innerWidth < 719){
+        if(window.innerWidth <= 719){
             handleClickMobileTOC(e);
         }
         else{

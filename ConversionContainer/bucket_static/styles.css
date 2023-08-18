@@ -27,7 +27,7 @@
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
-/* Hover for button */
+/* Hover Overwrite Section */
 
 #modal-submit{
   background-color: #b31b1b;
@@ -39,12 +39,6 @@
   color: var(--inpage-text-highlight-color);
   text-decoration: underline;
 }
-
-/* #openForm:hover,
-#modal-submit:hover{
-  text-decoration: underline;
-  background-color: var(--rp-button-hover-color);
-} */
 
 /* Hover effects for devices assumed to be desktops based on their width */
 @media (min-width: 768px) { /* You can adjust this value to best suit your needs */
@@ -62,7 +56,8 @@
   }
 }
 
-/* Overwrite font */
+/* Overwrite font color*/
+
 .btn {
   font: var(--other-font-family);
 }
@@ -94,7 +89,8 @@ textarea.form-control{
   display: none;
 }
 
-/* For Footnote */
+/* CSS for Footnote */
+
 @media only screen and (min-width: 104.5rem){
   .ltx_note_outer {
       display: block;
@@ -129,6 +125,16 @@ textarea.form-control{
     margin-right: -23rem;
   }
 }
+
+.ltx_note>.ltx_note_mark {
+  text-decoration: underline;
+}
+
+.ltx_note>.ltx_note_mark:hover {
+  text-decoration: none;
+}
+
+/* CSS for Footnote End*/
 
 /* Hover */
 .ltx_tag_bibitem:active~*,

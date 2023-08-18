@@ -123,7 +123,14 @@ textarea.form-control{
   }
 }
 
-
+/* Hover */
+.ltx_tag_bibitem:active~*,
+.ltx_tag_bibitem:hover~*,
+.ltx_tag_bibitem~:active,
+.ltx_tag_bibitem~:hover {
+    /* do nothing */
+    background-color: var(--background-color);
+}
 
 header {
   background-color: #b31313;

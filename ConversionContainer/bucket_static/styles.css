@@ -6,25 +6,27 @@
   --note-highlight-color: #f9f7f7;
   --toc-text-highlight-color: #b31b1b; /* Cornell Red */
   --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
-  --rp-button-hover-color: #fb595a; /* Publishing Pink */
+  --rp-button-hover-color: #1f5e96; /* Publishing Pink */
   --text-color: black;
+  --link-text-color: #1e8bc3;
 }
 
 
  /* 
  https://info.arxiv.org/brand/colors.html
  #1e8bc3    Link Blue 
- #a5d6fe; /* Open Blue 
+ #a5d6fe;   Open Blue
+ #f9f7f7    Warm Wash
  */
 [data-theme=dark] {
   --note-highlight-color: #6b6459; /* Open Blue */ 
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
   --inpage-text-highlight-color:#a5d6fe;
-  --text-color: #FFFFFF;
-  --link-text-color: #FFFFFF;
+  --text-color: #f9f7f7;
+  --link-text-color: #1e8bc3;
   --background-color: #282623;
   /* --link-text-color: #282623; */
-  --rp-button-hover-color: #fb595a; /* Publishing Pink */
+  --rp-button-hover-color: #a5d6fe; /* Publishing Pink */
 }
 
 /* Hover Overwrite Section */
@@ -34,21 +36,24 @@
   border-color: #690604;
 }
 
+.ltx_cite>.ltx_ref:hover,
+.ltx_p>.ltx_ref:hover {
+  text-decoration: none;
+}
+
 
 .ar5iv-footer-button:hover {
   color: var(--inpage-text-highlight-color);
   text-decoration: underline;
 }
 
-/* Hover effects for devices assumed to be desktops based on their width */
-@media (min-width: 768px) { /* You can adjust this value to best suit your needs */
+@media (min-width: 768px) { 
   #openForm:hover, #modal-submit:hover {
     text-decoration: underline;
     background-color: var(--rp-button-hover-color);
   }
 }
 
-/* Active effects for devices assumed to be mobiles based on their width */
 @media (max-width: 767px) {
   #openForm:active, #modal-submit:active {
     text-decoration: underline;
@@ -60,6 +65,10 @@
 
 .btn {
   font: var(--other-font-family);
+}
+
+.ltx_TOC>.ltx_toclist>.ltx_tocentry>a.ltx_ref {
+  color: var(--text-color);
 }
 
 .form-text{
@@ -136,7 +145,12 @@ textarea.form-control{
 
 /* CSS for Footnote End*/
 
+
 /* Hover */
+
+.ltx_TOC>.ltx_toclist>.ltx_tocentry>a.ltx_ref:hover {
+  color: var(--inpage-text-highlight-color);
+}
 .ltx_tag_bibitem:active~*,
 .ltx_tag_bibitem:hover~*,
 .ltx_tag_bibitem~:active,
@@ -683,9 +697,9 @@ body:after {
   color: #c9d1d9;
 }
 
-[data-theme=dark] .ltx_ref {
+/* [data-theme=dark] .ltx_ref {
   color: var(--text-color);
-}
+} */
 
 .ltx_tocentry.ltx_tocentry_section {
   margin-bottom: 0.5rem;
@@ -785,7 +799,7 @@ body:after {
 
 .back-to-reference-btn:hover {
   color: var(--background-color);
-  background-color: var(--border-light-color);
+  background-color: var(--rp-button-hover-color);
 }
 
 .back-to-reference-btn:focus {

@@ -637,12 +637,13 @@ body:after {
   user-select: none;
   background-color: var(--background-color);
   color: var(--text-color);
-  flex-basis: 20vw;
-  flex-grow: 1;  /* It does grow */
-  flex-shrink: 0;  /* It doesn't shrink */
-  min-width: 200px;  /* Minimum width */
+  flex: 0 0 3rem;
   font: var(--toc-font-family);
-  /* display: block; */
+}
+
+.ltx_page_main >.ltx_TOC.active{
+  flex:1 0 20%;
+  min-width: 200px;
 }
 
 #toc_header{
@@ -870,6 +871,15 @@ body:after {
   .desktop_header{
     display:none;
   }
+
+  section{
+    scroll-margin-top: 85px;
+  }
+
+  .ltx_bibitem {
+    scroll-margin-top: 80px; /* equal to the height of your fixed header */
+  }
+
 }
  
 .hide{

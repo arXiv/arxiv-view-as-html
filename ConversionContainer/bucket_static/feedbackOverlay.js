@@ -477,7 +477,7 @@ function handleClickTOCToggle(e) {
     const arrowIcon= document.getElementById('arrowIcon');
     const toc = document.querySelector('.ltx_toclist');
     const toc_main = document.querySelector('.ltx_page_main>.ltx_TOC');
-    const content=document.querySelector('.ltx_page_content');
+    // const content=document.querySelector('.ltx_page_content');
     if (e.target == listIcon) {
         //show toc and arrowIcon
         toc.classList.remove('hide');

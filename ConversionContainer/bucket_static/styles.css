@@ -872,13 +872,13 @@ body:after {
     display:none;
   }
 
-  section::before {
-    content: "";
-    display: block;
-    height: 100px; /* roughly the height of your header */
-    margin-top: -100px;
-    visibility: hidden;
-}
+  section{
+    scroll-margin-top: 85px;
+  }
+
+  .ltx_bibitem {
+    scroll-margin-top: 80px; /* equal to the height of your fixed header */
+  }
 
 }
  

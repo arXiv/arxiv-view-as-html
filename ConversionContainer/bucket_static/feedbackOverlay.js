@@ -485,13 +485,14 @@ function handleClickTOCToggle(e) {
         arrowIcon.classList.remove('hide');
         // arrowIcon.classList.add('show');
         listIcon.classList.add('hide');
+        toc_main.classList.add('active')
         // listIcon.classList.remove('show');
         // toc_main.style.backgroundColor = 'var(--background-color)';
         //change 
         /*toc_main.style.flex='1';
         content.style.flex='5';*/
-        toc_main.style.flex = '1 0 20%';  // This means it will start with 20% of the parent width but won't grow or shrink.
-        content.style.flex = '1 1 80%';  // This will make it take the remaining 80% but allows it to adjust as needed.
+        // toc_main.style.flex = '1 0 20%';  // This means it will start with 20% of the parent width but won't grow or shrink.
+        // content.style.flex = '1 1 80%';  // This will make it take the remaining 80% but allows it to adjust as needed.
     }
     if (e.target == arrowIcon) {
         //hide toc and arrowIcon
@@ -500,10 +501,11 @@ function handleClickTOCToggle(e) {
         arrowIcon.classList.add('hide');
         // arrowIcon.classList.remove('show');
         listIcon.classList.remove('hide');
+        toc_main.classList.remove('active');
         // listIcon.classList.add('show');
         // toc_main.style.backgroundColor = 'transparent';
-        toc_main.style.flex='0 0 3rem';
-        content.style.flex='1 1 100%';
+        // toc_main.style.flex='0 0 3rem';
+        // content.style.flex='1 1 100%';
     }
 }
 

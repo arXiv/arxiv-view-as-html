@@ -191,6 +191,9 @@ let unwrap_nav = () => {
       toc.classList.add('mobile');
       toc.classList.add('collapse');
     }
+    else{
+      toc.classList.add('active');
+    }
 }
 
 function ref_ArXivFont(){
@@ -217,6 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const toc= document.querySelector('.ltx_page_main>.ltx_TOC');
         toc.classList.add('mobile');
         toc.classList.add('collapse');
+        toc.classList.remove('active');
       }
       else{
         //TOC is shown
@@ -224,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toc_m.classList.remove('mobile');
         toc_m.classList.remove('collapse');
         toc_m.classList.remove('show');
-        toc_m.style.flex="1 0 20%";
+        toc_m.classList.add('active');
         //arrow Icon is shown
         const arrowIcon = document.getElementById('arrowIcon');
         arrowIcon.classList.remove('hide');

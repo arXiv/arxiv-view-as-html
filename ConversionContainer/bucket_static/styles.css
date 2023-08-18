@@ -21,8 +21,9 @@
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
   --inpage-text-highlight-color:#a5d6fe;
   --text-color: #FFFFFF;
+  --link-text-color: #FFFFFF;
   --background-color: #282623;
-  --link-text-color: #282623;
+  /* --link-text-color: #282623; */
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
@@ -31,6 +32,12 @@
 #modal-submit{
   background-color: #b31b1b;
   border-color: #690604;
+}
+
+
+.ar5iv-footer-button:hover {
+  color: var(--inpage-text-highlight-color);
+  text-decoration: underline;
 }
 
 /* #openForm:hover,
@@ -123,7 +130,14 @@ textarea.form-control{
   }
 }
 
-
+/* Hover */
+.ltx_tag_bibitem:active~*,
+.ltx_tag_bibitem:hover~*,
+.ltx_tag_bibitem~:active,
+.ltx_tag_bibitem~:hover {
+    /* do nothing */
+    background-color: var(--background-color);
+}
 
 header {
   background-color: #b31313;

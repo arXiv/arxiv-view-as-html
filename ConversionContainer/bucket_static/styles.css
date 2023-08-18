@@ -51,6 +51,7 @@
   #openForm:hover, #modal-submit:hover {
     text-decoration: underline;
     background-color: var(--rp-button-hover-color);
+    color: black;
   }
 }
 
@@ -58,6 +59,7 @@
   #openForm:active, #modal-submit:active {
     text-decoration: underline;
     background-color: var(--rp-button-hover-color);
+    color: black;
   }
 }
 
@@ -109,6 +111,36 @@ textarea.form-control{
       float: right;
       padding-bottom: 2rem;
       padding-right: 2rem;
+  }
+}
+
+@media only screen and (max-width: 104.5rem){
+  .ltx_note_content {
+      overflow-wrap: break-word;
+      width: 90%;
+  }
+
+  .ltx_note:not(.ltx_note_frontmatter):not(.ltx_role_affiliationmark):not(.ltx_role_footnotemark):active>.ltx_note_outer,
+    .ltx_note:not(.ltx_note_frontmatter):not(.ltx_role_affiliationmark):not(.ltx_role_footnotemark):hover>.ltx_note_outer {
+        display: block;
+        opacity: 100;
+        z-index: 100;
+        position: absolute;
+        top: 0;
+        margin: auto;
+        padding: 2rem;
+        background-color: var(--background-color);
+        border-width: .1rem 0;
+        border-bottom: double;
+        border-top: double
+  }
+}
+
+@media only screen and (min-width: 104.5rem){
+  .ltx_note_content>.ltx_note_mark {
+    display: block;
+    opacity: 100;
+    margin-top: -1.8rem;
   }
 }
 

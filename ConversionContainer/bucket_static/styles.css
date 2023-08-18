@@ -6,7 +6,7 @@
   --note-highlight-color: #f9f7f7;
   --toc-text-highlight-color: #b31b1b; /* Cornell Red */
   --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
-  --rp-button-hover-color: #1f5e96; /* Publishing Pink */
+  --rp-button-hover-color: #fb595a; /* Publishing Pink */
   --text-color: black;
   --link-text-color: #1e8bc3;
 }
@@ -26,7 +26,7 @@
   --link-text-color: #1e8bc3;
   --background-color: #282623;
   /* --link-text-color: #282623; */
-  --rp-button-hover-color: #a5d6fe; /* Publishing Pink */
+  --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
 /* Hover Overwrite Section */
@@ -47,8 +47,9 @@
   text-decoration: underline;
 }
 
+/* Hover for modal button. */
 @media (min-width: 768px) { 
-  #openForm:hover, #modal-submit:hover {
+  #openForm:hover, #modal-submit:hover, small-report-button:hover {
     text-decoration: underline;
     background-color: var(--rp-button-hover-color);
     color: black;
@@ -56,7 +57,7 @@
 }
 
 @media (max-width: 767px) {
-  #openForm:active, #modal-submit:active {
+  #openForm:active, #modal-submit:active, small-report-button:hover {
     text-decoration: underline;
     background-color: var(--rp-button-hover-color);
     color: black;
@@ -67,6 +68,10 @@
 
 .btn {
   font: var(--other-font-family);
+}
+
+.ltx_TOC>h6, .ltx_title_abstract {
+  color: var(--text-color);
 }
 
 .ltx_TOC>.ltx_toclist>.ltx_tocentry>a.ltx_ref {
@@ -831,7 +836,7 @@ body:after {
 
 .back-to-reference-btn:hover {
   color: var(--background-color);
-  background-color: var(--rp-button-hover-color);
+  background-color: var(--inpage-text-highlight-color);
 }
 
 .back-to-reference-btn:focus {

@@ -74,10 +74,11 @@ function toggleColorScheme() {
 
 function addBugReportForm() {
     const theme = document.documentElement.getAttribute("data-theme");
-    // Create the button element
+    
+    // Create the button element(the right bottom button)
     const button = document.createElement("button");
     button.setAttribute("type", "button");
-    button.setAttribute("class", "btn btn-primary");
+    button.setAttribute("class", "btn btn-primary hover-rp-button");
     button.setAttribute("id", "openForm");
     button.appendChild(document.createTextNode("Open Issue"));
 
@@ -167,7 +168,7 @@ function addBugReportForm() {
     submitButton.setAttribute("type", "submit");
     submitButton.setAttribute("class", "btn btn-primary");
     submitButton.setAttribute("id", "modal-submit"); // This id will use in submitBugReport function !!!
-    submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;");
+    // submitButton.setAttribute("style", "background-color: #b31b1b;", "border-color: #690604;");
     submitButton.appendChild(document.createTextNode("Submit in Github"));
 
     // Update: ScreenReader Submit Buttons. Needed for Submit without Github Function.
@@ -476,13 +477,16 @@ function handleClickTOCToggle(e) {
     const arrowIcon= document.getElementById('arrowIcon');
     const toc = document.querySelector('.ltx_toclist');
     const toc_main = document.querySelector('.ltx_page_main>.ltx_TOC');
-    const content=document.querySelector('.ltx_content');
+    const content=document.querySelector('.ltx_page_content');
     if (e.target == listIcon) {
         //show toc and arrowIcon
         toc.classList.remove('hide');
+        // toc.classList.add('show');
         arrowIcon.classList.remove('hide');
+        // arrowIcon.classList.add('show');
         listIcon.classList.add('hide');
-        toc_main.style.backgroundColor = 'var(--background-color)';
+        // listIcon.classList.remove('show');
+        // toc_main.style.backgroundColor = 'var(--background-color)';
         //change 
         /*toc_main.style.flex='1';
         content.style.flex='5';*/
@@ -492,11 +496,14 @@ function handleClickTOCToggle(e) {
     if (e.target == arrowIcon) {
         //hide toc and arrowIcon
         toc.classList.add('hide');
+        // toc.classList.remove('show');
         arrowIcon.classList.add('hide');
+        // arrowIcon.classList.remove('show');
         listIcon.classList.remove('hide');
-        toc_main.style.backgroundColor = 'transparent';
+        // listIcon.classList.add('show');
+        // toc_main.style.backgroundColor = 'transparent';
         toc_main.style.flex='0 0 3rem';
-        content.style.flex='1';
+        content.style.flex='1 1 100%';
     }
 }
 
@@ -524,10 +531,26 @@ function makeGithubBody(issueData) {
     return body;
 }
 
-function handleClickMobileTOC(){
+function handleClickMobileTOC(e){
     const tocItems = document.querySelectorAll('.ltx_ref');
-    const toc = document.querySelector('.ltx_page_main >.ltx_TOC');
+    const toc = document.querySelector('.ltx_page_main >.ltx_TOC.mobile')
+    // //const toggle=document.getElementById('navbar-mobile-toggler')
+    // const toggle=document.querySelector('.navbar-toggler-icon');
 
+    // if(e.target==toggle){
+    //     if(toc.classList.contains('show')){
+    //         //toc.setAttribute('display','none');
+    //         //toc.style.setProperty('display','none','important');
+    //         toc.classList.add('hide');
+    //         toc.classList.remove('show');
+    //     }
+    //     else{
+    //         //toc.setAttribute('display','block');
+    //         //toc.style.setProperty('display','block','important');
+    //         toc.classList.remove('hide');
+    //         toc.classList.add('show');
+    //     }
+    // }
     tocItems.forEach(item => {
         item.addEventListener('click', () => {
             toc.classList.remove('show');
@@ -555,6 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     document.onmouseup = (e) => handleMouseUp(e, smallReportButton);
+    document.ontouchend = (e) => handleMouseUp(e, smallReportButton);
 
     let lastScrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop;
     window.addEventListener('scroll', () => {
@@ -568,27 +592,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById('myFormContent').onsubmit = submitBugReport;
-
-
-    // var noteMarks = document.querySelectorAll('.ltx_note_mark');
-
-    // noteMarks.forEach(function(noteMark) {
-    //   noteMark.addEventListener('click', function() {
-    //     var parentNote = noteMark.closest('.ltx_note');
-    //     if (parentNote) {
-    //       if (parentNote.classList.contains('active')) {
-    //         parentNote.classList.remove('active');
-    //       } else {
-    //         // Remove active class from all other notes
-    //         var allNotes = document.querySelectorAll('.ltx_note');
-    //         allNotes.forEach(function(innerNote) {
-    //           innerNote.classList.remove('active');
-    //         });
-            
-    //         // Add active class to the clicked note
-    //         parentNote.classList.add('active');
-    //       }
-    //     }
-    //   });
-    // });
 });

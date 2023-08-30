@@ -8,42 +8,74 @@
   --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
   --text-color: black;
+  --link-text-color: #1e8bc3;
 }
 
 
  /* 
  https://info.arxiv.org/brand/colors.html
  #1e8bc3    Link Blue 
+ #a5d6fe;   Open Blue
+ #f9f7f7    Warm Wash
  */
 [data-theme=dark] {
   --note-highlight-color: #6b6459; /* Open Blue */ 
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
-  --inpage-text-highlight-color:#1f5e96;
-  --text-color: #FFFFFF;
+  --inpage-text-highlight-color:#a5d6fe;
+  --text-color: #f9f7f7;
+  --link-text-color: #1e8bc3;
   --background-color: #282623;
-  /* --inpage-text-highlight-color:#a5d6fe;  Open Blue */
+  /* --link-text-color: #282623; */
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
 }
 
-/* Hover for button */
-/* .hover-rp-button:hover{
-  text-decoration: underline;
-  background-color: var(--rp-button-hover-color);
-} */
+/* Hover Overwrite Section */
+
 #modal-submit{
   background-color: #b31b1b;
   border-color: #690604;
 }
 
-#openForm:hover,
-#modal-submit:hover{
-  text-decoration: underline;
-  background-color: var(--rp-button-hover-color);
+.ltx_cite>.ltx_ref:hover,
+.ltx_p>.ltx_ref:hover {
+  text-decoration: none;
 }
 
-/* Overwrite font */
+
+.ar5iv-footer-button:hover {
+  color: var(--inpage-text-highlight-color);
+  text-decoration: underline;
+}
+
+/* Hover for modal button. */
+@media (min-width: 768px) { 
+  #openForm:hover, #modal-submit:hover, small-report-button:hover {
+    text-decoration: underline;
+    background-color: var(--rp-button-hover-color);
+    color: black;
+  }
+}
+
+@media (max-width: 767px) {
+  #openForm:active, #modal-submit:active, small-report-button:hover {
+    text-decoration: underline;
+    background-color: var(--rp-button-hover-color);
+    color: black;
+  }
+}
+
+/* Overwrite font color*/
+
 .btn {
   font: var(--other-font-family);
+}
+
+.ltx_TOC>h6, .ltx_title_abstract {
+  color: var(--text-color);
+}
+
+.ltx_TOC>.ltx_toclist>.ltx_tocentry>a.ltx_ref {
+  color: var(--text-color);
 }
 
 .form-text{
@@ -73,7 +105,8 @@ textarea.form-control{
   display: none;
 }
 
-/* For Footnote */
+/* CSS for Footnote */
+
 @media only screen and (min-width: 104.5rem){
   .ltx_note_outer {
       display: block;
@@ -83,6 +116,36 @@ textarea.form-control{
       float: right;
       padding-bottom: 2rem;
       padding-right: 2rem;
+  }
+}
+
+@media only screen and (max-width: 104.5rem){
+  .ltx_note_content {
+      overflow-wrap: break-word;
+      width: 90%;
+  }
+
+  .ltx_note:not(.ltx_note_frontmatter):not(.ltx_role_affiliationmark):not(.ltx_role_footnotemark):active>.ltx_note_outer,
+    .ltx_note:not(.ltx_note_frontmatter):not(.ltx_role_affiliationmark):not(.ltx_role_footnotemark):hover>.ltx_note_outer {
+        display: block;
+        opacity: 100;
+        z-index: 100;
+        position: absolute;
+        top: 0;
+        margin: auto;
+        padding: 2rem;
+        background-color: var(--background-color);
+        border-width: .1rem 0;
+        border-bottom: double;
+        border-top: double
+  }
+}
+
+@media only screen and (min-width: 104.5rem){
+  .ltx_note_content>.ltx_note_mark {
+    display: block;
+    opacity: 100;
+    margin-top: -1.8rem;
   }
 }
 
@@ -109,7 +172,29 @@ textarea.form-control{
   }
 }
 
+.ltx_note>.ltx_note_mark {
+  text-decoration: underline;
+}
 
+.ltx_note>.ltx_note_mark:hover {
+  text-decoration: none;
+}
+
+/* CSS for Footnote End*/
+
+
+/* Hover */
+
+.ltx_TOC>.ltx_toclist>.ltx_tocentry>a.ltx_ref:hover {
+  color: var(--inpage-text-highlight-color);
+}
+.ltx_tag_bibitem:active~*,
+.ltx_tag_bibitem:hover~*,
+.ltx_tag_bibitem~:active,
+.ltx_tag_bibitem~:hover {
+    /* do nothing */
+    background-color: var(--background-color);
+}
 
 header {
   background-color: #b31313;
@@ -237,6 +322,9 @@ footer p, footer ul {
   }
   .banner {
     display: none;
+  }
+  #footer{
+    margin-bottom: 8vh;
   }
 }
 
@@ -606,12 +694,13 @@ body:after {
   user-select: none;
   background-color: var(--background-color);
   color: var(--text-color);
-  flex-basis: 20vw;
-  flex-grow: 1;  /* It does grow */
-  flex-shrink: 0;  /* It doesn't shrink */
-  min-width: 200px;  /* Minimum width */
+  flex: 0 0 3rem;
   font: var(--toc-font-family);
-  /* display: block; */
+}
+
+.ltx_page_main >.ltx_TOC.active{
+  flex:1 0 20%;
+  min-width: 200px;
 }
 
 #toc_header{
@@ -641,13 +730,14 @@ body:after {
 }
 
 [data-theme=dark] .ltx_TOC {
-  background-color: #0d1117;
+  /* background-color: #0d1117; */
+  background-color: var(--background-color);
   color: #c9d1d9;
 }
 
-[data-theme=dark] .ltx_ref {
+/* [data-theme=dark] .ltx_ref {
   color: var(--text-color);
-}
+} */
 
 .ltx_tocentry.ltx_tocentry_section {
   margin-bottom: 0.5rem;
@@ -660,7 +750,7 @@ body:after {
 }
 
 .ltx_toclist.ltx_toclist_section{
-  display: none;
+  display: none !important;
 }
 
 /* Hover for TOC */
@@ -747,7 +837,7 @@ body:after {
 
 .back-to-reference-btn:hover {
   color: var(--background-color);
-  background-color: var(--border-light-color);
+  background-color: var(--inpage-text-highlight-color);
 }
 
 .back-to-reference-btn:focus {
@@ -829,6 +919,7 @@ body:after {
 
   .ltx_page_main{
     padding:0;
+    display: inline-block;
   }
 
   .mob_header{
@@ -837,6 +928,15 @@ body:after {
   .desktop_header{
     display:none;
   }
+
+  section{
+    scroll-margin-top: 85px;
+  }
+
+  .ltx_bibitem {
+    scroll-margin-top: 80px; /* equal to the height of your fixed header */
+  }
+
 }
  
 .hide{

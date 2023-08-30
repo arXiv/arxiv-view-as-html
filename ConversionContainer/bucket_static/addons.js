@@ -187,9 +187,12 @@ let unwrap_nav = () => {
       </div>`;
     olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
 
-    if(window.innerWidth <719){
+    if(window.innerWidth <=719){
       toc.classList.add('mobile');
       toc.classList.add('collapse');
+    }
+    else{
+      toc.classList.add('active');
     }
 }
 
@@ -213,10 +216,11 @@ document.addEventListener("DOMContentLoaded", () => {
     create_footer();
 
     window.addEventListener('resize', function() {
-      if (window.innerWidth <719) {
+      if (window.innerWidth <=719) {
         const toc= document.querySelector('.ltx_page_main>.ltx_TOC');
         toc.classList.add('mobile');
         toc.classList.add('collapse');
+        toc.classList.remove('active');
       }
       else{
         //TOC is shown
@@ -224,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toc_m.classList.remove('mobile');
         toc_m.classList.remove('collapse');
         toc_m.classList.remove('show');
-        toc_m.style.flex="1 0 20%";
+        toc_m.classList.add('active');
         //arrow Icon is shown
         const arrowIcon = document.getElementById('arrowIcon');
         arrowIcon.classList.remove('hide');

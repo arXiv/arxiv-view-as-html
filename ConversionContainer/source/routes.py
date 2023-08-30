@@ -45,6 +45,13 @@ def _unwrap_batch_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str
         data['bucket']
     )
 
+def _unwrap_single_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
+    return {
+        payload['id'],
+        payload['blob'],
+        payload['bucket']
+    }
+
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
 @blueprint.route('/process', methods=['POST'])
@@ -71,6 +78,11 @@ def process_route () -> Response:
 @blueprint.route('/batch-convert', methods=['POST'])
 def batch_convert_route () -> Response:
     batch_process(*_unwrap_batch_conversion_payload(request.json))
+    return '', 200
+
+@blueprint.route('/single-convert', method=['POST'])
+def single_convert_route () -> Response:
+    batch_process(*_unwrap_single_conversion_payload(request.json))
     return '', 200
 
 @blueprint.route('/publish', methods=['POST'])

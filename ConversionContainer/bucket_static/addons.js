@@ -27,8 +27,8 @@ let create_header = () => {
             <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
         </a>
         <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
-            ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>' :
-                                  'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span>'}
+            ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span><a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.' :
+                                  'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> <a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
         </div>
     </div>`;
 
@@ -142,6 +142,7 @@ let create_footer = () => {
                 <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
             </ul>
             <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
+            <p>Have free development cycles? Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">list of packages that need conversion</a>, and welcome both feedback and developer contributions.</p>
         </div>
         <nav>
             ${night}

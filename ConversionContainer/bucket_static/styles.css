@@ -10,16 +10,8 @@
   --text-color: black;
   --link-text-color: #1e8bc3;
 }
-
-
- /* 
- https://info.arxiv.org/brand/colors.html
- #1e8bc3    Link Blue 
- #a5d6fe;   Open Blue
- #f9f7f7    Warm Wash
- */
 [data-theme=dark] {
-  --note-highlight-color: #6b6459; /* Open Blue */ 
+  --note-highlight-color: #6b6459; /* Open Blue */
   --toc-text-highlight-color: #a5d6fe; /* Open Blue */
   --inpage-text-highlight-color:#a5d6fe;
   --text-color: #f9f7f7;
@@ -48,7 +40,7 @@
 }
 
 /* Hover for modal button. */
-@media (min-width: 768px) { 
+@media (min-width: 768px) {
   #openForm:hover, #modal-submit:hover, small-report-button:hover {
     text-decoration: underline;
     background-color: var(--rp-button-hover-color);
@@ -220,7 +212,7 @@ svg.icon, [data-theme=dark] svg.icon {
   background-color: transparent !important;
   z-index: 1 !important;
   margin-left:2px;
-  
+
 }
 .header-message {
   border: none;
@@ -700,33 +692,32 @@ body:after {
 
 .ltx_page_main >.ltx_TOC.active{
   flex:1 0 20%;
-  min-width: 200px;
+  min-width: 18em;
 }
-
+.ltx_page_main > .ltx_TOC:not(.active) {
+  margin-right: -50px;
+}
+.ltx_page_main ol.ltx_toclist {
+  padding: 0 2em;
+}
 #toc_header{
   display: none;
 }
 
 .ltx_page_main {
   display: flex;
-  /*flex-wrap: wrap;*/
   padding:1em;
 }
 
 .ltx_page_main > .ltx_page_content {
-  /*flex:5;*/
   width: 100%;
-  /*display: flex;*/
   min-height: 80vh;
-  margin: 3em 0em;
-  padding-left: 2em;
+  margin: 3em auto;
   flex-grow: 0;  /* This allows the content to grow and consume remaining space */
   flex-shrink: 1;
   flex-basis: 80vw;  /* Initial size */
   overflow-x: auto;
   overflow-y: clip;
-  /*--main-width: 60rem;
-  --main-with-margin: 20rem;*/
 }
 
 [data-theme=dark] .ltx_TOC {
@@ -894,7 +885,7 @@ body:after {
     max-height: 60vh;
     overflow-y: scroll;
     margin-bottom: 0;
-    background-color: #f1f1f1; 
+    background-color: #f1f1f1;
     position: fixed;
     width:100%;
     z-index:1;
@@ -938,14 +929,14 @@ body:after {
   }
 
 }
- 
+
 .hide{
   display: none;
 }
 
  .collapse.show{
   display: block !important;
-} 
+}
 
 /*print style*/
 @media print {

@@ -80,7 +80,7 @@ def batch_convert_route () -> Response:
     batch_process(*_unwrap_batch_conversion_payload(request.json))
     return '', 200
 
-@blueprint.route('/single-convert', method=['POST'])
+@blueprint.route('/single-convert', methods=['POST'])
 def single_convert_route () -> Response:
     batch_process(*_unwrap_single_conversion_payload(request.json))
     return '', 200

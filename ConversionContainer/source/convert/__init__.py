@@ -7,6 +7,7 @@ from typing import Any, Tuple, Dict
 import logging
 import traceback
 import uuid
+from bs4 import BeautifulSoup
 
 from flask import current_app
 
@@ -66,7 +67,11 @@ def process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            _do_latexml(main, outer_bucket_dir, id)
+            tikz_error = _do_latexml(main, outer_bucket_dir, id)
+
+            if tikz_error:
+                logging.info(f"Inserting Tikz Warning")
+                _insert_tikz_warning(f'{outer_bucket_dir}/{id}.html')
             
             logging.info(f"Step 6: Upload html for {id}")
             if is_submission:
@@ -172,7 +177,7 @@ def _find_main_tex_source(path: str) -> str:
             f"Process to find main .tex file in {path} failed") from exc
 
 
-def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
+def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> bool:
     """
     Runs latexml on the .tex file at main_fpath and
     outputs the html at out_fpath.
@@ -187,6 +192,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         submission id of the article
     """
     LATEXML_URL_BASE = current_app.config['LATEXML_URL_BASE']
+    TIKZ_RE = re.compile(r'Error:[^\n]+tikz')
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
@@ -221,6 +227,36 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> None:
         raise GCPBlobError(
             f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
     os.remove(errpath)
+    if re.match(TIKZ_RE, completed_process.stdout):
+        return True
+    return False
+
+def _insert_tikz_warning (fpath: str) -> None:
+    """ This is the HTML for the closeable pop up warning for tikz papers """
+    popup_html = """
+        <div class="tikz-overlay"> 
+            <div class="tikz-popup"> 
+                <span class="tikz-close-btn" onclick="closePopup()">&times;</span> 
+                <p>
+                This paper uses the following packages that do not yet convert to HTML. These are known issues and are being worked on. Have free development cycles? [We love contributors].  
+                <br>[list of failed packages]
+                </p> 
+            </div> 
+        </div> 
+        
+        <script> 
+            function closePopup() {
+                document.querySelector('.tikz-overlay').style.display = 'none';
+            }
+        </script>
+    """
+
+    with open(fpath, 'w+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        soup.body.append(BeautifulSoup(popup_html, 'html.parser'))
+        html.truncate()
+        html.seek(0)
+        html.write(str(soup))
 
 def _clean_up (tar, id):
     os.remove(tar)

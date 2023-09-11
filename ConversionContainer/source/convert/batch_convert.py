@@ -19,6 +19,7 @@ from . import (
     _remove_ltxml, 
     _find_main_tex_source, 
     _do_latexml,
+    _insert_tikz_warning,
     _clean_up
 )
 
@@ -73,7 +74,11 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            _do_latexml(main, outer_bucket_dir, id)
+            tikz_error = _do_latexml(main, outer_bucket_dir, id)
+
+            if tikz_error:
+                logging.info(f"Inserting Tikz Warning")
+                _insert_tikz_warning(f'{outer_bucket_dir}/{id}.html')
 
             # Post process html
             logging.info(f"Step 6: Upload html for {id}")            

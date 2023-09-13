@@ -5,7 +5,9 @@ import os
 OUT_BUCKET_ARXIV_ID = os.environ['DOCUMENT_CONVERTED_BUCKET'] # Startup failure on miss
 IN_BUCKET_SUB_ID = os.environ['SUBMISSION_SOURCE_BUCKET'] # Startup failure on miss
 OUT_BUCKET_SUB_ID = os.environ['SUBMISSION_CONVERTED_BUCKET'] # Startup failure on miss
-QA_BUCKET_NAME = os.environ['QA_BUCKET'] # Startup failure on miss
+
+QA_BUCKET_SUB = os.environ['QA_BUCKET_SUB'] # Startup failure on miss
+QA_BUCKET_DOC = os.environ['QA_BUCKET_DOC']
 
 LATEXML_COMMIT = os.environ['LATEXML_COMMIT']
 

@@ -67,7 +67,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            tikz_error = _do_latexml(main, outer_bucket_dir, id)
+            tikz_error = _do_latexml(main, outer_bucket_dir, id, is_submission)
 
             if tikz_error:
                 logging.info(f"Inserting Tikz Warning")
@@ -177,7 +177,7 @@ def _find_main_tex_source(path: str) -> str:
             f"Process to find main .tex file in {path} failed") from exc
 
 
-def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> bool:
+def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> bool:
     """
     Runs latexml on the .tex file at main_fpath and
     outputs the html at out_fpath.
@@ -220,7 +220,10 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> bool:
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
     try:
-        bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_NAME'])
+        if is_submission:
+            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_SUB'])
+        else:
+            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_DOC'])
         errblob = bucket.blob(f"{sub_id}_stdout.txt")
         errblob.upload_from_filename(f"{sub_id}_stdout.txt")
     except Exception as exc:

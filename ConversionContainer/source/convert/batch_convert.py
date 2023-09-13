@@ -74,7 +74,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            tikz_error = _do_latexml(main, outer_bucket_dir, id)
+            tikz_error = _do_latexml(main, outer_bucket_dir, id, is_submission)
 
             if tikz_error:
                 logging.info(f"Inserting Tikz Warning")

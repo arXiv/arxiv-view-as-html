@@ -19,7 +19,7 @@ from . import (
     _remove_ltxml, 
     _find_main_tex_source, 
     _do_latexml,
-    _insert_tikz_warning,
+    _insert_missing_package_warning,
     _clean_up
 )
 
@@ -74,11 +74,11 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            tikz_error = _do_latexml(main, outer_bucket_dir, id, is_submission)
+            missing_packages = _do_latexml(main, outer_bucket_dir, id)
 
-            if tikz_error:
-                logging.info(f"Inserting Tikz Warning")
-                _insert_tikz_warning(f'{outer_bucket_dir}/{id}.html')
+            if missing_packages:
+                logging.info(f"Missing the following packages: {str(missing_packages)}")
+                _insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
 
             # Post process html
             logging.info(f"Step 6: Upload html for {id}")            

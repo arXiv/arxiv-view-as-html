@@ -7,7 +7,11 @@ from ..models.util import transaction
 
 from .db_queries import submission_has_html, \
     write_published_html
-from .buckets import move_sub_to_doc_bucket, delete_sub
+from .buckets import (
+    move_sub_to_doc_bucket, 
+    delete_sub,
+    move_sub_qa_to_doc_qa
+)
 
 def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
@@ -53,8 +57,11 @@ def publish (payload: Dict):
 
         # 4. 
         write_published_html (paper_id, version, submission_row, session)
+
+        # 5.
+        move_sub_qa_to_doc_qa (submission_id, paper_idv)
     
-        # 5. 
+        # 6. 
         delete_sub (submission_id)    
 
 

@@ -242,7 +242,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: boo
         errblob.upload_from_filename(f"{sub_id}_stdout.txt")
     except Exception as exc:
         raise GCPBlobError(
-            f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
+            f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_SUB'] if is_submission else current_app.config['QA_BUCKET_DOC']} failed in do_latexml") from exc
     os.remove(errpath)
     return _list_missing_packages(completed_process.stdout)
 

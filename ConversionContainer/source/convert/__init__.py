@@ -248,7 +248,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: boo
 
 def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
     """ This is the HTML for the closeable pop up warning for missing packages """
-    missing_packages_lis = list(map(lambda x: f"<li>failed: {x}</li>", missing_packages)).join("\n")
+    missing_packages_lis = "\n".join(map(lambda x: f"<li>failed: {x}</li>", missing_packages))
     popup_html = f"""
         <div class="package-alerts" role="alert">
             <button aria-label="Dismiss alert" onclick="closePopup()">

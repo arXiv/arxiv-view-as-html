@@ -247,7 +247,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: boo
     return _list_missing_packages(completed_process.stdout)
 
 def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
-    """ This is the HTML for the closeable pop up warning for tikz papers """
+    """ This is the HTML for the closeable pop up warning for missing packages """
     missing_packages_lis = list(map(lambda x: f"<li>failed: {x}</li>", missing_packages)).join("\n")
     popup_html = f"""
         <div class="package-alerts" role="alert">

@@ -3,7 +3,12 @@ import os
 import re
 import subprocess
 import shutil
-from typing import Any, Tuple, Dict
+from typing import (
+    Any,
+    List, 
+    Dict,
+    Optional
+)
 import logging
 import traceback
 import uuid
@@ -13,12 +18,18 @@ from flask import current_app
 
 from ..util import untar, id_lock
 from ..buckets.util import get_google_storage_client
-from ..buckets import download_blob, upload_dir_to_gcs, \
+from ..buckets import (
+    download_blob, 
+    upload_dir_to_gcs,
     upload_tar_to_gcs
+)
 from ..models.db import db
 from ..exceptions import *
-from .concurrency_control import \
-    write_start, write_success, write_failure
+from .concurrency_control import (
+    write_start, 
+    write_success, 
+    write_failure
+)
 
 def process(id: str, blob: str, bucket: str) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
@@ -67,11 +78,11 @@ def process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            tikz_error = _do_latexml(main, outer_bucket_dir, id)
+            missing_packages = _do_latexml(main, outer_bucket_dir, id, is_submission)
 
-            if tikz_error:
-                logging.info(f"Inserting Tikz Warning")
-                _insert_tikz_warning(f'{outer_bucket_dir}/{id}.html')
+            if missing_packages:
+                logging.info(f"Missing the following packages: {str(missing_packages)}")
+                _insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
             
             logging.info(f"Step 6: Upload html for {id}")
             if is_submission:
@@ -175,9 +186,13 @@ def _find_main_tex_source(path: str) -> str:
     except Exception as exc:
         raise MainTeXError(
             f"Process to find main .tex file in {path} failed") from exc
+    
+def _list_missing_packages (stdout: str) -> Optional[List[str]]:
+    MISSING_PACKAGE_RE = re.compile(r"Warning:missing_file:.+Can't\sfind\spackage\s(.+)\sat")
+    matches = MISSING_PACKAGE_RE.finditer(stdout)
+    return list(map(lambda x: x.group(1), matches)) or None
 
-
-def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> bool:
+def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> Optional[List[str]]:
     """
     Runs latexml on the .tex file at main_fpath and
     outputs the html at out_fpath.
@@ -192,7 +207,6 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> bool:
         submission id of the article
     """
     LATEXML_URL_BASE = current_app.config['LATEXML_URL_BASE']
-    TIKZ_RE = re.compile(r'Error:[^\n]+tikz')
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
@@ -220,34 +234,39 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str) -> bool:
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)
     try:
-        bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_NAME'])
+        if is_submission:
+            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_SUB'])
+        else:
+            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_DOC'])
         errblob = bucket.blob(f"{sub_id}_stdout.txt")
         errblob.upload_from_filename(f"{sub_id}_stdout.txt")
     except Exception as exc:
         raise GCPBlobError(
-            f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_NAME']} failed in do_latexml") from exc
+            f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_SUB'] if is_submission else current_app.config['QA_BUCKET_DOC']} failed in do_latexml") from exc
     os.remove(errpath)
-    if re.match(TIKZ_RE, completed_process.stdout):
-        return True
-    return False
+    return _list_missing_packages(completed_process.stdout)
 
-def _insert_tikz_warning (fpath: str) -> None:
-    """ This is the HTML for the closeable pop up warning for tikz papers """
-    popup_html = """
-        <div class="tikz-overlay"> 
-            <div class="tikz-popup"> 
-                <span class="tikz-close-btn" onclick="closePopup()">&times;</span> 
-                <p>
-                This paper uses the following packages that do not yet convert to HTML. These are known issues and are being worked on. Have free development cycles? [We love contributors].  
-                <br>[list of failed packages]
-                </p> 
-            </div> 
-        </div> 
-        
+def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
+    """ This is the HTML for the closeable pop up warning for missing packages """
+    missing_packages_lis = "\n".join(map(lambda x: f"<li>failed: {x}</li>", missing_packages))
+    popup_html = f"""
+        <div class="package-alerts" role="alert">
+            <button aria-label="Dismiss alert" onclick="closePopup()">
+                <span aria-hidden="true"><svg role="presentation" width="30" height="30" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+                <path d="M0.549989 4.44999L4.44999 0.549988L43.45 39.55L39.55 43.45L0.549989 4.44999Z" />
+                <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
+                </svg></span>
+            </button>
+            <p>This paper uses the following packages that do not yet convert to HTML. These are known issues and are being worked on. Have free development cycles? <a href="https://github.com/brucemiller/LaTeXML/issues" target="_blank">We welcome contributors</a>.</p>
+            <ul>
+                {missing_packages_lis}
+            </ul>
+        </div>
+
         <script> 
-            function closePopup() {
-                document.querySelector('.tikz-overlay').style.display = 'none';
-            }
+            function closePopup() {{
+                document.querySelector('.package-alerts').style.display = 'none';
+            }}
         </script>
     """
 

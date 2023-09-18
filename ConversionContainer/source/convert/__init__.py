@@ -270,7 +270,7 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
         </script>
     """
 
-    with open(fpath, 'w+') as html:
+    with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         soup.body.append(BeautifulSoup(popup_html, 'html.parser'))
         html.truncate()

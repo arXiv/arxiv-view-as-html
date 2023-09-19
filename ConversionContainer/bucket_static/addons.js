@@ -142,7 +142,7 @@ let create_footer = () => {
                 <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
             </ul>
             <p>Our team has already identified <a class="ltx_ref" href=https://github.com/arXiv/html_feedback/issues target="_blank">the following issues</a>. We appreciate your time reviewing and reporting rendering errors we may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability should not be a barrier to accessing research in your field. Thank you for your continued support in making arXiv more accessible and championing open access above all and for all.</p>
-            <p>Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">list of packages that need conversion</a>, and welcome <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">developer contributions</a>.</p>
+            <p>Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">list of packages that need conversion</a>, and welcome <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">developer contributions</a>.</p>
         </div>
         <nav>
             ${night}

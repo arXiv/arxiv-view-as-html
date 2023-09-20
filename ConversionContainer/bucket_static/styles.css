@@ -279,7 +279,9 @@ footer h2 {
 footer p, footer ul {
   font-size: 0.9em;
 }
-
+footer .keyboard-glossary {
+  margin-bottom: 3em;
+}
 .ltx_page_footer {
   font-family: arial, tahoma, sans-serif;
   user-select: none;

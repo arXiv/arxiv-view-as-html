@@ -6,7 +6,6 @@ from flask import current_app
 
 from ..buckets import download_blob, \
     upload_dir_to_gcs, delete_blob
-from ..buckets.util import get_google_storage_client
 from ..util import untar
 from .util import rename
 
@@ -24,9 +23,10 @@ def move_sub_to_doc_bucket (submission_id: int, paper_idv: str):
 def move_sub_qa_to_doc_qa (submission_id: str, paper_idv: str):
     blob_name = f'{submission_id}_stdout.txt'
     out_name = f'{paper_idv}_stdout.txt'
-    storage_client.bucket(current_app.config['QA_BUCKET_SUB']).copy_blob(
-        get_google_storage_client().blob(blob_name), 
-        get_google_storage_client().bucket(current_app.config['QA_BUCKET_DOC']), 
+    bucket = storage_client.bucket(current_app.config['QA_BUCKET_SUB'])
+    bucket.copy_blob(
+        bucket.blob(blob_name), 
+        storage_client.bucket(current_app.config['QA_BUCKET_DOC']), 
         out_name)
 
 def delete_sub (submission_id: int):

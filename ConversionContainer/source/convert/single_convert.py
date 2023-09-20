@@ -23,12 +23,7 @@ from . import (
     _clean_up
 )
 
-def batch_process(id: str, blob: str, bucket: str) -> bool:
-
-    if has_doc_been_tried(id):
-        return
-
-    is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
+def single_convert_process (id: str, blob: str, bucket: str) -> bool:
 
     """ File system we will be using """
     safe_name = str(uuid.uuid4()) # In case two machines download before locking
@@ -58,7 +53,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             
             # Write to DB that process has started
             logging.info(f"Write start process to db")
-            write_start(id, tar_gz, is_submission)
+            write_start(id, tar_gz, False)
     
             # Untar file ./[tar] to ./extracted/id/
             logging.info(f"Step 2: Untar {id}")
@@ -74,7 +69,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            missing_packages = _do_latexml(main, outer_bucket_dir, id)
+            missing_packages = _do_latexml(main, outer_bucket_dir, id, False)
 
             if missing_packages:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
@@ -84,12 +79,12 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
             logging.info(f"Step 6: Upload html for {id}")            
             upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
             
-            write_success(id, tar_gz, is_submission)
+            write_success(id, tar_gz, False)
     except:
         logging.info(f'Conversion unsuccessful')
         traceback.print_exc()
         try:
-            write_failure(id, tar_gz, is_submission)
+            write_failure(id, tar_gz, False)
         except Exception as e:
             logging.info(f'Failed to write failure for {id} with {e}')
     finally:

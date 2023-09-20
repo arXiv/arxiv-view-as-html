@@ -17,7 +17,7 @@ from google.auth.transport import requests
 from .authorize import authorize_user_for_submission
 from .poll import poll_submission
 from .util import untar, clean_up
-from .exceptions import AuthError
+from .exceptions import AuthError, UnauthorizedError
 
 blueprint = Blueprint('routes', __name__, '')
 
@@ -91,18 +91,33 @@ def get_static (submission_id: int, path: str):
 
 
 @blueprint.app_errorhandler(BadRequest)
+@cross_origin(supports_credentials=True)
 def handle_bad_request(e):
     # TODO: 404 Page for submissions?
     logging.warning(f'Error: {e}')
-    return 'This page does not exist', 404
+    return 'Internal Server Error', 500
+
+@blueprint.app_errorhandler(AuthError)
+@cross_origin(supports_credentials=True)
+def handle_auth_error(e):
+    logging.warning(f'Error {e}')
+    return 'You do not have access to this page', 403
+
+@blueprint.app_errorhandler(AuthError)
+@cross_origin(supports_credentials=True)
+def handle_unauth_error(e):
+    logging.warning(f'Error {e}')
+    return 'You do not have access to this page', 403
 
 @blueprint.app_errorhandler(500)
+@cross_origin(supports_credentials=True)
 def handle_500(e):
     # TODO: 404 Page for submissions?
     logging.warning(f'Error: {e}')
-    return 'This page does not exist', 404
+    return 'Internal Server Error', 500
 
 @blueprint.app_errorhandler(404)
+@cross_origin(supports_credentials=True)
 def handle_404(e):
     # TODO: 404 Page for submissions?
     logging.warning(f'Error: {e}')

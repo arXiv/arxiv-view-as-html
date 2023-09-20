@@ -16,222 +16,240 @@ let create_favicon = () => {
 }
 
 let create_header = () => {
-    let header = document.createElement('header');
+    let desktop_header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
-    // if (id === 'submission') {
-    //     header.innerHTML =
-    //     '<a href="#main" class="skip">Skip to main content</a> \
-    //     <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-    //     <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
-    //     <div role="banner" class="header-message"> \
-    //         <strong>Experimental HTML</strong>.Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable. \
-    //     </div> \
-    //     <div></div>';
-    // } else {
-    //     header.innerHTML =
-    //     `<a href="#main" class="skip">Skip to main content</a> \
-    //     <img src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg" alt="logo" role="presentation" class="logo"> \
-    //     <img src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg" alt="logo" role="presentation" class="logomark"> \
-    //     <div role="banner" class="header-message"> \
-    //         <strong>Experimental HTML</strong>. Report rendering errors with the "Open Issue" button. <a href="#footer">Reference all keyboard commands</a> in the footer. \
-    //     </div>`;
-    // }
 
-    var LogoBanner = document.createElement('div');
+    var LogoBanner = `
+    <div style="display: flex; width: 60%;">
+        <a href="https://arxiv.org/" style="text-decoration: none; width:80px">
+            <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
+            <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+        </a>
+        <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
+            ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span><a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.' :
+                                  'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> <a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
+        </div>
+    </div>`;
 
-    // Create full size logo for desktop
-    var logoImage = document.createElement('img');
-    logoImage.alt = 'logo';
-    logoImage.className = 'logo';
-    logoImage.setAttribute('role', 'presentation');
-    logoImage.style.backgroundColor = 'transparent';
-    logoImage.src = "https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg";
 
-    // Create logomark image for mobile
-    var logomarkImage = document.createElement('img');
-    logomarkImage.alt = 'logo';
-    logomarkImage.className = 'logomark';
-    logomarkImage.setAttribute('role', 'presentation');
-    logomarkImage.style.backgroundColor='transparent'
-    logomarkImage.src = 'https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg';
+    var Links = `
+        <div style="display: inline-flex; align-items: center;">
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Give Feedback</a>
+            <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Open Issue</a>
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>
 
-    // Create header message
-    var headerMessage = document.createElement('div');
-    headerMessage.className = 'header-message';
-    headerMessage.setAttribute('role', 'banner');
-    headerMessage.style.paddingLeft='15px';
-    headerMessage.style.paddingTop='5px';
-    if (id === 'submission') {
-        headerMessage.innerHTML = 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to enable accessible section reporting links and Alt+Shift+Y to disable.</span>'
-    }else{
-        headerMessage.innerHTML = 'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span>'
-    }
+            <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
+                <span class="color-scheme-icon"></span>
+            </a>
+        </div>`;
 
-    LogoBanner.appendChild(logoImage);
-    LogoBanner.appendChild(logomarkImage);
-    LogoBanner.appendChild(headerMessage);
-    LogoBanner.style.display = 'flex';
-    LogoBanner.style.width = '60%';
+    desktop_header.innerHTML = LogoBanner + Links;
+    desktop_header.classList.add('desktop_header');
+    document.body.insertBefore(desktop_header, document.body.firstChild);
+};
 
-    var Links = document.createElement('div');
+let create_mobile_header = () => {
+    let mob_header = document.createElement('header');
+    let ABS_URL_BASE = 'https://arxiv.org/abs';
+    let id = window.location.pathname.split('/')[2];
 
-    var commandLink = document.createElement('a');
-    commandLink.setAttribute('class', 'ar5iv-footer-button hover-effect');
-    commandLink.style.color = 'white'
-    commandLink.href = "#footer";
-    commandLink.textContent = 'Keyboard Commands';
-
-    var issueLink = document.createElement('a');
-    issueLink.setAttribute('class', 'ar5iv-footer-button hover-effect');
-    issueLink.setAttribute('target', '_blank');
-    issueLink.style.color = 'white'
-    issueLink.textContent = 'Open Issue';
-    issueLink.href = '#myForm';
-    issueLink.addEventListener('click', function(event) {
-        event.preventDefault();
-        var modal = document.getElementById('myForm');
-        modal.style.display = 'block';
-        bugReportState.setInitiateWay("Header");
-      });
-
-    var night = document.createElement('a');
-    night.setAttribute('class', 'ar5iv-toggle-color-scheme');
-    night.setAttribute('href', 'javascript:toggleColorScheme()');
-    night.setAttribute('title', 'Toggle ar5iv color scheme');
-    var nightSpan = document.createElement('span');
-    nightSpan.setAttribute('class', 'color-scheme-icon');
-    night.appendChild(nightSpan);
-    night.style.float = 'right'
-
-    Links.appendChild(commandLink);
-    Links.appendChild(issueLink);
-    Links.appendChild(night);
-    Links.style.display = 'inline-flex';
-    Links.style.alignItems = 'center';
-
-    document.body.insertBefore(header, document.body.firstChild);
-    header.appendChild(LogoBanner)
-    header.appendChild(Links)
+    var mobile_header= `
+    <div class="container-fluid">
+    <a class="navbar-brand" href="https://arxiv.org/" style="text-decoration: none; width:80px">
+      <img alt="logo" class="logo" role="presentation" style="background-color: transparent;"
+        src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
+      <img alt="logo" class="logomark" role="presentation" style="background-color: transparent; margin-left:40px;"
+        src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+    </a>
+        <!--toc button-->
+        <div class='subcontainer-fluid'>
+          <button class="navbar-toggler ar5iv-footer-button" type="button" data-bs-theme="dark" data-bs-toggle="collapse" aria-expanded="false"
+            data-bs-target=".ltx_page_main >.ltx_TOC.mobile" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation" style="border:none; margin-right: 0em;">
+            <span class="navbar-toggler-icon" style="width:1em;height:1em;margin-top: 0.1em;"></span>
+          </button>          
+          <!--back to abstract-->
+          <!-- <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; display:inline-flex; flex-direction: column; align-items:center; text-align:center" href="#"> -->
+            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}"> 
+            <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" viewBox="0 0 512 512" style="background-color:transparent; z-index:2">
+                <style>svg{fill:rgb(255, 255, 255)}</style>
+                <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/>
+            </svg>
+            <!-- <span style="font-size: 0.75em;">Abstract</span> -->
+            </a>
+          <!--dark mode-->
+          <a class="nav-link ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()"
+            title="Toggle ar5iv color scheme" style="padding: 0.6rem;margin-top: 0rem;">
+            <span class="color-scheme-icon"></span>
+          </a>
+      </div>
+  </div>
+    `;
+    mob_header.innerHTML=mobile_header
+    mob_header.classList.add('navbar');
+    mob_header.classList.add('bg-body-tertiary');
+    mob_header.classList.add('mob_header');
+    document.body.insertBefore(mob_header, document.body.firstChild);
 }
+
+let delete_footer = () => document.querySelector('footer').remove();
 
 let create_footer = () => {
     let footer = document.createElement('footer');
     let ltx_page_footer = document.createElement('div');
+    ltx_page_footer.setAttribute('class', 'ltx_page_footer');
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
-    footer.innerHTML =
-    '<div class="keyboard-glossary ltx_page_content"> \
-        <h2>Keyboard commands and instructions for reporting errors</h2> \
-        <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p> \
-        <ul> \
-            <li>Use the "Open Issue" button.</li> \
-            <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li> \
-            <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li> \
-            <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li> \
-        </ul> \
-        <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p> \
-    </div>';
 
-    var night = document.createElement('a');
-    night.setAttribute('class', 'ar5iv-toggle-color-scheme');
-    night.setAttribute('href', 'javascript:toggleColorScheme()');
-    night.setAttribute('title', 'Toggle ar5iv color scheme');
+    var night = `
+        <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme">
+            <span class="color-scheme-icon"></span>
+        </a>`;
 
-    var nightSpan = document.createElement('span');
-    nightSpan.setAttribute('class', 'color-scheme-icon');
-    night.appendChild(nightSpan);
+    var copyLink = `
+        <a class="ar5iv-footer-button" href="https://arxiv.org/help/license" target="_blank">Copyright</a>`;
 
-    // Create the second link with class "ar5iv-footer-button" for "Copyright"
-    var copyLink = document.createElement('a');
-    copyLink.setAttribute('class', 'ar5iv-footer-button');
-    copyLink.setAttribute('href', 'https://arxiv.org/help/license');
-    copyLink.setAttribute('target', '_blank');
-    copyLink.appendChild(document.createTextNode('Copyright'));
+    var policyLink = `
+        <a class="ar5iv-footer-button" href="https://arxiv.org/help/policies/privacy_policy" target="_blank">Privacy Policy</a>`;
 
-    // Create the third link with class "ar5iv-footer-button" for "Privacy Policy"
-    var policyLink = document.createElement('a');
-    policyLink.setAttribute('class', 'ar5iv-footer-button');
-    policyLink.setAttribute('href', 'https://arxiv.org/help/policies/privacy_policy');
-    policyLink.setAttribute('target', '_blank');
-    policyLink.appendChild(document.createTextNode('Privacy Policy'));
+    var HTMLLink = `
+        <a class="ar5iv-footer-button" href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why HTML?</a>`;
 
-    var HTMLLink = document.createElement('a');
-    HTMLLink.setAttribute('class', 'ar5iv-footer-button');
-    HTMLLink.setAttribute('href', 'https://info.arxiv.org/about/accessible_HTML.html');
-    HTMLLink.setAttribute('target', '_blank');
-    HTMLLink.appendChild(document.createTextNode('Why HTML?'));
+    var TimeLogo = `
+        <div class="ltx_page_logo">
+            Generated on Wed Dec 14 18:01:44 2022 by
+            <a href="https://math.nist.gov/~BMiller/LaTeXML/" class="ltx_LaTeXML_logo">
+                <span style="letter-spacing: -0.2em; margin-right: 0.1em;">
+                    L
+                    <span style="font-size: 70%; position: relative; bottom: 2.2pt;">A</span>
+                    T
+                    <span style="position: relative; bottom: -0.4ex;">E</span>
+                </span>
+                <span class="ltx_font_smallcaps">xml</span>
+                <img alt="[LOGO]" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg==">
+            </a>
+        </div>`;
 
-    var TimeLogo = document.createElement('div');
-    TimeLogo.setAttribute('class','ltx_page_logo');
-    // Create the timestamp
-    var timestamp = document.createTextNode('Generated on Wed Dec 14 18:01:44 2022 by ');
-    TimeLogo.appendChild(timestamp);
+    footer.innerHTML = `
+        <div class="keyboard-glossary">
+            <h2>Instructions for reporting errors</h2>
+            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
+            <ul>
+                <li>Use the "Open Issue" button.</li>
+                <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
+                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
+                <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
+            </ul>
+            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
+            <p>Have free development cycles? Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">list of packages that need conversion</a>, and welcome both feedback and developer contributions.</p>
+        </div>
+        <nav>
+            ${night}
+            ${copyLink}
+            ${policyLink}
+            ${HTMLLink}
+        </nav>
+    `;
 
-    var logoLink = document.createElement('a');
-    logoLink.href = 'https://math.nist.gov/~BMiller/LaTeXML/';
-    logoLink.setAttribute('class','ltx_LaTeXML_logo');
-
-    var logoSpan1 = document.createElement('span');
-    logoSpan1.style.letterSpacing = '-0.2em';
-    logoSpan1.style.marginRight = '0.1em';
-
-    var letterL = document.createTextNode('L');
-    logoSpan1.appendChild(letterL);
-
-    var letterA = document.createElement('span');
-    letterA.style.fontSize = '70%';
-    letterA.style.position = 'relative';
-    letterA.style.bottom = '2.2pt';
-    letterA.appendChild(document.createTextNode('A'));
-    logoSpan1.appendChild(letterA);
-
-    var letterT = document.createTextNode('T');
-    logoSpan1.appendChild(letterT);
-
-    var letterE = document.createElement('span');
-    letterE.style.position = 'relative';
-    letterE.style.bottom = '-0.4ex';
-    letterE.appendChild(document.createTextNode('E'));
-    logoSpan1.appendChild(letterE);
-
-    var logoSpan2 = document.createElement('span');
-    logoSpan2.setAttribute('class', 'ltx_font_smallcaps');
-    logoSpan2.appendChild(document.createTextNode('xml'));
-
-    var logoImage = document.createElement('img');
-    logoImage.alt = '[LOGO]';
-    logoImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg==';
-    logoLink.appendChild(logoSpan1);
-    logoLink.appendChild(logoSpan2);
-    logoLink.appendChild(logoImage);
-    TimeLogo.appendChild(logoLink);
+    ltx_page_footer.innerHTML = TimeLogo;
+    ltx_page_footer.setAttribute('class', 'ltx_page_footer');
 
     document.body.appendChild(ltx_page_footer);
     document.body.appendChild(footer);
-    //footer.appendChild(ltx_page_footer);
-    ltx_page_footer.appendChild(night)
-    ltx_page_footer.appendChild(copyLink)
-    ltx_page_footer.appendChild(policyLink)
-    ltx_page_footer.appendChild(HTMLLink)
-    ltx_page_footer.appendChild(TimeLogo)
-    ltx_page_footer.setAttribute('class', 'ltx_page_footer');
+};
+
+let unwrap_nav = () => {
+    let nav = document.querySelector('.ltx_page_navbar');
+    document.querySelector('#main').prepend(...nav.childNodes);
+    nav.remove();
+
+    let toc = document.querySelector('.ltx_TOC');
+    let toc_header = document.createElement('h2');
+    toc_header.innerText = 'Table of Contents';
+    toc_header.id = 'toc_header';
+    toc_header.setAttribute('class', 'sr-only');
+    toc.prepend(toc_header);
+    toc.setAttribute('aria-labelledby', 'toc_header');
+
+    const olElement = document.querySelector('.ltx_toclist');
+    const listIconHTML = `
+      <div id="listIcon" type="button" class='hide'>
+          <svg width='17px' height='17px' viewBox="0 0 512 512" style="pointer-events: none;">
+          <path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z"/>
+          </svg>
+      </div>`;
+
+      const arrowIconHTML = `
+      <div id="arrowIcon" type="button">
+          <svg width='17px' height='17px' viewBox="0 0 448 512" style="pointer-events: none;">
+          <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/>
+          </svg>
+      </div>`;
+    olElement.insertAdjacentHTML('beforebegin', listIconHTML + arrowIconHTML);
+
+    if(window.innerWidth <=719){
+      toc.classList.add('mobile');
+      toc.classList.add('collapse');
+    }
+    else{
+      toc.classList.add('active');
+    }
+}
+
+function ref_ArXivFont(){
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "https://use.typekit.net/rwr5zpx.css";
+  document.head.appendChild(link);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    create_favicon();
-    create_header();
-    create_footer();
-});
+    document.querySelector('.ltx_page_main').id = 'main';
 
-document.addEventListener("DOMContentLoaded", function() {
+    ref_ArXivFont();
+    create_favicon();
+    unwrap_nav();
+    create_header();
+    create_mobile_header();
+
+    delete_footer();
+    create_footer();
+
+    window.addEventListener('resize', function() {
+      if (window.innerWidth <=719) {
+        const toc= document.querySelector('.ltx_page_main>.ltx_TOC');
+        toc.classList.add('mobile');
+        toc.classList.add('collapse');
+        toc.classList.remove('active');
+      }
+      else{
+        //TOC is shown
+        const toc_m= document.querySelector('.ltx_page_main>.ltx_TOC.mobile');
+        toc_m.classList.remove('mobile');
+        toc_m.classList.remove('collapse');
+        toc_m.classList.remove('show');
+        toc_m.classList.add('active');
+        //arrow Icon is shown
+        const arrowIcon = document.getElementById('arrowIcon');
+        arrowIcon.classList.remove('hide');
+        //list Icon is hidden
+        const listIcon = document.getElementById('listIcon');
+        listIcon.classList.add('hide');
+        //TOC list is shown
+        const toc_list= document.querySelector('.ltx_toclist');
+        toc_list.classList.remove('hide');
+      }
+    });
+
     const referenceItems = document.querySelectorAll(".ltx_bibitem");
   
     referenceItems.forEach(item => {
       const referenceId = item.getAttribute("id");
       const backToReferenceBtn = document.createElement("button");
-      backToReferenceBtn.textContent = "Back to Article";
+      backToReferenceBtn.innerHTML = "&#x2191;";
       backToReferenceBtn.classList.add("back-to-reference-btn");
+      backToReferenceBtn.setAttribute("aria-label", "Back to the article");
   
       let scrollPosition = 0;
       let clickedCite = false;
@@ -255,39 +273,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
       });
   
-      item.insertBefore(backToReferenceBtn, item.firstChild);
+      const refNumElement = item.querySelector(".ltx_tag_bibitem");
+      if (refNumElement) {
+        refNumElement.appendChild(backToReferenceBtn);
+    }
     });
   });
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-
-  

@@ -274,7 +274,7 @@ footer {
   font-family: var(--other-font-family);
 }
 footer h2 {
-  font-size: 1em;
+  font-size: 1.5em;
 }
 footer p, footer ul {
   font-size: 0.9em;
@@ -514,10 +514,15 @@ header {
   justify-content: space-between;
   padding: .5em 4em;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
-
 header a {
   color: white;
+}
+header.desktop_header {
+  position: fixed;
+  z-index: 1000;
 }
 
 .logo {
@@ -675,12 +680,8 @@ body:after {
 
 /* Update: For toc */
 .ltx_page_main >.ltx_TOC{
-  /* z-index: auto; */
-  /*display: flex;*/
-  /*flex:1;
-  flex-direction: column;*/
   position: sticky;
-  top: 5vh;
+  top: 7vh;
   max-height: 95vh;
   margin-top: 0;
   /* xxx */
@@ -989,11 +990,6 @@ article{
   box-sizing: border-box;
   width: 100%;
 }
-header{
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .ltx_table{
   overflow-x: scroll;
 }

@@ -733,14 +733,21 @@ body:after {
   color: var(--text-color);
 } */
 
-.ltx_tocentry.ltx_tocentry_section {
-  margin-bottom: 0.5rem;
+.ltx_TOC>.ltx_toclist>.ltx_tocentry {
+  margin-bottom: 0.3em;
   margin-left: 1.5rem;
 }
 
 .ltx_tocentry.ltx_tocentry_appendix {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   margin-left: 1.5rem;
+}
+/*appendix nav styles*/
+.ltx_TOC>.ltx_toclist>.ltx_tocentry.ltx_tocentry_appendix>a.ltx_ref {
+  font-weight: 500;
+}
+.ltx_TOC>.ltx_toclist>.ltx_tocentry.ltx_tocentry_appendix>a.ltx_ref .ltx_tag_ref {
+  font-weight: 700;
 }
 
 .ltx_toclist.ltx_toclist_section{

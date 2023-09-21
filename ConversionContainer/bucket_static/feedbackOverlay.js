@@ -541,6 +541,9 @@ function testForGitHubIssue(issueData, arxivIdv){
     var url = `https://github.com/YiChen8185/TestForGitHubIssue/issues/new?assignees=&labels=&projects=&title=Improve article : ${arxivIdv}&template=bug_report.yml`;
     url += `&description=${issueData.description}`;
     url += `&uniqueId=${issueData.uniqueId}`;
+    url += `&arxivId=${arxivIdv}`;
+    url += `&browserInfo=${issueData.browserInfo}`;
+
     return url;
 }
 

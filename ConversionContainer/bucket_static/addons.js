@@ -35,8 +35,8 @@ let create_header = () => {
 
     var Links = `
         <div style="display: inline-flex; align-items: center;">
-            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Give Feedback</a>
-            <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Open Issue</a>
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why HTML?</a>
+            <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Report Issue</a>
             <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>
 
             <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
@@ -95,13 +95,15 @@ let create_mobile_header = () => {
 
 let delete_footer = () => document.querySelector('footer').remove();
 
+
 let create_footer = () => {
     let footer = document.createElement('footer');
     let ltx_page_footer = document.createElement('div');
     ltx_page_footer.setAttribute('class', 'ltx_page_footer');
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
-
+    
+    //killed the footer nav with the following 4 variables, keeping them in case we want to bring them back
     var night = `
         <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme">
             <span class="color-scheme-icon"></span>
@@ -134,22 +136,16 @@ let create_footer = () => {
     footer.innerHTML = `
         <div class="keyboard-glossary">
             <h2>Instructions for reporting errors</h2>
-            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
+            <p>HTML versions of papers are experimental, and your feedback helps bring arXiv steps closer towards improving accessibility and mobile device support. While experimental HTML may not be perfect, it is essential for open access and accessibility. To report errors in the HTML that will help us improve conversion and rendering, choose any of the methods listed below:</p>
             <ul>
-                <li>Use the "Open Issue" button.</li>
+                <li>Use the "Report Issue" button.</li>
                 <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
-                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
+                <li>Make a text selection and use the "Report Issue for Selection" button that will display near your cursor.</li>
                 <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
             </ul>
-            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
-            <p>Have free development cycles? Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">list of packages that need conversion</a>, and welcome both feedback and developer contributions.</p>
+            <p>Our team has already identified <a class="ltx_ref" href=https://github.com/arXiv/html_feedback/issues target="_blank">the following issues</a>. We appreciate your time reviewing and reporting rendering errors we may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability should not be a barrier to accessing research in your field. Thank you for your continued support in making arXiv more accessible and championing open access above all and for all.</p>
+            <p>Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">list of packages that need conversion</a>, and welcome <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">developer contributions</a>.</p>
         </div>
-        <nav>
-            ${night}
-            ${copyLink}
-            ${policyLink}
-            ${HTMLLink}
-        </nav>
     `;
 
     ltx_page_footer.innerHTML = TimeLogo;

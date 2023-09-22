@@ -272,7 +272,7 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
 
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
-        soup.body.append(BeautifulSoup(popup_html, 'html.parser'))
+        soup.find('div', attrs={'class': 'ltx_page_content'}).insert(0, BeautifulSoup(popup_html, 'html.parser'))
         html.truncate()
         html.seek(0)
         html.write(str(soup))

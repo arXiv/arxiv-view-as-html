@@ -37,7 +37,7 @@ let create_header = () => {
         <div style="display: inline-flex; align-items: center;">
             <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why HTML?</a>
             <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Report Issue</a>
-            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>
+            ${id === 'submission' ? '' : `<a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>`}
 
             <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
                 <span class="color-scheme-icon"></span>

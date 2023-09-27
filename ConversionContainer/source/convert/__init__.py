@@ -257,9 +257,8 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
                 <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
                 </svg></span>
             </button>
-            <p>This paper uses packages, listed below, that do not yet convert to HTML.
-            These issues are known and are being worked on.
-            View <a href="https://github.com/brucemiller/LaTeXML/tree/master/lib/LaTeXML/Package" target="_blank">fully supported</a> and <a href="https://github.com/dginev/ar5iv-bindings/tree/main/bindings" target="_blank">partially supported</a> packages.</p>
+            <p>This paper uses packages, listed below, that do not yet convert to HTML. These issues are known and are being worked on.
+            View this list of <a href="https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML" target="_blank">unsupported packages</a>.</p>
             <ul arial-label="Unsupported packages used in this paper">
                 {missing_packages_lis}
             </ul>

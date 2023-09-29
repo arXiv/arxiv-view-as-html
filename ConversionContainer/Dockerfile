@@ -6,7 +6,7 @@ FROM python:3.10.5-buster
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN set -ex && apt-get update -qq && apt-get install -qy --no-install-recommends tzdata
-RUN set -ex && apt-get update -qq && apt-get install -qy \
+RUN set -ex && apt-get install -qy \
   texlive \
   texlive-fonts-extra \
   texlive-lang-all \

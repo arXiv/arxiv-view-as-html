@@ -74,7 +74,7 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            missing_packages = _do_latexml(main, outer_bucket_dir, id)
+            missing_packages = _do_latexml(main, outer_bucket_dir, id, False)
 
             if missing_packages:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")

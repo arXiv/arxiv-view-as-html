@@ -64,18 +64,6 @@ def handle_bad_request(e):
     logging.warning(f'Error: {e}')
     return 'Internal Server Error', 500
 
-@blueprint.app_errorhandler(AuthError)
-# @cross_origin(supports_credentials=True)
-def handle_auth_error(e):
-    logging.warning(f'Error {e}')
-    return 'You do not have access to this page', 403
-
-@blueprint.app_errorhandler(AuthError)
-# @cross_origin(supports_credentials=True)
-def handle_unauth_error(e):
-    logging.warning(f'Error {e}')
-    return 'You do not have access to this page', 403
-
 @blueprint.app_errorhandler(500)
 # @cross_origin(supports_credentials=True)
 def handle_500(e):

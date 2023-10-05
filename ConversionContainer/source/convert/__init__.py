@@ -5,7 +5,7 @@ import subprocess
 import shutil
 from typing import (
     Any,
-    List, 
+    List,
     Dict,
     Optional
 )
@@ -19,15 +19,15 @@ from flask import current_app
 from ..util import untar, id_lock
 from ..buckets.util import get_google_storage_client
 from ..buckets import (
-    download_blob, 
+    download_blob,
     upload_dir_to_gcs,
     upload_tar_to_gcs
 )
 from ..models.db import db
 from ..exceptions import *
 from .concurrency_control import (
-    write_start, 
-    write_success, 
+    write_start,
+    write_success,
     write_failure
 )
 
@@ -40,7 +40,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
     src_dir = f'extracted/{id}' # the directory we untar the blob to
     bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
     outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
-    
+
     try:
         with id_lock(id, current_app.config['LOCK_DIR']):
 
@@ -50,7 +50,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
                 shutil.rmtree(src_dir)
                 os.makedirs(outer_bucket_dir)
                 # Abort if this fails
-    
+
             # Check file format and download to ./[{id}.tar.gz]
             try:
                 logging.info(f"Step 1: Download {id}")
@@ -75,7 +75,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
             # Identify main .tex source in [source]
             logging.info(f"Step 4: Identify main .tex source for {id}")
             main = _find_main_tex_source(src_dir)
-                
+
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
             missing_packages = _do_latexml(main, outer_bucket_dir, id, is_submission)
@@ -83,13 +83,13 @@ def process(id: str, blob: str, bucket: str) -> bool:
             if missing_packages:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
                 _insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
-            
+
             logging.info(f"Step 6: Upload html for {id}")
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
                 upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
-            
+
             # TODO: Maybe remove for batch
             download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
             write_success(id, tar_gz, is_submission)
@@ -186,7 +186,7 @@ def _find_main_tex_source(path: str) -> str:
     except Exception as exc:
         raise MainTeXError(
             f"Process to find main .tex file in {path} failed") from exc
-    
+
 def _list_missing_packages (stdout: str) -> Optional[List[str]]:
     MISSING_PACKAGE_RE = re.compile(r"Warning:missing_file:.+Can't\sfind\spackage\s(.+)\sat")
     matches = MISSING_PACKAGE_RE.finditer(stdout)
@@ -257,13 +257,14 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
                 <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
                 </svg></span>
             </button>
-            <p>This paper uses the following packages that do not yet convert to HTML. These are known issues and are being worked on. Have free development cycles? <a href="https://github.com/brucemiller/LaTeXML/issues" target="_blank">We welcome contributors</a>.</p>
+            <p>HTML conversions sometimes display errors due to content that did not convert correctly from the source. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues are not necessary; they are known and are being worked on.</p>
             <ul>
                 {missing_packages_lis}
             </ul>
+            <p>Authors: achieve the best HTML results from your LaTeX submissions by selecting from this list of <a href="https://corpora.mathweb.org/corpus/arxmliv/tex_to_html/info/loaded_file" target="_blank">supported packages</a>.</p>
         </div>
 
-        <script> 
+        <script>
             function closePopup() {{
                 document.querySelector('.package-alerts').style.display = 'none';
             }}

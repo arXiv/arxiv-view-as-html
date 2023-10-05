@@ -88,7 +88,8 @@ def process(id: str, blob: str, bucket: str) -> bool:
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
-                upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
+                # upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
+                upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             
             # TODO: Maybe remove for batch
             download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
@@ -250,24 +251,20 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
     """ This is the HTML for the closeable pop up warning for missing packages """
     missing_packages_lis = "\n".join(map(lambda x: f"<li>failed: {x}</li>", missing_packages))
     popup_html = f"""
-        <div class="package-alerts" role="alert">
+        <div class="ltx_document package-alerts" role="alert">
             <button aria-label="Dismiss alert" onclick="closePopup()">
-                <span aria-hidden="true"><svg role="presentation" width="30" height="30" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+                <span aria-hidden="true"><svg role="presentation" width="20" height="15" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
                 <path d="M0.549989 4.44999L4.44999 0.549988L43.45 39.55L39.55 43.45L0.549989 4.44999Z" />
                 <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
                 </svg></span>
             </button>
-            <p>This paper uses the following packages that do not yet convert to HTML. These are known issues and are being worked on. Have free development cycles? <a href="https://github.com/brucemiller/LaTeXML/issues" target="_blank">We welcome contributors</a>.</p>
-            <ul>
-                {missing_packages_lis}
-            </ul>
-        </div>
 
-        <script> 
-            function closePopup() {{
-                document.querySelector('.package-alerts').style.display = 'none';
-            }}
-        </script>
+            <p>HTML conversions might sometimes display errors due to content that did not convert correctly from the source language. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues is not necessary; they are known and are being worked on.</p>
+     	    <ul arial-label="Unsupported packages used in this paper">
+                {missing_packages_lis}
+	        </ul>
+            <p>Authors: Want to achieve the best HTML results from your LaTeX submissions? Select from this list of <a href="https://corpora.mathweb.org/corpus/arxmliv/tex_to_html/info/loaded_file" target="_blank">supported packages</a>.</p>
+        </div>
     """
 
     with open(fpath, 'r+') as html:

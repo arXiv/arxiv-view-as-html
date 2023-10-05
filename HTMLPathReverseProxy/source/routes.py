@@ -22,10 +22,10 @@ def _get_google_auth () -> Tuple[Credentials, str, Client]:
     credentials, project_id = google.auth.default()
     return (credentials, project_id, Client(credentials=credentials))
 
-@blueprint.route('/<int:submission_id>/view', methods=['GET'])
+@blueprint.route('/html/<arxiv_id>/', methods=['GET'])
 # @cross_origin(supports_credentials=True)
 # @authorize
-def get (arxiv_id: int):
+def get (arxiv_id: str):
     BUCKET = current_app.config['CONVERTED_BUCKET_ARXIV_ID']
     TARS_DIR = current_app.config['TARS_DIR']
 
@@ -44,9 +44,9 @@ def get (arxiv_id: int):
     
     return send_from_directory (dir, f'{arxiv_id}.html')
 
-@blueprint.route('/<int:submission_id>/<path:path>', methods=['GET'])
+@blueprint.route('/html/<arxiv_id>/<path:path>', methods=['GET'])
 # @cross_origin(supports_credentials=True)
-def get_static (arxiv_id: int, path: str):
+def get_static (arxiv_id: str, path: str):
     SITES_DIR = current_app.config['SITES_DIR']
 
     dir = os.path.join(

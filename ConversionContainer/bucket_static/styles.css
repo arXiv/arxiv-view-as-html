@@ -1025,18 +1025,15 @@ article{
 }
 
 .package-alerts {
-
   display: block;
   background-color: #fff5f5;
-  border-color: #cd0200;
+  border: 1px solid #cd0200;
   color: #970503;
   border-radius: 1em;
   font-size: .9em;
-  
+  padding: 1em;
 }
-  
 .package-alerts button {
-  
   float: right;
   margin-left: 1em;
   margin-bottom: 1em;
@@ -1044,9 +1041,7 @@ article{
   background-color: white;
   border-radius: 4px;
   padding: 0.1em 0.2em 0.3em 0.2em;
-  
 }
-
 
 /* Set Image/math equation width. */
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_portrait {

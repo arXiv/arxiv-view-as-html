@@ -28,7 +28,7 @@ let create_header = () => {
         </a>
         <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
             ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span><a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.' :
-                                  'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> <a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
+            'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> Learn more <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">about this project</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
         </div>
     </div>`;
 
@@ -68,11 +68,11 @@ let create_mobile_header = () => {
             data-bs-target=".ltx_page_main >.ltx_TOC.mobile" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border:none; margin-right: 0em;">
             <span class="navbar-toggler-icon" style="width:1em;height:1em;margin-top: 0.1em;"></span>
-          </button>          
+          </button>
           <!--back to abstract-->
           ${id === 'submission' ? '' : `
           <!-- <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; display:inline-flex; flex-direction: column; align-items:center; text-align:center" href="#"> -->
-            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}"> 
+            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">
             <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" viewBox="0 0 512 512" style="background-color:transparent; z-index:2">
                 <style>svg{fill:rgb(255, 255, 255)}</style>
                 <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/>
@@ -103,7 +103,7 @@ let create_footer = () => {
     ltx_page_footer.setAttribute('class', 'ltx_page_footer');
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
-    
+
     //killed the footer nav with the following 4 variables, keeping them in case we want to bring them back
     var night = `
         <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme">
@@ -240,17 +240,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const referenceItems = document.querySelectorAll(".ltx_bibitem");
-  
+
     referenceItems.forEach(item => {
       const referenceId = item.getAttribute("id");
       const backToReferenceBtn = document.createElement("button");
       backToReferenceBtn.innerHTML = "&#x2191;";
       backToReferenceBtn.classList.add("back-to-reference-btn");
       backToReferenceBtn.setAttribute("aria-label", "Back to the article");
-  
+
       let scrollPosition = 0;
       let clickedCite = false;
-  
+
       backToReferenceBtn.addEventListener("click", function() {
         if (clickedCite) {
           window.scrollTo(0, scrollPosition);
@@ -261,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       });
-  
+
       const citeElements = document.querySelectorAll(`cite a[href="#${referenceId}"]`);
       citeElements.forEach(citeElement => {
         citeElement.addEventListener("click", function() {
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
           clickedCite = true;
         });
       });
-  
+
       const refNumElement = item.querySelector(".ltx_tag_bibitem");
       if (refNumElement) {
         refNumElement.appendChild(backToReferenceBtn);

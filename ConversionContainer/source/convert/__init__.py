@@ -90,7 +90,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
             else:
                 # upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
-            
+
             # TODO: Maybe remove for batch
             download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
             write_success(id, tar_gz, is_submission)
@@ -258,13 +258,10 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
                 <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
                 </svg></span>
             </button>
-<<<<<<< HEAD
             <p>HTML conversions sometimes display errors due to content that did not convert correctly from the source. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues are not necessary; they are known and are being worked on.</p>
             <ul>
-=======
             <p>HTML conversions might sometimes display errors due to content that did not convert correctly from the source language. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues is not necessary; they are known and are being worked on.</p>
      	    <ul arial-label="Unsupported packages used in this paper">
->>>>>>> f6a899e088b8085d288ebec361aa58200f226692
                 {missing_packages_lis}
             </ul>
             <p>Authors: achieve the best HTML results from your LaTeX submissions by selecting from this list of <a href="https://corpora.mathweb.org/corpus/arxmliv/tex_to_html/info/loaded_file" target="_blank">supported packages</a>.</p>
@@ -275,8 +272,7 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
                 document.querySelector('.package-alerts').style.display = 'none';
             }}
         </script>
-    """
-
+        """
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         soup.find('div', attrs={'class': 'ltx_page_content'}).insert(0, BeautifulSoup(popup_html, 'html.parser'))

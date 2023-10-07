@@ -1,3 +1,4 @@
+
 let create_favicon = () => {
   let favicon32 = document.createElement('link');
   favicon32.rel = 'icon';
@@ -276,3 +277,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     });
   });
+  

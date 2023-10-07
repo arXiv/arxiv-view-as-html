@@ -12,5 +12,6 @@
     "python.linting.enabled": false,
     "python.testing.pytestArgs": [
         "ConversionContainer"
-    ]
+    ],
+    "files.autoSave": "afterDelay"
 }

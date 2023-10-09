@@ -5,7 +5,8 @@ import os
 
 from flask import Blueprint, Request, \
     request, current_app, \
-    send_from_directory, g
+    send_from_directory, g, \
+    redirect
 # from flask_cors import cross_origin
 from werkzeug.exceptions import BadRequest
 
@@ -22,10 +23,10 @@ def _get_google_auth () -> Tuple[Credentials, str, Client]:
     credentials, project_id = google.auth.default()
     return (credentials, project_id, Client(credentials=credentials))
 
-@blueprint.route('/html/<arxiv_id>/', methods=['GET'])
-# @cross_origin(supports_credentials=True)
-# @authorize
+@blueprint.route('/html/<arxiv_id>', methods=['GET'])
 def get (arxiv_id: str):
+    if arxiv_id.endswith('.html'):
+        return redirect(f'/html/{arxiv_id.split(".html")[0]}')
     BUCKET = current_app.config['CONVERTED_BUCKET_ARXIV_ID']
     TARS_DIR = current_app.config['TARS_DIR']
 

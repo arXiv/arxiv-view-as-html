@@ -247,6 +247,17 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: boo
     os.remove(errpath)
     return _list_missing_packages(completed_process.stdout)
 
+def _insert_base_tag (fpath: str, id: str) -> None:
+    """ This inserts the base tag into the html so we can use the /html/arxiv_id url """
+    base_html = f'<base href="/html/{id}/">'
+    
+    with open(fpath, 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        soup.head.append(BeautifulSoup(base_html, 'html.parser'))
+        html.truncate()
+        html.seek(0)
+        html.write(str(soup))
+
 def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
     """ This is the HTML for the closeable pop up warning for missing packages """
     missing_packages_lis = "\n".join(map(lambda x: f"<li>failed: {x}</li>", missing_packages))
@@ -258,13 +269,8 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
                 <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
                 </svg></span>
             </button>
-<<<<<<< HEAD
             <p>HTML conversions sometimes display errors due to content that did not convert correctly from the source. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues are not necessary; they are known and are being worked on.</p>
             <ul>
-=======
-            <p>HTML conversions might sometimes display errors due to content that did not convert correctly from the source language. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues is not necessary; they are known and are being worked on.</p>
-     	    <ul arial-label="Unsupported packages used in this paper">
->>>>>>> f6a899e088b8085d288ebec361aa58200f226692
                 {missing_packages_lis}
             </ul>
             <p>Authors: achieve the best HTML results from your LaTeX submissions by selecting from this list of <a href="https://corpora.mathweb.org/corpus/arxmliv/tex_to_html/info/loaded_file" target="_blank">supported packages</a>.</p>

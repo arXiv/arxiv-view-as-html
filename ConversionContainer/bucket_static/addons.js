@@ -201,6 +201,15 @@ function ref_ArXivFont(){
   document.head.appendChild(link);
 }
 
+window.addEventListener('load', function() {
+  if (window.location.pathname.split('/')[2] === 'submission') {
+    const baseTag = this.document.querySelector('base');
+    if (baseTag) {
+      baseTag.remove();
+    }
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.ltx_page_main').id = 'main';
 

@@ -251,7 +251,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: boo
 def _insert_base_tag (fpath: str, id: str) -> None:
     """ This inserts the base tag into the html so we can use the /html/arxiv_id url """
     base_html = f'<base href="/html/{id}/">'
-    
+
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         soup.head.append(BeautifulSoup(base_html, 'html.parser'))
@@ -265,15 +265,15 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
     popup_html = f"""
         <div class="package-alerts" role="alert">
             <button aria-label="Dismiss alert" onclick="closePopup()">
-                <span aria-hidden="true"><svg role="presentation" width="30" height="30" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+                <span aria-hidden="true"><svg role="presentation" width="20" height="20" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
                 <path d="M0.549989 4.44999L4.44999 0.549988L43.45 39.55L39.55 43.45L0.549989 4.44999Z" />
                 <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
                 </svg></span>
             </button>
             <p>HTML conversions sometimes display errors due to content that did not convert correctly from the source. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues are not necessary; they are known and are being worked on.</p>
-     	      <ul arial-label="Unsupported packages used in this paper">
-                {missing_packages_lis}
-            </ul>
+                <ul arial-label="Unsupported packages used in this paper">
+                    {missing_packages_lis}
+                </ul>
             <p>Authors: achieve the best HTML results from your LaTeX submissions by selecting from this list of <a href="https://corpora.mathweb.org/corpus/arxmliv/tex_to_html/info/loaded_file" target="_blank">supported packages</a>.</p>
         </div>
 

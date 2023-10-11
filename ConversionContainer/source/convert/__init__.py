@@ -88,6 +88,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
+                _insert_base_tag(f'{outer_bucket_dir}/{id}.html', id)
                 # upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
 

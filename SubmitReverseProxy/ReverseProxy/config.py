@@ -22,8 +22,10 @@ SQLALCHEMY_BINDS = { "latexml": os.environ.get('LATEXML_DB_URI') }
 #LATEXML DB URI
 LATEXML_DB_URI = os.environ.get('LATEXML_DB_URI')
 
-# Response bucket
+# buckets
+CONVERTED_BUCKET_ARXIV_ID = os.environ.get('LATEXML_ARXIV_ID_CONVERSIONS')
 CONVERTED_BUCKET_SUB_ID = os.environ.get('LATEXML_SUBMISSION_CONVERSIONS')
+CLASSIC_HTML_BUCKET = os.environ.get('CLASSIC_HTML_BUCKET')
 
 SITES_DIR = '/source/ReverseProxy/sites/'
 TARS_DIR = '/source/ReverseProxy/downloads/'

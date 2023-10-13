@@ -1,6 +1,7 @@
 import logging
 import json
 import os
+from time import sleep
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Row
@@ -43,7 +44,9 @@ def main(cloud_event):
     def _format_payload (row: Row) -> str: 
         return json.dumps({k: row[k] for k in row._mapping.keys()}).encode('utf-8')
 
-    for row in rows:
+    for i, row in enumerate(rows):
+        if i % 50 == 0:
+            sleep(3)
         try: # We don't want to crash on one failed _format_payload or pub fire
             future = publisher.publish(topic_path, _format_payload(row))
             future.result()

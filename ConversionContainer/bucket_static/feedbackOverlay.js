@@ -80,7 +80,7 @@ function addBugReportForm() {
     button.setAttribute("type", "button");
     button.setAttribute("class", "btn btn-primary hover-rp-button");
     button.setAttribute("id", "openForm");
-    button.appendChild(document.createTextNode("Open Issue"));
+    button.appendChild(document.createTextNode("Report Issue"));
 
     // Create the modal container element
     const modal = document.createElement("div");
@@ -107,7 +107,7 @@ function addBugReportForm() {
     // Create the modal title
     const modalTitle = document.createElement("h5");
     modalTitle.setAttribute("class", "modal-title");
-    modalTitle.appendChild(document.createTextNode("Open Github Issue"));
+    modalTitle.appendChild(document.createTextNode("Report Github Issue"));
 
     // Create the close button for the modal
     const closeButton = document.createElement("button");
@@ -258,7 +258,7 @@ function addSRButton(modal) {
         const button = document.createElement("button");
         button.setAttribute("class", "sr-only button");
         button.style.display = "none";
-        button.textContent = "Open issue for preceding element";
+        button.textContent = "Report issue for preceding element";
 
         button.onfocus = () => previousFocusElement = document.activeElement;
 
@@ -365,7 +365,7 @@ function createSmallButton(modal) {
     smallReportButton.type = 'button';
     smallReportButton.className = 'btn btn-secondary btn-sm';
     smallReportButton.style.backgroundColor = '#b31b1b';
-    smallReportButton.textContent = 'Open Issue for Selection';
+    smallReportButton.textContent = 'Report Issue for Selection';
     smallReportButton.style.position = 'fixed';
 
     document.body.appendChild(smallReportButton);

@@ -7,7 +7,7 @@ import traceback
 from flask import current_app
 
 from ..util import untar, id_lock
-from ..buckets import download_blob, upload_dir_to_gcs
+from ..buckets import download_blob, upload_tar_to_gcs
 from ..exceptions import *
 from .concurrency_control import (
     write_start, 
@@ -20,6 +20,7 @@ from . import (
     _find_main_tex_source, 
     _do_latexml,
     _insert_missing_package_warning,
+    _insert_base_tag,
     _clean_up
 )
 
@@ -75,9 +76,11 @@ def single_convert_process (id: str, blob: str, bucket: str) -> bool:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
                 _insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
 
+            _insert_base_tag(f'{outer_bucket_dir}/{id}.html', id)
+
             # Post process html
             logging.info(f"Step 6: Upload html for {id}")            
-            upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
+            upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             
             write_success(id, tar_gz, False)
     except:

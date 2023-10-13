@@ -274,12 +274,14 @@ footer {
   font-family: var(--other-font-family);
 }
 footer h2 {
-  font-size: 1em;
+  font-size: 1.5em;
 }
 footer p, footer ul {
   font-size: 0.9em;
 }
-
+footer .keyboard-glossary {
+  margin-bottom: 3em;
+}
 .ltx_page_footer {
   font-family: arial, tahoma, sans-serif;
   user-select: none;
@@ -512,10 +514,15 @@ header {
   justify-content: space-between;
   padding: .5em 4em;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
-
 header a {
   color: white;
+}
+header.desktop_header {
+  position: fixed;
+  z-index: 1000;
 }
 
 .logo {
@@ -673,12 +680,8 @@ body:after {
 
 /* Update: For toc */
 .ltx_page_main >.ltx_TOC{
-  /* z-index: auto; */
-  /*display: flex;*/
-  /*flex:1;
-  flex-direction: column;*/
   position: sticky;
-  top: 5vh;
+  top: 7vh;
   max-height: 95vh;
   margin-top: 0;
   /* xxx */
@@ -730,14 +733,21 @@ body:after {
   color: var(--text-color);
 } */
 
-.ltx_tocentry.ltx_tocentry_section {
-  margin-bottom: 0.5rem;
+.ltx_TOC>.ltx_toclist>.ltx_tocentry {
+  margin-bottom: 0.3em;
   margin-left: 1.5rem;
 }
 
 .ltx_tocentry.ltx_tocentry_appendix {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   margin-left: 1.5rem;
+}
+/*appendix nav styles*/
+.ltx_TOC>.ltx_toclist>.ltx_tocentry.ltx_tocentry_appendix>a.ltx_ref {
+  font-weight: 500;
+}
+.ltx_TOC>.ltx_toclist>.ltx_tocentry.ltx_tocentry_appendix>a.ltx_ref .ltx_tag_ref {
+  font-weight: 700;
 }
 
 .ltx_toclist.ltx_toclist_section{
@@ -987,11 +997,6 @@ article{
   box-sizing: border-box;
   width: 100%;
 }
-header{
-  width: 100%;
-  box-sizing: border-box;
-}
-
 .ltx_table{
   overflow-x: scroll;
 }
@@ -1019,19 +1024,24 @@ header{
   }
 }
 
-/* This will probably need to be changed... just a place holder */
 .package-alerts {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: block;
+  background-color: #fff5f5;
+  border: 1px solid #cd0200;
+  color: #970503;
+  border-radius: 1em;
+  font-size: .9em;
+  padding: 1em;
 }
-
+.package-alerts button {
+  float: right;
+  margin-left: 1em;
+  margin-bottom: 1em;
+  border: 1px solid black;
+  background-color: white;
+  border-radius: 4px;
+  padding: 0.1em 0.2em 0.3em 0.2em;
+}
 
 /* Set Image/math equation width. */
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_portrait {

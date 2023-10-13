@@ -3,14 +3,19 @@ from contextlib import contextmanager
 
 from sqlalchemy.orm import Session
 
-from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions 
+from ..exceptions import DBConnectionError
+from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
+from ..models.util import database_retry
 
+
+@database_retry(5)
 def submission_has_html (submission_id: int, session: Session) -> DBLaTeXMLSubmissions:
     row = session.query(DBLaTeXMLSubmissions) \
         .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
         .first()
     return row if (row and row.conversion_status == 1) else None
 
+@database_retry(5)
 def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXMLSubmissions, session: Session):
     row = DBLaTeXMLDocuments (
         paper_id=paper_id,

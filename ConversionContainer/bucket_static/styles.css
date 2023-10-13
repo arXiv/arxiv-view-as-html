@@ -166,6 +166,7 @@ textarea.form-control{
 
 .ltx_note>.ltx_note_mark {
   text-decoration: underline;
+  font-size: 1.15em;
 }
 
 .ltx_note>.ltx_note_mark:hover {

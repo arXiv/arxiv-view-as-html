@@ -8,7 +8,7 @@
   --inpage-text-highlight-color: #1f5e96; /* Archival Blue */
   --rp-button-hover-color: #fb595a; /* Publishing Pink */
   --text-color: black;
-  --link-text-color: #1e8bc3;
+  --link-text-color: #FFFFFF;
 }
 [data-theme=dark] {
   --note-highlight-color: #6b6459; /* Open Blue */

@@ -94,6 +94,8 @@ def get_doc (arxiv_id: str):
 
     mode = get_source_format(parts[0], version) # TODO: This is brittle
     _, _, storage_client = _get_google_auth()
+
+    logging.info(f'Mode: {mode}')
     
     if mode == 'html':
         # TODO: Handle not newest version
@@ -119,7 +121,7 @@ def get_doc (arxiv_id: str):
 
     logging.info(f'Successfully downloaded to {TARS_DIR}{arxiv_id}')
 
-    abs_path = untar(arxiv_id)
+    abs_path = untar(arxiv_id, conference_proceeding=(mode=='html'))
     dir = os.path.relpath(abs_path, current_app.root_path)
 
     logging.info(f'Successfully untarred to {abs_path}')

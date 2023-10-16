@@ -1,12 +1,15 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.10.5-buster
+FROM ubuntu:22.04
+
+########## Python ##########
+RUN apt-get update && apt-get install -y python3 python3-pip
 
 ########## LaTeXML ##########
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN set -ex && apt-get update -qq && apt-get install -qy --no-install-recommends tzdata
-RUN set -ex && apt-get update -qq && apt-get install -qy \
+RUN set -ex && apt-get install -qy \
   texlive \
   texlive-fonts-extra \
   texlive-lang-all \
@@ -82,7 +85,7 @@ ENV TMPDIR=/dev/shm
 
 WORKDIR /arxiv
 
-RUN /usr/local/bin/python -m pip install --upgrade pip
+RUN pip install --upgrade pip
 RUN pip install poetry  
 RUN poetry config virtualenvs.create false
 

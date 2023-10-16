@@ -3,7 +3,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Enum, \
     ForeignKey, Integer, SmallInteger, \
-    String, Text, DateTime
+    String, Text, DateTime, Sequence
 from sqlalchemy.orm import relationship
 
 db: SQLAlchemy = SQLAlchemy()

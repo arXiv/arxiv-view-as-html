@@ -23,8 +23,8 @@ let create_header = () => {
     var LogoBanner = `
     <div style="display: flex; width: 60%;">
         <a href="https://arxiv.org/" style="text-decoration: none; width:80px">
-            <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
-            <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+            <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logo-one-color-white.svg">
+            <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logomark-small-white.svg">
         </a>
         <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
             ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span><a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.' :
@@ -58,9 +58,9 @@ let create_mobile_header = () => {
     <div class="container-fluid">
     <a class="navbar-brand" href="https://arxiv.org/" style="text-decoration: none; width:80px">
       <img alt="logo" class="logo" role="presentation" style="background-color: transparent;"
-        src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
+        src="https://services.dev.arxiv.org/html/static/arxiv-logo-one-color-white.svg">
       <img alt="logo" class="logomark" role="presentation" style="background-color: transparent; margin-left:40px;"
-        src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+        src="https://services.dev.arxiv.org/html/static/arxiv-logomark-small-white.svg">
     </a>
         <!--toc button-->
         <div class='subcontainer-fluid'>

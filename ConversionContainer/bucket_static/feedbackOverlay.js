@@ -201,9 +201,9 @@ function addBugReportForm() {
     // Append the elements to their respective parents
     // Update: Add warning label (next line)
     modalBody.appendChild(warningLabel);
-    modalBody.appendChild(selectedTextDescriptionLabel);
     modalBody.appendChild(titleLabel);
     modalBody.appendChild(titleInput);
+    modalBody.appendChild(selectedTextDescriptionLabel);
     modalBody.appendChild(NomralDescriptionLabel);
     modalBody.appendChild(descriptionTextarea);
 

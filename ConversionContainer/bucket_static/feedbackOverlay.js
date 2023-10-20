@@ -201,9 +201,9 @@ function addBugReportForm() {
     // Append the elements to their respective parents
     // Update: Add warning label (next line)
     modalBody.appendChild(warningLabel);
-    modalBody.appendChild(selectedTextDescriptionLabel);
     modalBody.appendChild(titleLabel);
     modalBody.appendChild(titleInput);
+    modalBody.appendChild(selectedTextDescriptionLabel);
     modalBody.appendChild(NomralDescriptionLabel);
     modalBody.appendChild(descriptionTextarea);
 
@@ -580,6 +580,16 @@ function getDeviceType() {
     if (/iPad|iPadOS/i.test(userAgent)) {
         return 'iPad';
     }
+    if (/iP(hone|od)/i.test(userAgent)) {
+        return 'iOS';
+    }
+    if (/Android/i.test(userAgent)) {
+        return 'Android';
+    }
+    if (/BlackBerry|IEMobile|Windows Phone/i.test(userAgent)) {
+        return 'Other Smartphone';
+    }
+
     if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile/i.test(userAgent)) {
         return 'Smartphone';
     }

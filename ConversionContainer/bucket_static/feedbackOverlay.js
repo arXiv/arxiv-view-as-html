@@ -580,6 +580,16 @@ function getDeviceType() {
     if (/iPad|iPadOS/i.test(userAgent)) {
         return 'iPad';
     }
+    if (/iP(hone|od)/i.test(userAgent)) {
+        return 'iOS';
+    }
+    if (/Android/i.test(userAgent)) {
+        return 'Android';
+    }
+    if (/BlackBerry|IEMobile|Windows Phone/i.test(userAgent)) {
+        return 'Other Smartphone';
+    }
+
     if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile/i.test(userAgent)) {
         return 'Smartphone';
     }

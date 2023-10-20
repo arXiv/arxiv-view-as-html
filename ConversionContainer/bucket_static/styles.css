@@ -874,10 +874,20 @@ body:after {
   .ar5iv-footer-button{
     margin-right: 0em;
   }
-  .ltx_para{
+  /* .ltx_para{
     overflow: scroll;
+  } */
+  [data-theme=dark] body {
+    color: black;
+  }
+  .ltx_bibitem .ltx_bibblock {
+    display: inline-block;
+  }
+  .ltx_bibitem{
+    display: inline-block;
   }
 }
+
 
 .ltx_bibitem{
   padding-left: 10px;
@@ -936,4 +946,21 @@ header{
 
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_square {
   width: 100%;
+}
+
+.ltx_bibitem .ltx_bibblock {
+  display: table-cell;
+  padding-left: 2em;
+}
+
+.ltx_bibitem:hover {
+    background-color: var(--note-highlight-color);
+    z-index: 100
+}
+.ltx_bibitem .ltx_tag {
+  position: unset;
+}
+
+.ltx_biblist{
+  padding-left: 0rem;
 }

@@ -14,12 +14,15 @@ from .exceptions import DBConnectionError
 def get_source_format (arxiv_id: str, version: Optional[int] = None) -> Optional[str]:
     conn = current_session().connection()
     if version:
-        query = text('SELECT source_format FROM arXiv_documents WHERE paper_id=:id AND version=:v')
+        query = text('SELECT source_format FROM arXiv_metadata WHERE paper_id=:id AND version=:v').\
+                bindparams(id=arxiv_id, v=version)
     else:
-        query = text('SELECT source_format FROM arXiv_documents WHERE paper_id=:id AND version=:v')
+        query = text('SELECT source_format, max(version) FROM arXiv_metadata WHERE paper_id=:id').\
+                bindparams(id=arxiv_id)
     try:
-        return conn.execute(query, id=arxiv_id, v=version).fetchone()['source_format']
+        return conn.execute(query).fetchone()[0]
     except OperationalError:
         raise DBConnectionError
-    except:
+    except Exception as e:
+        logging.info(str(e))
         return None

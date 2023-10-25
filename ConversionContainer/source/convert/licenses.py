@@ -19,9 +19,9 @@ def _license_url_to_str_mapping (url: Optional[str]) -> str:
         license = 'CC BY-SA'
     elif url == 'http://creativecommons.org/publicdomain/zero/1.0/' or url == 'http://creativecommons.org/licenses/publicdomain/':
         license = 'CC Zero'
-    elif not (match := re.match(r'http:\/\/creativecommons\.org\/licenses\/by-nc-sa\/(\d)\.0\/')):
+    elif not (match := re.match(r'http:\/\/creativecommons\.org\/licenses\/by-nc-sa\/(\d)\.0\/', url)):
         license = f'CC BY-NC-SA {match.group(1)}'
-    elif not (match := re.match(r'http:\/\/creativecommons\.org\/licenses\/by\/(\d)\.0\/')):
+    elif not (match := re.match(r'http:\/\/creativecommons\.org\/licenses\/by\/(\d)\.0\/', url)):
         license = f'CC BY {match.group(1)}'
     return f'License: {license}'
 

@@ -82,7 +82,7 @@ ENV TMPDIR=/dev/shm
 
 WORKDIR /arxiv
 
-RUN apt-get update && apt-get install -y python3 python3-pip pkg-config
+RUN apt-get update && apt-get install -y python3-dev python3-pip pkg-config default-libmysqlclient-dev
 
 RUN pip install --upgrade pip
 RUN pip install poetry

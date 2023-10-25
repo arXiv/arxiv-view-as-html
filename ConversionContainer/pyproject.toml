@@ -17,7 +17,7 @@ pg8000 = "^1.29.8"
 google-cloud-logging = "^3.5.0"
 bs4 = "^0.0.1"
 filelock = "^3.12.2"
-mysql-python = "*"
+mysql-connector-python = "*"
 
 [build-system]
 requires = ["poetry-core"]

@@ -5,8 +5,6 @@ from contextlib import contextmanager
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
-from arxiv_auth.legacy.util import is_configured, current_session
-
 from ..exceptions import DBConnectionError
 from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
 from ..models.util import database_retry

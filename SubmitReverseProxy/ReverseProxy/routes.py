@@ -80,69 +80,6 @@ def get_static (submission_id: int, path: str):
 
     return send_from_directory (dir, path)
 
-@blueprint.route('/html/<arxiv_id>', methods=['GET'])
-def get_doc (arxiv_id: str):
-    if arxiv_id.endswith('.html'):
-        return redirect(f'/html/{arxiv_id.split(".html")[0]}')
-    
-    # TODO: Handle old arxiv_ids
-    parts = arxiv_id.split('v')
-    if len(parts) > 1:
-        version = int(parts[1])
-    else:
-        version = None
-
-    mode = get_source_format(parts[0], version) # TODO: This is brittle
-    _, _, storage_client = _get_google_auth()
-
-    logging.info(f'Mode: {mode}')
-    
-    if mode == 'html':
-        # TODO: Handle not newest version
-        archive = 'arxiv'
-        yymm = parts[0].split('.')[0]
-        id = parts[0]
-        v = version or ''
-        blob = f'{archive}/papers/{yymm}/{id}{v}.tar.gz'
-
-        BUCKET = current_app.config['CLASSIC_HTML_BUCKET']
-        TARS_DIR = current_app.config['TARS_DIR']
-
-        bucket = storage_client.get_bucket(BUCKET)
-        blob = bucket.blob(blob)
-    else:
-        BUCKET = current_app.config['CONVERTED_BUCKET_ARXIV_ID']
-        TARS_DIR = current_app.config['TARS_DIR']
-
-        bucket = storage_client.get_bucket(BUCKET)
-        blob = bucket.blob(f'{arxiv_id}.tar.gz')
-
-    blob.download_to_filename(f'{TARS_DIR}{arxiv_id}')
-
-    logging.info(f'Successfully downloaded to {TARS_DIR}{arxiv_id}')
-
-    abs_path = untar(arxiv_id, conference_proceeding=(mode=='html'))
-    dir = os.path.relpath(abs_path, current_app.root_path)
-
-    logging.info(f'Successfully untarred to {abs_path}')
-    
-    if mode == 'html':
-        return send_from_directory (dir, f'{id}.html') # Won't work for old id's and old versions
-    else:
-        return send_from_directory (dir, f'{arxiv_id}.html')
-
-@blueprint.route('/html/<arxiv_id>/<path:path>', methods=['GET'])
-# @cross_origin(supports_credentials=True)
-def get_static_doc (arxiv_id: str, path: str):
-    SITES_DIR = current_app.config['SITES_DIR']
-
-    dir = os.path.join(
-        os.path.relpath(SITES_DIR, current_app.root_path),
-        arxiv_id
-    )
-
-    return send_from_directory (dir, path)
-
 
 @blueprint.app_errorhandler(BadRequest)
 @cross_origin(supports_credentials=True)

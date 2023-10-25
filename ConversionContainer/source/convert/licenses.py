@@ -29,7 +29,7 @@ def _license_url_to_str_mapping (url: Optional[str]) -> str:
 def get_license_for_paper (paper_id: str, version: int) -> str:
     try:
         query = text("SELECT license from arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
-        query.bindparams(paper_id=paper_id, version=version)
+        query = query.bindparams(paper_id=paper_id, version=version)
         return _license_url_to_str_mapping(
             db.session.execute(query).scalar())
     except Exception as e:
@@ -40,7 +40,7 @@ def get_license_for_paper (paper_id: str, version: int) -> str:
 def get_license_for_submission (submission_id: int) -> str:
     try:
         query = text("SELECT license from arXiv_submissions WHERE submission_id=:submission_id")
-        query.bindparams(submission_id=submission_id)
+        query = query.bindparams(submission_id=submission_id)
         return _license_url_to_str_mapping(
             db.session.execute(query).scalar())
     except Exception as e:

@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 import os
 from ..convert import (
     untar,
-    _remove_ltxml,
+    remove_ltxml,
     _clean_up,
     _post_process,
-    _do_latexml,
-    _find_main_tex_source
+    do_latexml,
+    find_main_tex_source
 )
 from ..exceptions import FileTypeError
 
@@ -75,7 +75,7 @@ def test_remove_ltxml_true_pos ():
     assert os.path.exists('./ltxml'), \
         'This test depends on tests/ancillary_files/ltxml'
     shutil.copy('malicious.ltxml', 'ltxml/malicious.ltxml')
-    _remove_ltxml('ltxml')
+    remove_ltxml('ltxml')
     assert not os.path.exists('./ltxml/malicious.ltxml'), \
         'Failed to remove malicious.ltxml from tests/ancillary_files/ltxml'
 
@@ -84,7 +84,7 @@ def test_remove_ltxml_true_neg ():
     os.chdir('ancillary_files')
     assert os.path.exists('ltxml/non_malicious.tar.gz'), \
         'This test depends on tests/ancillary_files/ltxml/non_malicious.tar.gz'
-    _remove_ltxml('ltxml')
+    remove_ltxml('ltxml')
     assert os.path.exists('./ltxml/non_malicious.tar.gz'), \
         'Erroneously removed non_malicious.ltxml from tests/ancillary_files/ltxml'
 
@@ -101,7 +101,7 @@ def test_find_main_tex_source_single_source ():
     os.chdir('ancillary_files')
     assert os.path.exists('single_tex'), \
         'This test depends on tests/ancillary_files/single_tex'
-    main_tex = _find_main_tex_source ('single_tex') 
+    main_tex = find_main_tex_source ('single_tex') 
     assert main_tex == 'single_tex/main.tex', \
         f'Failed to indetify main tex file \'main.tex\' in \
         tests/ancillary_files/single_tex. Identified {main_tex} instead'
@@ -111,7 +111,7 @@ def test_find_main_text_source_multiple_sources ():
     os.chdir('ancillary_files')
     assert os.path.exists('multiple_tex'), \
         'This test depends on tests/ancillary_files/multiple_tex'
-    main_tex = _find_main_tex_source ('multiple_tex') 
+    main_tex = find_main_tex_source ('multiple_tex') 
     assert main_tex == 'multiple_tex/paper.tex', \
         f'Failed to indetify main tex file \'paper.tex\' in \
         tests/ancillary_files/paper_tex. Identified {main_tex} instead'

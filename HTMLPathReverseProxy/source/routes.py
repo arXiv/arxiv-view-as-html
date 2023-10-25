@@ -27,6 +27,8 @@ def _get_google_auth () -> Tuple[Credentials, str, Client]:
 def get (arxiv_id: str):
     if arxiv_id.endswith('.html'):
         return redirect(f'/html/{arxiv_id.split(".html")[0]}')
+    
+    
     BUCKET = current_app.config['CONVERTED_BUCKET_ARXIV_ID']
     TARS_DIR = current_app.config['TARS_DIR']
 

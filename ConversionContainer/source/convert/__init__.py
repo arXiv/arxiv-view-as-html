@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 
 from flask import current_app
 
+from .licenses import get_license_for_paper, get_license_for_submission
 from ..util import untar, id_lock
 from ..buckets.util import get_google_storage_client
 from ..buckets import (
@@ -70,27 +71,29 @@ def process(id: str, blob: str, bucket: str) -> bool:
 
             # Remove .ltxml files from [source] (./extracted/id/)
             logging.info(f"Step 3: Remove .ltxml for {id}")
-            _remove_ltxml(src_dir)
+            remove_ltxml(src_dir)
 
             # Identify main .tex source in [source]
             logging.info(f"Step 4: Identify main .tex source for {id}")
-            main = _find_main_tex_source(src_dir)
+            main = find_main_tex_source(src_dir)
 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            missing_packages = _do_latexml(main, outer_bucket_dir, id, is_submission)
+            missing_packages = do_latexml(main, outer_bucket_dir, id, is_submission)
 
             if missing_packages:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
-                _insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
+                insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
+
+            insert_license(f'{outer_bucket_dir}/{id}.html', id, is_submission)
 
             logging.info(f"Step 6: Upload html for {id}")
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
-                _insert_base_tag(f'{outer_bucket_dir}/{id}.html', id)
-                # upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
-                upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
+                insert_base_tag(f'{outer_bucket_dir}/{id}.html', id)
+                upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
+                # upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
 
             # TODO: Maybe remove for batch
             download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
@@ -110,7 +113,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
             logging.info(f"Failed to clean up {id} with {e}")
 
 
-def _remove_ltxml(path: str) -> None:
+def remove_ltxml(path: str) -> None:
     """
     Remove files with the .ltxml extension from the
     directory "path".
@@ -130,7 +133,7 @@ def _remove_ltxml(path: str) -> None:
             f".ltxml file at {path} failed to be removed") from exc
 
 
-def _find_main_tex_source(path: str) -> str:
+def find_main_tex_source(path: str) -> str:
     """
     Looks inside the directory at "path" and determines the
     main .tex source. Assumes that the main .tex file
@@ -194,7 +197,7 @@ def _list_missing_packages (stdout: str) -> Optional[List[str]]:
     matches = MISSING_PACKAGE_RE.finditer(stdout)
     return list(map(lambda x: x.group(1), matches)) or None
 
-def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> Optional[List[str]]:
+def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> Optional[List[str]]:
     """
     Runs latexml on the .tex file at main_fpath and
     outputs the html at out_fpath.
@@ -248,7 +251,7 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: boo
     os.remove(errpath)
     return _list_missing_packages(completed_process.stdout)
 
-def _insert_base_tag (fpath: str, id: str) -> None:
+def insert_base_tag (fpath: str, id: str) -> None:
     """ This inserts the base tag into the html so we can use the /html/arxiv_id url """
     base_html = f'<base href="/html/{id}/">'
 
@@ -259,7 +262,7 @@ def _insert_base_tag (fpath: str, id: str) -> None:
         html.seek(0)
         html.write(str(soup))
 
-def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
+def insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
     """ This is the HTML for the closeable pop up warning for missing packages """
     missing_packages_lis = "\n".join(map(lambda x: f"<li>failed: {x}</li>", missing_packages))
     popup_html = f"""
@@ -286,6 +289,24 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         soup.find('div', attrs={'class': 'ltx_page_content'}).insert(0, BeautifulSoup(popup_html, 'html.parser'))
+        html.truncate()
+        html.seek(0)
+        html.write(str(soup))
+
+def insert_license (fpath: str, id: str, is_submission: bool):
+    if not is_submission:
+        paper_id, version = id.split('v')
+        license = get_license_for_paper(paper_id, int(version))
+    else:
+        license = get_license_for_submission(int(id))
+    license_html = BeautifulSoup(f'<div id="license-tr">{license}</div>', 'html.parser')
+    with open(fpath, 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        target_section = soup.new_tag('div', attrs={'class': 'section', 'id': 'target-section'})
+        title = soup.find('h1', attrs={'class': 'ltx_title_document'})
+        title.replace_with(target_section)
+        target_section.append(license_html)
+        target_section.append(title)
         html.truncate()
         html.seek(0)
         html.write(str(soup))

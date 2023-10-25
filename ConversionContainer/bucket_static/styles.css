@@ -97,6 +97,34 @@ textarea.form-control{
   display: none;
 }
 
+#target-section {
+  position: relative;
+}
+
+#watermark-tr {
+  text-align: center;
+  opacity: 0.5;
+  z-index: 9999;
+  color: rgb(75, 75, 75);
+  font-size: 24px;
+  user-select: none;
+  padding: 5px;
+  position: relative;
+  width: 100%;
+}
+
+#license-tr {
+  text-align: center;
+  opacity: 0.5;
+  z-index: 9999;
+  color: rgb(75, 75, 75);
+  font-size: 20px;
+  user-select: none;
+  padding: 5px;
+  position: relative;
+  width: 100%;
+}
+
 /* CSS for Footnote */
 
 @media only screen and (min-width: 104.5rem){

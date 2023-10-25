@@ -2,9 +2,6 @@
 
 FROM ubuntu:22.04
 
-########## Python ##########
-RUN apt-get update && apt-get install -y python3 python3-pip
-
 ########## LaTeXML ##########
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -85,8 +82,10 @@ ENV TMPDIR=/dev/shm
 
 WORKDIR /arxiv
 
+RUN apt-get update && apt-get install -y python3 python3-pip
+
 RUN pip install --upgrade pip
-RUN pip install poetry  
+RUN pip install poetry
 RUN poetry config virtualenvs.create false
 
 COPY . .

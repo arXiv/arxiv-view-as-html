@@ -294,11 +294,14 @@ def insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> 
         html.write(str(soup))
 
 def insert_license (fpath: str, id: str, is_submission: bool):
+    print (f"Getting license")
     if not is_submission:
         paper_id, version = id.split('v')
         license = get_license_for_paper(paper_id, int(version))
     else:
+        print (f"Getting license for submission: {id}")
         license = get_license_for_submission(int(id))
+        print (f"License: {license}")
     license_html = BeautifulSoup(f'<div id="license-tr">{license}</div>', 'html.parser')
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')

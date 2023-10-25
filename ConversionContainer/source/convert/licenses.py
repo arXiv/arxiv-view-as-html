@@ -1,5 +1,6 @@
 from typing import Optional
 import re
+import logging
 
 from sqlalchemy.sql import text
 from ..exceptions import DBConnectionError
@@ -32,7 +33,7 @@ def get_license_for_paper (paper_id: str, version: int) -> str:
         return _license_url_to_str_mapping(
             db.session.execute(query).scalar())
     except Exception as e:
-        print (e)
+        logging.info (str(e))
         raise DBConnectionError from e
     
 @database_retry(5)
@@ -43,5 +44,5 @@ def get_license_for_submission (submission_id: int) -> str:
         return _license_url_to_str_mapping(
             db.session.execute(query).scalar())
     except Exception as e:
-        print (e)
+        logging.info (str(e))
         raise DBConnectionError from e

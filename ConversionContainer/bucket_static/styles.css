@@ -1079,3 +1079,9 @@ article{
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_square {
   width: 100%;
 }
+
+/* Write new CSS which force in-line-color to follow root color. */
+.ltx_tbody .ltx_text {
+  color: var(--text-color) !important;
+}
+

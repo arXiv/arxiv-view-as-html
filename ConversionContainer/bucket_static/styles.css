@@ -1081,7 +1081,7 @@ article{
 }
 
 /* Write new CSS which force in-line-color to follow root color. */
-.ltx_tbody .ltx_text {
+.ltx_table .ltx_text {
   color: var(--text-color) !important;
 }
 

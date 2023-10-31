@@ -782,6 +782,16 @@ body:after {
   display: none !important;
 }
 
+/*optimize for toc displaying*/
+li.ltx_tocentry.ltx_tocentry_subsection {
+  display: none;
+}
+
+li.ltx_tocentry.ltx_tocentry_appendix {
+  display: none;
+}
+
+
 /* Hover for TOC */
 .ltx_ref:hover{
   /* background-color: var(--note-highlight-color); */

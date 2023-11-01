@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 from flask import current_app
 
 from .licenses import get_license_for_paper, get_license_for_submission
-from ..util import untar, id_lock
+from ..util import untar, id_lock, unzip_single_file
 from ..buckets.util import get_google_storage_client
 from ..buckets import (
     download_blob,
@@ -32,12 +32,12 @@ from .concurrency_control import (
     write_failure
 )
 
-def process(id: str, blob: str, bucket: str) -> bool:
+def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
 
     """ File system we will be using """
     safe_name = str(uuid.uuid4()) # In case two machines download before locking
-    tar_gz = f'{safe_name}.tar.gz' # the file we download the blob to
+    download_file = f'{safe_name}.gz' if single_file else f'{safe_name}.gz' # the file we download the blob to
     src_dir = f'extracted/{id}' # the directory we untar the blob to
     bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
     outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
@@ -55,7 +55,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
             # Check file format and download to ./[{id}.tar.gz]
             try:
                 logging.info(f"Step 1: Download {id}")
-                download_blob(bucket, blob, tar_gz)
+                download_blob(bucket, blob, download_file)
             except:
                 logging.info(f'Failed to download {id}')
                 traceback.print_exc()
@@ -63,11 +63,15 @@ def process(id: str, blob: str, bucket: str) -> bool:
 
             # Write to DB that process has started
             logging.info(f"Write start process to db")
-            write_start(id, tar_gz, is_submission)
+            write_start(id, download_file, is_submission)
 
             # Untar file ./[tar] to ./extracted/id/
-            logging.info(f"Step 2: Untar {id}")
-            untar (tar_gz, src_dir)
+            if not single_file:
+                logging.info(f"Step 2: Untar {id}")
+                untar (download_file, src_dir)
+            else:
+                logging.info(f"Step 2: Ungzip {id}")
+                unzip_single_file(download_file, src_dir)
 
             # Remove .ltxml files from [source] (./extracted/id/)
             logging.info(f"Step 3: Remove .ltxml for {id}")
@@ -96,19 +100,19 @@ def process(id: str, blob: str, bucket: str) -> bool:
                 # upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
 
             # TODO: Maybe remove for batch
-            download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
-            write_success(id, tar_gz, is_submission)
+            download_blob(bucket, blob, download_file) # download again to double check for most recent tex source
+            write_success(id, download_file, is_submission)
     except Exception as e:
         logging.info(f'Conversion unsuccessful with {e}')
         try:
-            download_blob(bucket, blob, tar_gz)
-            write_failure(id, tar_gz, is_submission)
+            download_blob(bucket, blob, download_file)
+            write_failure(id, download_file, is_submission)
         except Exception as e:
             logging.info(f'Failed to write failure for {id} with {e}')
     finally:
         try:
             with id_lock(id, current_app.config['LOCK_DIR'], 1):
-                _clean_up(tar_gz, id)
+                _clean_up(download_file, id)
         except Exception as e:
             logging.info(f"Failed to clean up {id} with {e}")
 

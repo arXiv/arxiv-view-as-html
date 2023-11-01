@@ -31,10 +31,15 @@ blueprint = Blueprint('routes', __name__)
 
 # Unwraps payload and only starts processing if it is 
 # the desired format and a .tar.gz
-def _unwrap_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
+def _unwrap_payload (payload: Dict[str, str]) -> Tuple[str, str, str, bool]:
     if payload['name'].endswith('.gz'):
-        id = payload['name'].split('/')[1].replace('.tar.gz', '')
-        return id, payload['name'], payload['bucket']
+        if payload['name'].endswith('.tar.gz'):
+            single_file = False
+            id = payload['name'].split('/')[1].replace('.tar.gz', '')
+        else:
+            single_file = True
+            id = payload['name'].split('/')[1].replace('.gz', '')
+        return id, payload['name'], payload['bucket'], single_file
     raise ValueError ('Received extraneous file')
 
 def _unwrap_batch_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
@@ -67,12 +72,12 @@ def process_route () -> Response:
         Returns a 202 response with no payload
     """
     try:
-        id, blob, bucket = _unwrap_payload(request.json)
+        id, blob, bucket, single_file = _unwrap_payload(request.json)
     except Exception as e:
         logging.info(f'Discarded request for {request.json["name"]}')
         return '', 202
     logging.info(f'Begin processing for {blob} from {bucket}')
-    process(id, blob, bucket)
+    process(id, blob, bucket, single_file)
     return '', 200
 
 @blueprint.route('/batch-convert', methods=['POST'])

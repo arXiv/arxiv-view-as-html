@@ -488,6 +488,11 @@ label {
   background-color: #0d1117;
 }
 
+/* Write new CSS which force in-line-color to follow root color. */
+[data-theme=dark] .ltx_table .ltx_text {
+  color: var(--text-color) !important;
+}
+
 [data-theme=dark] .form-control {
   background-color: #0d1117;
   color:#c9d1d9;
@@ -1089,3 +1094,4 @@ article{
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_square {
   width: 100%;
 }
+

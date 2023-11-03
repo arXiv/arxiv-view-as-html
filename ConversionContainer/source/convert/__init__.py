@@ -223,12 +223,12 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool
                       "--timeout=300",
                       "--nodefaultresources",
                       "--css=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
-                      f"--css={LATEXML_URL_BASE}/ar5iv_0.7.4.min.css",
-                      f"--css={LATEXML_URL_BASE}/styles.css",
+                      f"--css={LATEXML_URL_BASE}/css/ar5iv_0.7.4.min.css",
+                      f"--css={LATEXML_URL_BASE}/css/latexml_styles.css",
                       "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
                       "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
-                      f"--javascript={LATEXML_URL_BASE}/addons.js",
-                      f"--javascript={LATEXML_URL_BASE}/feedbackOverlay.js",
+                      f"--javascript={LATEXML_URL_BASE}/js/addons.js",
+                      f"--javascript={LATEXML_URL_BASE}/js/feedbackOverlay.js",
                       "--navigationtoc=context",
                       f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
     completed_process = subprocess.run(

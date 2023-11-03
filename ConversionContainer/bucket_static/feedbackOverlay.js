@@ -80,7 +80,7 @@ function addBugReportForm() {
     button.setAttribute("type", "button");
     button.setAttribute("class", "btn btn-primary hover-rp-button");
     button.setAttribute("id", "openForm");
-    button.appendChild(document.createTextNode("Open Issue"));
+    button.appendChild(document.createTextNode("Report Issue"));
 
     // Create the modal container element
     const modal = document.createElement("div");
@@ -107,7 +107,7 @@ function addBugReportForm() {
     // Create the modal title
     const modalTitle = document.createElement("h5");
     modalTitle.setAttribute("class", "modal-title");
-    modalTitle.appendChild(document.createTextNode("Open Github Issue"));
+    modalTitle.appendChild(document.createTextNode("Report Github Issue"));
 
     // Create the close button for the modal
     const closeButton = document.createElement("button");
@@ -143,11 +143,27 @@ function addBugReportForm() {
     selectedTextDescriptionLabel.setAttribute("id", "selectedTextModalDescription");
     selectedTextDescriptionLabel.appendChild(document.createTextNode("Content selection saved. Describe the issue below:"));
 
+
+    // Title.
+    const titleLabel = document.createElement("label");
+    titleLabel.setAttribute("for", "form_title");
+    titleLabel.setAttribute("id", "modalTitle");
+    titleLabel.appendChild(document.createTextNode("Title:"));
+
+    const titleInput = document.createElement("input");
+    titleInput.setAttribute("class", "form-control");
+    titleInput.setAttribute("id", "form_title");
+    titleInput.setAttribute("name", "form_title");
+    titleInput.setAttribute("required", "required");
+    titleInput.setAttribute("placeholder", "Enter title");
+
+    // Description.
     const NomralDescriptionLabel = document.createElement("label");
     NomralDescriptionLabel.setAttribute("for", "description");
     //descriptionLabel.setAttribute("class", "form-label");
     NomralDescriptionLabel.setAttribute("id", "nomralModalDescription");
     NomralDescriptionLabel.appendChild(document.createTextNode("Description:"));
+
 
     const descriptionTextarea = document.createElement("textarea");
     descriptionTextarea.setAttribute("class", "form-control");
@@ -185,6 +201,8 @@ function addBugReportForm() {
     // Append the elements to their respective parents
     // Update: Add warning label (next line)
     modalBody.appendChild(warningLabel);
+    modalBody.appendChild(titleLabel);
+    modalBody.appendChild(titleInput);
     modalBody.appendChild(selectedTextDescriptionLabel);
     modalBody.appendChild(NomralDescriptionLabel);
     modalBody.appendChild(descriptionTextarea);
@@ -240,7 +258,7 @@ function addSRButton(modal) {
         const button = document.createElement("button");
         button.setAttribute("class", "sr-only button");
         button.style.display = "none";
-        button.textContent = "Open issue for preceding element";
+        button.textContent = "Report issue for preceding element";
 
         button.onfocus = () => previousFocusElement = document.activeElement;
 
@@ -347,7 +365,7 @@ function createSmallButton(modal) {
     smallReportButton.type = 'button';
     smallReportButton.className = 'btn btn-secondary btn-sm';
     smallReportButton.style.backgroundColor = '#b31b1b';
-    smallReportButton.textContent = 'Open Issue for Selection';
+    smallReportButton.textContent = 'Report Issue for Selection';
     smallReportButton.style.position = 'fixed';
 
     document.body.appendChild(smallReportButton);
@@ -395,6 +413,7 @@ function submitBugReport(e) {
     // Canonical URL
     ARXIV_ABS_PATH = 'https://arxiv.org/abs/';
     const arxivIdv = window.location.pathname.split('/')[2]; // pathname ex: '/html/2306.16433v1/2306.16433v1.html'
+    const fullUrl = window.location.href;
     const canonicalURL = ARXIV_ABS_PATH + arxivIdv;
 
     // const user_info = "account:yc2455 contact:@cornll.edu "
@@ -430,6 +449,7 @@ function submitBugReport(e) {
     }
 
     const dataDescription = document.getElementById('description').value;
+    const formTitle = document.getElementById('form_title').value;
 
     const uniqueId = window.crypto.randomUUID();
 
@@ -459,8 +479,13 @@ function submitBugReport(e) {
         const GITHUB_BASE_URL = 'https://github.com/arXiv/html_feedback/issues/new?'
         const queryString = new URLSearchParams(form).toString()
         const link = GITHUB_BASE_URL + queryString;
-        window.open(link, '_blank');
-    }
+        // window.open(link, '_blank');
+        // disable, test later.
+
+        //Testing
+        const url = testForGitHubIssue(issueData, arxivIdv, formTitle, fullUrl);
+        window.open(url, '_blank');
+    } 
 
     document.querySelector('#myFormContent').reset();
     bugReportState.clear();
@@ -532,6 +557,50 @@ function makeGithubBody(issueData) {
     body += `Id: ${issueData.uniqueId}\n`
     return body;
 }
+
+function testForGitHubIssue(issueData, arxivIdv, formTitle, fullUrl){
+    var url = `https://github.com/arXiv/html_feedback/issues/new?assignees=&labels=&projects=&title= ${formTitle}&template=Feedback_about_HTML_formatted_papers.yml`;
+    url += `&description=${issueData.description}`;
+    url += `&uniqueId=${issueData.uniqueId}`;
+    url += `&arxivId=${arxivIdv}`;
+    url += `&browserInfo=${issueData.browserInfo}`;
+    // send the full url to the github issue
+    url += `&fullUrl=${fullUrl}`;
+    // device type
+    url += `&deviceType=${getDeviceType()}`;
+    // https://browse.arxiv.org/latexml/2308.06262v1/2308.06262v1.html
+
+    return url;
+}
+
+// test device type
+function getDeviceType() {
+    const userAgent = navigator.userAgent;
+
+    if (/iPad|iPadOS/i.test(userAgent)) {
+        return 'iPad';
+    }
+    if (/iP(hone|od)/i.test(userAgent)) {
+        return 'iOS';
+    }
+    if (/Android/i.test(userAgent)) {
+        return 'Android';
+    }
+    if (/BlackBerry|IEMobile|Windows Phone/i.test(userAgent)) {
+        return 'Other Smartphone';
+    }
+
+    if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile/i.test(userAgent)) {
+        return 'Smartphone';
+    }
+    if (/tablet|tab/i.test(userAgent) && !/Mobile/i.test(userAgent)) {
+        return 'Tablet';
+    }
+    return 'Desktop';
+}
+
+
+
 
 function handleClickMobileTOC(e){
     const tocItems = document.querySelectorAll('.ltx_ref');

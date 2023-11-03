@@ -23,21 +23,21 @@ let create_header = () => {
     var LogoBanner = `
     <div style="display: flex; width: 60%;">
         <a href="https://arxiv.org/" style="text-decoration: none; width:80px">
-            <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
-            <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+            <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logo-one-color-white.svg">
+            <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logomark-small-white.svg">
         </a>
         <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
             ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span><a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.' :
-                                  'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> <a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
+            'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> Learn more <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">about this project</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
         </div>
     </div>`;
 
 
     var Links = `
         <div style="display: inline-flex; align-items: center;">
-            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="#footer">Give Feedback</a>
-            <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Open Issue</a>
-            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>
+            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why HTML?</a>
+            <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Report Issue</a>
+            ${id === 'submission' ? '' : `<a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">Back to Abstract</a>`}
 
             <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
                 <span class="color-scheme-icon"></span>
@@ -58,9 +58,9 @@ let create_mobile_header = () => {
     <div class="container-fluid">
     <a class="navbar-brand" href="https://arxiv.org/" style="text-decoration: none; width:80px">
       <img alt="logo" class="logo" role="presentation" style="background-color: transparent;"
-        src="https://services.dev.arxiv.org/html/arxiv-logo-one-color-white.svg">
+        src="https://services.dev.arxiv.org/html/static/arxiv-logo-one-color-white.svg">
       <img alt="logo" class="logomark" role="presentation" style="background-color: transparent; margin-left:40px;"
-        src="https://services.dev.arxiv.org/html/arxiv-logomark-small-white.svg">
+        src="https://services.dev.arxiv.org/html/static/arxiv-logomark-small-white.svg">
     </a>
         <!--toc button-->
         <div class='subcontainer-fluid'>
@@ -68,16 +68,17 @@ let create_mobile_header = () => {
             data-bs-target=".ltx_page_main >.ltx_TOC.mobile" aria-controls="navbarSupportedContent" aria-expanded="false"
             aria-label="Toggle navigation" style="border:none; margin-right: 0em;">
             <span class="navbar-toggler-icon" style="width:1em;height:1em;margin-top: 0.1em;"></span>
-          </button>          
+          </button>
           <!--back to abstract-->
+          ${id === 'submission' ? '' : `
           <!-- <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; display:inline-flex; flex-direction: column; align-items:center; text-align:center" href="#"> -->
-            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}"> 
+            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="https://arxiv.org/abs/${window.location.href.match(/\/([^/]+)\.html/)[1]}">
             <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" viewBox="0 0 512 512" style="background-color:transparent; z-index:2">
                 <style>svg{fill:rgb(255, 255, 255)}</style>
                 <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/>
             </svg>
             <!-- <span style="font-size: 0.75em;">Abstract</span> -->
-            </a>
+            </a>`}
           <!--dark mode-->
           <a class="nav-link ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()"
             title="Toggle ar5iv color scheme" style="padding: 0.6rem;margin-top: 0rem;">
@@ -95,6 +96,7 @@ let create_mobile_header = () => {
 
 let delete_footer = () => document.querySelector('footer').remove();
 
+
 let create_footer = () => {
     let footer = document.createElement('footer');
     let ltx_page_footer = document.createElement('div');
@@ -102,6 +104,7 @@ let create_footer = () => {
     footer.setAttribute('id', 'footer');
     footer.setAttribute('class', 'ltx_document');
 
+    //killed the footer nav with the following 4 variables, keeping them in case we want to bring them back
     var night = `
         <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme">
             <span class="color-scheme-icon"></span>
@@ -134,22 +137,16 @@ let create_footer = () => {
     footer.innerHTML = `
         <div class="keyboard-glossary">
             <h2>Instructions for reporting errors</h2>
-            <p>HTML versions of papers are experimental and a step towards improving accessibility and mobile device support. We appreciate feedback on errors in the HTML that will help us improve the conversion and rendering. Use the methods listed below to report errors:</p>
+            <p>HTML versions of papers are experimental, and your feedback helps bring arXiv steps closer towards improving accessibility and mobile device support. While experimental HTML may not be perfect, it is essential for open access and accessibility. To report errors in the HTML that will help us improve conversion and rendering, choose any of the methods listed below:</p>
             <ul>
-                <li>Use the "Open Issue" button.</li>
+                <li>Use the "Report Issue" button.</li>
                 <li>To open the report feedback form via keyboard, use "<strong>Ctrl + ?</strong>".</li>
-                <li>You can make a text selection and use the "Open Issue for Selection" button that will display near your cursor.</li>
+                <li>Make a text selection and use the "Report Issue for Selection" button that will display near your cursor.</li>
                 <li class="sr-only">You can use Alt+Y to toggle on and Alt+Shift+Y to toggle off accessible reporting links at each section.</li>
             </ul>
-            <p>We appreciate your time reviewing and reporting rendering errors in the HTML. It will help us improve the HTML versions for all readers and make papers more accessible, because disability should not be a barrier to accessing the research in your field.</p>
-            <p>Have free development cycles? Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">list of packages that need conversion</a>, and welcome both feedback and developer contributions.</p>
+            <p>Our team has already identified <a class="ltx_ref" href=https://github.com/arXiv/html_feedback/issues target="_blank">the following issues</a>. We appreciate your time reviewing and reporting rendering errors we may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability should not be a barrier to accessing research in your field. Thank you for your continued support in making arXiv more accessible and championing open access above all and for all.</p>
+            <p>Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">list of packages that need conversion</a>, and welcome <a class="ltx_ref" href=https://github.com/brucemiller/LaTeXML/issues target="_blank">developer contributions</a>.</p>
         </div>
-        <nav>
-            ${night}
-            ${copyLink}
-            ${policyLink}
-            ${HTMLLink}
-        </nav>
     `;
 
     ltx_page_footer.innerHTML = TimeLogo;
@@ -204,6 +201,15 @@ function ref_ArXivFont(){
   document.head.appendChild(link);
 }
 
+window.addEventListener('load', function() {
+  if (window.location.pathname.split('/')[2] === 'submission') {
+    const baseTag = this.document.querySelector('base');
+    if (baseTag) {
+      baseTag.remove();
+    }
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('.ltx_page_main').id = 'main';
 
@@ -243,17 +249,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const referenceItems = document.querySelectorAll(".ltx_bibitem");
-  
+
     referenceItems.forEach(item => {
       const referenceId = item.getAttribute("id");
       const backToReferenceBtn = document.createElement("button");
       backToReferenceBtn.innerHTML = "&#x2191;";
       backToReferenceBtn.classList.add("back-to-reference-btn");
       backToReferenceBtn.setAttribute("aria-label", "Back to the article");
-  
+
       let scrollPosition = 0;
       let clickedCite = false;
-  
+
       backToReferenceBtn.addEventListener("click", function() {
         if (clickedCite) {
           window.scrollTo(0, scrollPosition);
@@ -264,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       });
-  
+
       const citeElements = document.querySelectorAll(`cite a[href="#${referenceId}"]`);
       citeElements.forEach(citeElement => {
         citeElement.addEventListener("click", function() {
@@ -272,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
           clickedCite = true;
         });
       });
-  
+
       const refNumElement = item.querySelector(".ltx_tag_bibitem");
       if (refNumElement) {
         refNumElement.appendChild(backToReferenceBtn);

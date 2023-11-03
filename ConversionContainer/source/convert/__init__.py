@@ -16,7 +16,8 @@ from bs4 import BeautifulSoup
 
 from flask import current_app
 
-from ..util import untar, id_lock
+from .licenses import get_license_for_paper, get_license_for_submission
+from ..util import untar, id_lock, unzip_single_file
 from ..buckets.util import get_google_storage_client
 from ..buckets import (
     download_blob,
@@ -31,12 +32,12 @@ from .concurrency_control import (
     write_failure
 )
 
-def process(id: str, blob: str, bucket: str) -> bool:
+def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
 
     """ File system we will be using """
     safe_name = str(uuid.uuid4()) # In case two machines download before locking
-    tar_gz = f'{safe_name}.tar.gz' # the file we download the blob to
+    download_file = f'{safe_name}.gz' if single_file else f'{safe_name}.gz' # the file we download the blob to
     src_dir = f'extracted/{id}' # the directory we untar the blob to
     bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
     outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
@@ -54,7 +55,7 @@ def process(id: str, blob: str, bucket: str) -> bool:
             # Check file format and download to ./[{id}.tar.gz]
             try:
                 logging.info(f"Step 1: Download {id}")
-                download_blob(bucket, blob, tar_gz)
+                download_blob(bucket, blob, download_file)
             except:
                 logging.info(f'Failed to download {id}')
                 traceback.print_exc()
@@ -62,53 +63,60 @@ def process(id: str, blob: str, bucket: str) -> bool:
 
             # Write to DB that process has started
             logging.info(f"Write start process to db")
-            write_start(id, tar_gz, is_submission)
+            write_start(id, download_file, is_submission)
 
             # Untar file ./[tar] to ./extracted/id/
-            logging.info(f"Step 2: Untar {id}")
-            untar (tar_gz, src_dir)
+            if not single_file:
+                logging.info(f"Step 2: Untar {id}")
+                untar (download_file, src_dir)
+            else:
+                logging.info(f"Step 2: Ungzip {id}")
+                unzip_single_file(download_file, src_dir)
 
             # Remove .ltxml files from [source] (./extracted/id/)
             logging.info(f"Step 3: Remove .ltxml for {id}")
-            _remove_ltxml(src_dir)
+            remove_ltxml(src_dir)
 
             # Identify main .tex source in [source]
             logging.info(f"Step 4: Identify main .tex source for {id}")
-            main = _find_main_tex_source(src_dir)
+            main = find_main_tex_source(src_dir)
 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            missing_packages = _do_latexml(main, outer_bucket_dir, id, is_submission)
+            missing_packages = do_latexml(main, outer_bucket_dir, id, is_submission)
 
             if missing_packages:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
-                _insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
+                insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
+
+            insert_license(f'{outer_bucket_dir}/{id}.html', id, is_submission)
 
             logging.info(f"Step 6: Upload html for {id}")
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
+                insert_base_tag(f'{outer_bucket_dir}/{id}.html', id)
                 upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
 
             # TODO: Maybe remove for batch
-            download_blob(bucket, blob, tar_gz) # download again to double check for most recent tex source
-            write_success(id, tar_gz, is_submission)
+            download_blob(bucket, blob, download_file) # download again to double check for most recent tex source
+            write_success(id, download_file, is_submission)
     except Exception as e:
         logging.info(f'Conversion unsuccessful with {e}')
         try:
-            download_blob(bucket, blob, tar_gz)
-            write_failure(id, tar_gz, is_submission)
+            download_blob(bucket, blob, download_file)
+            write_failure(id, download_file, is_submission)
         except Exception as e:
             logging.info(f'Failed to write failure for {id} with {e}')
     finally:
         try:
             with id_lock(id, current_app.config['LOCK_DIR'], 1):
-                _clean_up(tar_gz, id)
+                _clean_up(download_file, id)
         except Exception as e:
             logging.info(f"Failed to clean up {id} with {e}")
 
 
-def _remove_ltxml(path: str) -> None:
+def remove_ltxml(path: str) -> None:
     """
     Remove files with the .ltxml extension from the
     directory "path".
@@ -128,7 +136,7 @@ def _remove_ltxml(path: str) -> None:
             f".ltxml file at {path} failed to be removed") from exc
 
 
-def _find_main_tex_source(path: str) -> str:
+def find_main_tex_source(path: str) -> str:
     """
     Looks inside the directory at "path" and determines the
     main .tex source. Assumes that the main .tex file
@@ -192,7 +200,7 @@ def _list_missing_packages (stdout: str) -> Optional[List[str]]:
     matches = MISSING_PACKAGE_RE.finditer(stdout)
     return list(map(lambda x: x.group(1), matches)) or None
 
-def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> Optional[List[str]]:
+def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> Optional[List[str]]:
     """
     Runs latexml on the .tex file at main_fpath and
     outputs the html at out_fpath.
@@ -246,21 +254,32 @@ def _do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: boo
     os.remove(errpath)
     return _list_missing_packages(completed_process.stdout)
 
-def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
+def insert_base_tag (fpath: str, id: str) -> None:
+    """ This inserts the base tag into the html so we can use the /html/arxiv_id url """
+    base_html = f'<base href="/html/{id}/">'
+
+    with open(fpath, 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        soup.head.append(BeautifulSoup(base_html, 'html.parser'))
+        html.truncate()
+        html.seek(0)
+        html.write(str(soup))
+
+def insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> None:
     """ This is the HTML for the closeable pop up warning for missing packages """
     missing_packages_lis = "\n".join(map(lambda x: f"<li>failed: {x}</li>", missing_packages))
     popup_html = f"""
-        <div class="package-alerts" role="alert">
+        <div class="package-alerts ltx_document" role="alert">
             <button aria-label="Dismiss alert" onclick="closePopup()">
-                <span aria-hidden="true"><svg role="presentation" width="30" height="30" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+                <span aria-hidden="true"><svg role="presentation" width="20" height="20" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
                 <path d="M0.549989 4.44999L4.44999 0.549988L43.45 39.55L39.55 43.45L0.549989 4.44999Z" />
                 <path d="M39.55 0.549988L43.45 4.44999L4.44999 43.45L0.549988 39.55L39.55 0.549988Z" />
                 </svg></span>
             </button>
-            <p>HTML conversions sometimes display errors due to content that did not convert correctly from the source. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues are not necessary; they are known and are being worked on.</p>
-            <ul>
-                {missing_packages_lis}
-            </ul>
+            <p>HTML conversions <a href="https://info.dev.arxiv.org/about/accessibility_html_error_messages.html" target="_blank">sometimes display errors</a> due to content that did not convert correctly from the source. This paper uses the following packages that are not yet supported by the HTML conversion tool. Feedback on these issues are not necessary; they are known and are being worked on.</p>
+                <ul arial-label="Unsupported packages used in this paper">
+                    {missing_packages_lis}
+                </ul>
             <p>Authors: achieve the best HTML results from your LaTeX submissions by selecting from this list of <a href="https://corpora.mathweb.org/corpus/arxmliv/tex_to_html/info/loaded_file" target="_blank">supported packages</a>.</p>
         </div>
 
@@ -269,11 +288,31 @@ def _insert_missing_package_warning (fpath: str, missing_packages: List[str]) ->
                 document.querySelector('.package-alerts').style.display = 'none';
             }}
         </script>
-    """
-
+        """
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
-        soup.body.append(BeautifulSoup(popup_html, 'html.parser'))
+        soup.find('div', attrs={'class': 'ltx_page_content'}).insert(0, BeautifulSoup(popup_html, 'html.parser'))
+        html.truncate()
+        html.seek(0)
+        html.write(str(soup))
+
+def insert_license (fpath: str, id: str, is_submission: bool):
+    logging.info (f"Getting license")
+    if not is_submission:
+        paper_id, version = id.split('v')
+        license = get_license_for_paper(paper_id, int(version))
+    else:
+        logging.info (f"Getting license for submission: {id}")
+        license = get_license_for_submission(int(id))
+        logging.info (f"License: {license}")
+    license_html = BeautifulSoup(f'<div id="license-tr">{license}</div>', 'html.parser')
+    with open(fpath, 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        target_section = soup.new_tag('div', attrs={'class': 'section', 'id': 'target-section'})
+        title = soup.find('h1', attrs={'class': 'ltx_title_document'})
+        title.replace_with(target_section)
+        target_section.append(license_html)
+        target_section.append(title)
         html.truncate()
         html.seek(0)
         html.write(str(soup))

@@ -1,7 +1,9 @@
 from typing import Any
 from contextlib import contextmanager
 import os
+import shutil
 import tarfile
+import gzip
 
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from filelock import FileLock
@@ -10,6 +12,12 @@ def untar (fpath: str, dir_name: str):
     with tarfile.open(fpath) as tar:
         tar.extractall(dir_name)
         tar.close()
+
+def unzip_single_file (fpath: str, dir_name: str):
+    fname = os.path.basename(fpath)[:-3]
+    with gzip.open(fpath) as ungzip:
+        with open(os.path.join(dir_name, fname), 'wb+') as out:
+            shutil.copyfileobj(ungzip, out)
 
 @contextmanager
 def id_lock (id: Any, lock_dir: str, timeout: float = -1) -> FileLock:

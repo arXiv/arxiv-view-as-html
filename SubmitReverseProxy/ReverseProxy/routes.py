@@ -5,7 +5,8 @@ import os
 
 from flask import Blueprint, Request, \
     request, current_app, \
-    send_from_directory, g
+    send_from_directory, g, \
+    redirect
 from flask_cors import cross_origin
 from werkzeug.exceptions import BadRequest
 
@@ -15,6 +16,7 @@ from google.auth.credentials import Credentials
 from google.auth.transport import requests
 
 from .authorize import authorize_user_for_submission
+from .html_queries import get_source_format
 from .poll import poll_submission
 from .util import untar, clean_up
 from .exceptions import AuthError, UnauthorizedError
@@ -30,16 +32,6 @@ def _get_arxiv_user_id () -> int:
         return request.auth.user.user_id
     except Exception as e:
         raise AuthError from e
-    
-# def authorize (f: Callable) -> Callable:
-
-#     @wraps(f)
-#     def inner (*args, **kwargs):
-#         user_id = _get_arxiv_user_id(request)
-#         authorize_user_for_submission(user_id, g.submission_id)
-#         return f(*args, **kwargs)
-    
-#     return inner
 
 def authorize (submission_id: int):
     user_id = _get_arxiv_user_id()
@@ -64,7 +56,6 @@ def get (submission_id: int):
     _, _, storage_client = _get_google_auth()
     bucket = storage_client.get_bucket(BUCKET)
     blob = bucket.blob(f'{submission_id}.tar.gz')
-
 
     blob.download_to_filename(f'{TARS_DIR}{submission_id}')
 

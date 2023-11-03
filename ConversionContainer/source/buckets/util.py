@@ -1,3 +1,7 @@
+from typing import Optional
+import re
+from bs4 import BeautifulSoup
+
 from google.cloud import storage
 import google.cloud.logging
 

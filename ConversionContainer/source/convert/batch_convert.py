@@ -16,10 +16,11 @@ from .concurrency_control import (
     has_doc_been_tried
 )
 from . import (
-    _remove_ltxml, 
-    _find_main_tex_source, 
-    _do_latexml,
-    _insert_missing_package_warning,
+    remove_ltxml, 
+    find_main_tex_source, 
+    do_latexml,
+    insert_missing_package_warning,
+    insert_base_tag,
     _clean_up
 )
 
@@ -66,19 +67,21 @@ def batch_process(id: str, blob: str, bucket: str) -> bool:
 
             # Remove .ltxml files from [source] (./extracted/id/)
             logging.info(f"Step 3: Remove .ltxml for {id}")
-            _remove_ltxml(src_dir)
+            remove_ltxml(src_dir)
 
             # Identify main .tex source in [source]
             logging.info(f"Step 4: Identify main .tex source for {id}")
-            main = _find_main_tex_source(src_dir)
+            main = find_main_tex_source(src_dir)
                 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logging.info(f"Step 5: Do LaTeXML for {id}")
-            missing_packages = _do_latexml(main, outer_bucket_dir, id)
+            missing_packages = do_latexml(main, outer_bucket_dir, id, False)
 
             if missing_packages:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
-                _insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
+                insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
+
+            insert_base_tag(f'{outer_bucket_dir}/{id}.html', id)
 
             # Post process html
             logging.info(f"Step 6: Upload html for {id}")            

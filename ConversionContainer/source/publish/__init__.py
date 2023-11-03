@@ -8,10 +8,12 @@ from ..models.util import transaction
 from .db_queries import submission_has_html, \
     write_published_html
 from .buckets import (
-    move_sub_to_doc_bucket, 
+    download_sub_to_doc_dir,
+    upload_sub_to_doc_bucket, 
     delete_sub,
     move_sub_qa_to_doc_qa
 )
+from .watermark import make_published_watermark, insert_watermark
 
 def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
@@ -46,22 +48,29 @@ def publish (payload: Dict):
     # the document bucket may still get the site
     
     with transaction() as session:
-        # 2.
+        # Check if there is an existing conversion for given submission.
         submission_row = submission_has_html(submission_id, session)
         if submission_row is None:
             logging.info(f'No html found for submission {submission_id}')
             return
         
-        # 3.
-        move_sub_to_doc_bucket (submission_id, paper_idv)
+        # Download submission conversion and rename. Return path to main .html file
+        html_file = download_sub_to_doc_dir(submission_id, paper_idv)
 
-        # 4. 
+        # Inject watermark into html
+        insert_watermark(html_file, 
+                         make_published_watermark(submission_id, paper_id, version))
+        
+        # Upload directory to published conversion bucket
+        upload_sub_to_doc_bucket (submission_id, paper_idv)
+
+        # Update database accordingly
         write_published_html (paper_id, version, submission_row, session)
 
-        # 5.
+        # Move log output from sub bucket to published bucket
         move_sub_qa_to_doc_qa (submission_id, paper_idv)
     
-        # 6. 
+        # Delete from local fs 
         delete_sub (submission_id)    
 
 

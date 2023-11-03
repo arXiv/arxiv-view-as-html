@@ -13,7 +13,7 @@ class DBLaTeXMLDocuments(db.Model):
     LaTeXML metadata table for 
     papers with a document_id
     """
-
+    __bind_key__ = 'latexml'
     __tablename__ = 'arXiv_latexml_doc'
 
     paper_id = Column(String(20), primary_key=True)
@@ -33,7 +33,7 @@ class DBLaTeXMLSubmissions (db.Model):
     LaTeXML metadata table for 
     papers in the submission pipeline
     """
-
+    __bind_key__ = 'latexml'
     __tablename__ = 'arXiv_latexml_sub'
     submission_id = Column(Integer, primary_key=True)
     # conversion_status codes: 

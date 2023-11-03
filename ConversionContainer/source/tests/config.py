@@ -7,7 +7,6 @@ OUT_BUCKET_SUB_ID = 'latexml_submission_converted'
 QA_BUCKET_SUB = 'latexml_qa_sub'
 QA_BUCKET_DOC = 'latexml_qa_doc'
 
-
 LATEXML_COMMIT = 'test_commit_version'
 
 LATEXML_DB_URI = 'sqlite://'

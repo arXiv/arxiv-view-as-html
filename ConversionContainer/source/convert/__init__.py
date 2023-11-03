@@ -97,7 +97,6 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
             else:
                 insert_base_tag(f'{outer_bucket_dir}/{id}.html', id)
                 upload_dir_to_gcs(bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'])
-                # upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_ARXIV_ID'], f'{bucket_dir_container}/{id}.tar.gz')
 
             # TODO: Maybe remove for batch
             download_blob(bucket, blob, download_file) # download again to double check for most recent tex source

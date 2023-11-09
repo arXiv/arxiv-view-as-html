@@ -455,9 +455,9 @@ function submitBugReport(e) {
     // Send to Github Issue.
     if (e.submitter.id === 'modal-submit') {
         const url = getGitHubIssueURL(issueData, arxivIdv, formTitle, fullUrl); 
-        // searchGitHubIssuesByArticleId(issueData.uniqueId);
-        testId = "ad1f4975-7bd3-42b5-b19c-be495864954f";
-        searchGitHubIssuesByArticleId(testId);
+        searchGitHubIssuesByArticleId(issueData.uniqueId);
+        // testId = "ad1f4975-7bd3-42b5-b19c-be495864954f";
+        // searchGitHubIssuesByArticleId(testId);
         window.open(url, '_blank');
     } 
 
@@ -538,21 +538,24 @@ function getDeviceType() {
 
 async function searchGitHubIssuesByArticleId(articleId) {
   const GITHUB_API_URL = 'https://api.github.com/search/issues?q=repo:arXiv/html_feedback+';
+  const GITHUB_ISSUES_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
 
-  // Construct the search URL
-  const searchUrl = GITHUB_API_URL + encodeURIComponent(articleId);
+  // Construct the API search URL
+  const searchApiUrl = GITHUB_API_URL + encodeURIComponent(articleId);
+  // Construct the web interface URL for user-facing results
+  const searchWebUrl = GITHUB_ISSUES_URL + encodeURIComponent(articleId);
 
   try {
     // Perform the search by making a web request to the GitHub API
-    const response = await fetch(searchUrl);
+    const response = await fetch(searchApiUrl);
     const data = await response.json();
 
     if (data.items && data.items.length > 0) {
-      // Issues have been found
-      console.log('Issues found:', data.items);
+      // Issues have been found, open them in a new window/tab
+      window.open(searchWebUrl, '_blank');
       return true;
     } else {
-      // No issues found
+      // No issues found, do nothing
       console.log('No issues found for articleId:', articleId);
       return false;
     }
@@ -561,6 +564,7 @@ async function searchGitHubIssuesByArticleId(articleId) {
     return false;
   }
 }
+
 
 
 function handleClickOutsideModal(e, modal) {

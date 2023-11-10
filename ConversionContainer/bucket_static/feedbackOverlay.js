@@ -455,9 +455,10 @@ function submitBugReport(e) {
     // Send to Github Issue.
     if (e.submitter.id === 'modal-submit') {
         const url = getGitHubIssueURL(issueData, arxivIdv, formTitle, fullUrl); 
-        searchGitHubIssuesByArticleId(issueData.uniqueId);
-        // testId = "ad1f4975-7bd3-42b5-b19c-be495864954f";
+        // searchGitHubIssuesByArticleId(issueData.uniqueId);
+        testId = "ad1f4975-7bd3-42b5-b19c-be495864954f";
         // searchGitHubIssuesByArticleId(testId);
+        searchGitHubIssuesByUniqueId(testId);
         window.open(url, '_blank');
     } 
 
@@ -536,34 +537,79 @@ function getDeviceType() {
 //     window.open(searchURL, '_blank');
 // }
 
-async function searchGitHubIssuesByArticleId(articleId) {
-  const GITHUB_API_URL = 'https://api.github.com/search/issues?q=repo:arXiv/html_feedback+';
-  const GITHUB_ISSUES_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
+// async function searchGitHubIssuesByArticleId(articleId) {
+//   const GITHUB_API_URL = 'https://api.github.com/search/issues?q=repo:arXiv/html_feedback+';
+//   const GITHUB_ISSUES_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
 
-  // Construct the API search URL
-  const searchApiUrl = GITHUB_API_URL + encodeURIComponent(articleId);
-  // Construct the web interface URL for user-facing results
-  const searchWebUrl = GITHUB_ISSUES_URL + encodeURIComponent(articleId);
+//   // Construct the API search URL
+//   const searchApiUrl = GITHUB_API_URL + encodeURIComponent(articleId);
+//   // Construct the web interface URL for user-facing results
+//   const searchWebUrl = GITHUB_ISSUES_URL + encodeURIComponent(articleId);
 
-  try {
-    // Perform the search by making a web request to the GitHub API
-    const response = await fetch(searchApiUrl);
-    const data = await response.json();
+//   try {
+//     // Perform the search by making a web request to the GitHub API
+//     const response = await fetch(searchApiUrl);
+//     const data = await response.json();
 
-    if (data.items && data.items.length > 0) {
-      // Issues have been found, open them in a new window/tab
-      window.open(searchWebUrl, '_blank');
-      return true;
-    } else {
-      // No issues found, do nothing
-      console.log('No issues found for articleId:', articleId);
-      return false;
+//     if (data.items && data.items.length > 0) {
+//       // Issues have been found, open them in a new window/tab
+//       window.open(searchWebUrl, '_blank');
+//       return true;
+//     } else {
+//       // No issues found, do nothing
+//       console.log('No issues found for articleId:', articleId);
+//       return false;
+//     }
+//   } catch (error) {
+//     console.error('Search failed:', error);
+//     return false;
+//   }
+// }
+
+
+//This one is for opne a unique template.
+// async function searchGitHubIssuesByUniqueId(uniqueId) {
+//     const GITHUB_API_URL = 'https://api.github.com/search/issues?q=repo:arXiv/html_feedback+';
+//     const searchUrl = GITHUB_API_URL + encodeURIComponent(uniqueId);
+
+//     const GITHUB_ISSUES_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
+//     //const searchWebUrl = GITHUB_ISSUES_URL + encodeURIComponent(uniqueId);
+//     const searchQuery = `is:issue ${uniqueId}`;
+//     const encodedQuery = encodeURIComponent(searchQuery);
+//     const searchWebUrl = `${GITHUB_ISSUES_URL}${encodedQuery}`;
+    
+    
+//     const response = await fetch(searchUrl);
+//     if (!response.ok) {
+//         console.error('GitHub API responded with an error:', response.status);
+//         return null;
+//     }
+    
+//     const data = await response.json();
+//     console.log(searchWebUrl);
+//     // return data.items.length > 0 ? data.items[0].html_url : null;
+//     return data.items.length > 0 ? searchWebUrl : null;
+// }
+
+async function searchGitHubIssuesByUniqueId(uniqueId) {
+    const GITHUB_ISSUES_SEARCH_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
+    const searchQuery = encodeURIComponent(uniqueId);
+    const searchUrl = GITHUB_ISSUES_SEARCH_URL + searchQuery;
+    
+    const response = await fetch(`https://api.github.com/search/issues?q=${searchQuery}+repo:arXiv/html_feedback`);
+    if (!response.ok) {
+        console.error('GitHub API responded with an error:', response.status);
+        return null;
     }
-  } catch (error) {
-    console.error('Search failed:', error);
-    return false;
-  }
+    
+    const data = await response.json();
+    // If issues are found, return the search URL, otherwise return null.
+    console.log(searchUrl);
+    return data.items.length > 0 ? searchUrl : null;
 }
+
+
+
 
 
 

@@ -1092,6 +1092,6 @@ article{
 }
 
 :not(mtext):not(.ltx_flex_cell)>:not(mtext):not(.ltx_flex_cell)>.ltx_img_square {
-  width: 100%;
+  max-width: 100%;
 }
 

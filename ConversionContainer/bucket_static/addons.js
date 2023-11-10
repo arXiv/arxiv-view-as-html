@@ -365,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     delete_footer();
     create_footer();
-
+    // added the following lines to convert citations to ranges and setup the modal popup
     convertCitationsToRanges();
     setupModalPopup();
     assignNumbersToReferences();

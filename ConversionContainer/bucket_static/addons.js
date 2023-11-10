@@ -194,6 +194,150 @@ let unwrap_nav = () => {
     }
 }
 
+function convertCitationsToRanges() {
+  let citationElements = document.querySelectorAll('.ltx_cite.ltx_citemacro_cite');
+
+  citationElements.forEach(function(cite) {
+      let citationLinks = cite.getElementsByTagName('a');
+      let citationNumbers = Array.from(citationLinks).map(function(link) {
+      return parseInt(link.textContent);
+      });
+
+      citationNumbers.sort(function(a, b) { return a - b; });
+
+      let ranges = [];
+      let start = null, end = null;
+
+      let addRange = function(start, end) {
+      if (start !== null) {
+          ranges.push((start === end || end === null) ? String(start) : start + '-' + end);
+      }
+      };
+
+      for (let i = 0; i < citationNumbers.length; i++) {
+      if (start === null) {
+          start = citationNumbers[i];
+          end = start;
+      } else if (citationNumbers[i] === end + 1) {
+          end = citationNumbers[i];
+      } else {
+          addRange(start, end);
+          start = citationNumbers[i];
+          end = start;
+      }
+      }
+
+      addRange(start, end);
+
+      let newCitationHtml = ranges.map(function(range) {
+      return '<a href="#ref" class="ltx_ref range">' + range + '</a>';
+      }).join(', ');
+
+      cite.innerHTML = '[' + newCitationHtml + ']';
+  });
+}
+
+function setupModalPopup() {
+
+  let modal = document.getElementById('citationModal');
+  let modalBody = modal.querySelector('.modal-body');
+  let modalTrigger;
+
+  function focusFirstElement() {
+      let focusableElements = modal.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (focusableElements.length) {
+          focusableElements[0].focus();
+      }
+  }
+
+  function trapTabKey(e) {
+      let focusableElements = modal.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      let firstFocusableElement = focusableElements[0];
+      let lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+      if (e.key === 'Tab') {
+          if (e.shiftKey) {
+              if (document.activeElement === firstFocusableElement) {
+                  lastFocusableElement.focus();
+                  e.preventDefault();
+              }
+          } else /* tab */ {
+              if (document.activeElement === lastFocusableElement) {
+                  firstFocusableElement.focus();
+                  e.preventDefault();
+              }
+          }
+      }
+  }
+
+  function closeModal() {
+      modal.style.display = 'none';
+      document.removeEventListener('keydown', trapTabKey);
+      if (modalTrigger) {
+          modalTrigger.focus();
+      }
+  }
+
+  function handleModalKeyDown(e) {
+      if (e.key === 'Escape') {
+          closeModal();
+      }
+  }
+
+  document.addEventListener('click', function(event) {
+      if (event.target.classList.contains('range')) {
+          event.preventDefault();
+          modalTrigger = event.target;
+
+          let rangeText = event.target.textContent;
+          let rangeParts = rangeText.split('-');
+          let start = parseInt(rangeParts[0]);
+          let end = rangeParts.length > 1 ? parseInt(rangeParts[1]) : start;
+          let citationLinksHtml = '';
+
+          for (let i = start; i <= end; i++) {
+              citationLinksHtml += '<a href="#bib.bib' + i + '">' + i + '</a>';
+              if (i < end) {
+                  citationLinksHtml += ', ';
+              }
+          }
+
+          modalBody.innerHTML = 'Citations for range: ' + citationLinksHtml;
+          modalBody.innerHTML += '<br/><a href="#bib" class="go-to-references">Go to References</a>';
+
+          let myModal = new bootstrap.Modal(document.getElementById('citationModal'));
+          myModal.show();
+
+          modal.setAttribute('aria-hidden', 'false');
+          document.body.setAttribute('aria-hidden', 'true');
+          modal.style.display = 'block';
+          focusFirstElement();
+          modal.querySelector('.close').addEventListener('click', closeModal);
+          document.addEventListener('keydown', handleModalKeyDown);
+          modal.addEventListener('keydown', trapTabKey);
+      }
+  });
+
+  modal.querySelector('.close').addEventListener('click', function() {
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.removeAttribute('aria-hidden');
+      closeModal();
+  });
+}
+
+function assignNumbersToReferences() {
+  let bibItems = document.querySelectorAll('.ltx_biblist .ltx_bibitem');
+
+  bibItems.forEach((item, index) => {
+      let referenceSpan = item.querySelector('.ltx_tag.ltx_role_refnum.ltx_tag_bibitem');
+      if (referenceSpan) {
+          let numberSpan = document.createElement('span');
+          numberSpan.innerText = `[${index + 1}] `;
+          referenceSpan.insertBefore(numberSpan, referenceSpan.firstChild);
+      }
+  });
+}
+
 function ref_ArXivFont(){
   var link = document.createElement("link");
   link.rel = "stylesheet";

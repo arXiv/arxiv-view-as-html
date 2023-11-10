@@ -297,7 +297,7 @@ async function showModal(modal) {
         modalHeader.setAttribute('data-bs-theme', "light");
     }
 
-    //const uniqueId = window.crypto.randomUUID();
+    const uniqueId = window.crypto.randomUUID();
     // 2023-11-09.
     // const uniqueId = "ad1f4975-7bd3-42b5-b19c-be495864954f";
     const issueUrl = await searchGitHubIssuesByUniqueId(uniqueId);
@@ -305,6 +305,7 @@ async function showModal(modal) {
         console.log('!!!!!!Issue exists:', issueUrl);
         // If an issue exists, create a message and append it to the modal
         const reportMessage = document.createElement('div');
+        reportMessage.id = 'report-message';
         reportMessage.innerHTML = `This article has been reported before. See <a href="${issueUrl}" target="_blank">existing issue</a>.`;
         // Assuming '.modal-body' is the class of the modal content container
         document.querySelector('.modal-body').prepend(reportMessage);
@@ -317,7 +318,32 @@ async function showModal(modal) {
 
 function hideModal(modal) {
     modal.style.display = 'none';
+    clearReportMessage();
 }
+
+async function searchGitHubIssuesByUniqueId(uniqueId) {
+    const GITHUB_ISSUES_SEARCH_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
+    const searchQuery = encodeURIComponent(uniqueId);
+    const searchUrl = GITHUB_ISSUES_SEARCH_URL + searchQuery;
+    
+    const response = await fetch(`https://api.github.com/search/issues?q=${searchQuery}+repo:arXiv/html_feedback`);
+    if (!response.ok) {
+        console.error('GitHub API responded with an error:', response.status);
+        return null;
+    }
+    
+    const data = await response.json();
+    // If issues are found, return the search URL, otherwise return null.
+    console.log(searchUrl);
+    return data.items.length > 0 ? searchUrl : null;
+}
+
+function clearReportMessage() {
+    const reportMessageElement = document.getElementById('report-message');
+    if (reportMessageElement) {
+      reportMessageElement.remove();
+    }
+  }
 
 function showButtons(buttons) {
     // buttons.forEach((button) => {
@@ -529,28 +555,6 @@ function getDeviceType() {
     }
     return 'Desktop';
 }
-
-async function searchGitHubIssuesByUniqueId(uniqueId) {
-    const GITHUB_ISSUES_SEARCH_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
-    const searchQuery = encodeURIComponent(uniqueId);
-    const searchUrl = GITHUB_ISSUES_SEARCH_URL + searchQuery;
-    
-    const response = await fetch(`https://api.github.com/search/issues?q=${searchQuery}+repo:arXiv/html_feedback`);
-    if (!response.ok) {
-        console.error('GitHub API responded with an error:', response.status);
-        return null;
-    }
-    
-    const data = await response.json();
-    // If issues are found, return the search URL, otherwise return null.
-    console.log(searchUrl);
-    return data.items.length > 0 ? searchUrl : null;
-}
-
-
-
-
-
 
 function handleClickOutsideModal(e, modal) {
     if (e.target == modal)

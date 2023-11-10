@@ -366,6 +366,10 @@ document.addEventListener("DOMContentLoaded", () => {
     delete_footer();
     create_footer();
 
+    convertCitationsToRanges();
+    setupModalPopup();
+    assignNumbersToReferences();
+
     window.addEventListener('resize', function() {
       if (window.innerWidth <=719) {
         const toc= document.querySelector('.ltx_page_main>.ltx_TOC');

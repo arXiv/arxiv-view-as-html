@@ -9,7 +9,7 @@ from .db_queries import submission_has_html, \
     write_published_html
 from .buckets import (
     download_sub_to_doc_dir,
-    upload_sub_to_doc_bucket, 
+    upload_dir_to_doc_bucket, 
     delete_sub,
     move_sub_qa_to_doc_qa
 )
@@ -62,7 +62,7 @@ def publish (payload: Dict):
                          make_published_watermark(submission_id, paper_id, version))
         
         # Upload directory to published conversion bucket
-        upload_sub_to_doc_bucket (submission_id, paper_idv)
+        upload_dir_to_doc_bucket (paper_idv)
 
         # Update database accordingly
         write_published_html (paper_id, version, submission_row, session)

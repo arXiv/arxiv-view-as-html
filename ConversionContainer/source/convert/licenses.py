@@ -4,7 +4,7 @@ import logging
 
 from sqlalchemy.sql import text
 from ..exceptions import DBConnectionError
-from ..models.util import database_retry
+from ..models.util import database_retry, transaction
 from ..models.db import db
 
 def _license_url_to_str_mapping (url: Optional[str]) -> str:
@@ -27,22 +27,17 @@ def _license_url_to_str_mapping (url: Optional[str]) -> str:
 
 @database_retry(5)
 def get_license_for_paper (paper_id: str, version: int) -> str:
-    try:
-        query = text("SELECT license from arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
-        query = query.bindparams(paper_id=paper_id, version=version)
-        return _license_url_to_str_mapping(
-            db.session.execute(query).scalar())
-    except Exception as e:
-        logging.info (str(e))
-        raise DBConnectionError from e
+    query = text("SELECT license from arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
+    query = query.bindparams(paper_id=paper_id, version=version)
+    with transaction() as session:
+        license_raw = session.execute(query).scalar()
+    return _license_url_to_str_mapping(license_raw)
     
 @database_retry(5)
 def get_license_for_submission (submission_id: int) -> str:
-    try:
-        query = text("SELECT license from arXiv_submissions WHERE submission_id=:submission_id")
-        query = query.bindparams(submission_id=submission_id)
-        return _license_url_to_str_mapping(
-            db.session.execute(query).scalar())
-    except Exception as e:
-        logging.info (str(e))
-        raise DBConnectionError from e
+    query = text("SELECT license from arXiv_submissions WHERE submission_id=:submission_id")
+    query = query.bindparams(submission_id=submission_id)
+    with transaction() as session:
+        license_raw = session.execute(query).scalar()
+    return _license_url_to_str_mapping(license_raw)
+

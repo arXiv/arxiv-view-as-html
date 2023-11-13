@@ -37,7 +37,8 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
 
     """ File system we will be using """
     safe_name = str(uuid.uuid4()) # In case two machines download before locking
-    download_file = f'{safe_name}.gz' if single_file else f'{safe_name}.gz' # the file we download the blob to
+    download_file = f'{safe_name}.gz' if single_file else f'{safe_name}.tar
+    .gz' # the file we download the blob to
     src_dir = f'extracted/{id}' # the directory we untar the blob to
     bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
     outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
@@ -71,7 +72,10 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
                 untar (download_file, src_dir)
             else:
                 logging.info(f"Step 2: Ungzip {id}")
-                unzip_single_file(download_file, src_dir)
+                try:
+                    unzip_single_file(download_file, src_dir)
+                except Exception as e:
+                    logging.warn (f'UNGZIP ERROR: {str(e)}')
 
             # Remove .ltxml files from [source] (./extracted/id/)
             logging.info(f"Step 3: Remove .ltxml for {id}")

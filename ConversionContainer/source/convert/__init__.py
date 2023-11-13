@@ -89,7 +89,11 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
                 insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
 
-            insert_license(f'{outer_bucket_dir}/{id}.html', id, is_submission)
+            try:
+                insert_license(f'{outer_bucket_dir}/{id}.html', id, is_submission)
+            except Exception as e:
+                logging.info(f'License failed with: {str(e)}')
+                raise e
 
             logging.info(f"Step 6: Upload html for {id}")
             if is_submission:

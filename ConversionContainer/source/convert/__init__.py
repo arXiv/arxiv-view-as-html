@@ -94,6 +94,8 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
             except Exception as e:
                 logging.info(f'License failed with: {str(e)}')
                 raise e
+            
+            logging.info(f'get license worked for {id}')
 
             logging.info(f"Step 6: Upload html for {id}")
             if is_submission:

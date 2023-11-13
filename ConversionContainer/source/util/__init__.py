@@ -14,7 +14,7 @@ def untar (fpath: str, dir_name: str):
         tar.close()
 
 def unzip_single_file (fpath: str, dir_name: str):
-    fname = os.path.basename(fpath)[:-3]
+    fname = f'{os.path.basename(fpath)[:-3]}.tex'
     with gzip.open(fpath) as ungzip:
         with open(os.path.join(dir_name, fname), 'wb+') as out:
             shutil.copyfileobj(ungzip, out)

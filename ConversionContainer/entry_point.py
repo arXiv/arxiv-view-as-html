@@ -7,9 +7,9 @@ logging_client = logging.Client()
 logging_client.setup_logging()
 
 app = create_web_app()
-with app.app_context():
-    with transaction():
-        create_all() # Create table if it doesn't exist
+# with app.app_context():
+#     with transaction():
+#         create_all() # Create table if it doesn't exist
 
 if __name__=='__main__':
     app.run(debug=False)

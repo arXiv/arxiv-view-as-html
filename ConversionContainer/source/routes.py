@@ -93,7 +93,7 @@ def single_convert_route () -> Response:
 @blueprint.route('/publish', methods=['POST'])
 def publish_route () -> Response:
     logging.info(request.json)
-    thread = FlaskThread(target=publish, args=(request.json,))
+    thread = FlaskThread(target=publish, args=(request.json,)) # This requires cpu allocation always on in cloud run
     thread.start()
     return '', 202
 

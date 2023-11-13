@@ -44,7 +44,7 @@ def transaction() -> Generator[Session, None, None]:
     except Exception as e:
         logging.warn(f'{now()}: Commit failed, rolling back: {str(e)}')
         db.session.rollback()
-        raise
+        raise DBConnectionError from e
 
 
 def init_app(app: Flask) -> None:

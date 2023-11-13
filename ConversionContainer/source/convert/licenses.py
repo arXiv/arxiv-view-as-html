@@ -33,8 +33,9 @@ def get_license_for_paper (paper_id: str, version: int) -> str:
         license_raw = session.execute(query).scalar()
     return _license_url_to_str_mapping(license_raw)
     
-@database_retry(5)
+# @database_retry(5)
 def get_license_for_submission (submission_id: int) -> str:
+    
     query = text("SELECT license from arXiv_submissions WHERE submission_id=:submission_id")
     query = query.bindparams(submission_id=submission_id)
     with transaction() as session:

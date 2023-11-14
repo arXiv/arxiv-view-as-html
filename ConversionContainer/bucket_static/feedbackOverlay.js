@@ -298,11 +298,8 @@ async function showModal(modal) {
     }
 
     const uniqueId = window.crypto.randomUUID();
-    // 2023-11-09.
-    // const uniqueId = "ad1f4975-7bd3-42b5-b19c-be495864954f";
     const issueUrl = await searchGitHubIssuesByUniqueId(uniqueId);
     if (issueUrl) {
-        console.log('!!!!!!Issue exists:', issueUrl);
         // If an issue exists, create a message and append it to the modal
         const reportMessage = document.createElement('div');
         reportMessage.id = 'report-message';

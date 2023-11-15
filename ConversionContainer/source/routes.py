@@ -77,7 +77,8 @@ def process_route () -> Response:
         logging.info(f'Discarded request for {request.json["name"]}')
         return '', 202
     logging.info(f'Begin processing for {blob} from {bucket}')
-    process(id, blob, bucket, single_file)
+    thread = FlaskThread(target=process, args=(id, blob, bucket, single_file,)) # This requires cpu allocation always on in cloud run
+    thread.start()
     return '', 200
 
 @blueprint.route('/batch-convert', methods=['POST'])

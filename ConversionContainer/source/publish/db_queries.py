@@ -11,7 +11,7 @@ from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
 from ..models.util import database_retry
 
 
-@database_retry(5)
+# @database_retry(5)
 def submission_has_html (submission_id: int, session: Session) -> Optional[DBLaTeXMLSubmissions]:
     try:
         row = session.query(DBLaTeXMLSubmissions) \
@@ -21,7 +21,7 @@ def submission_has_html (submission_id: int, session: Session) -> Optional[DBLaT
     except Exception as e:
         raise DBConnectionError from e
 
-@database_retry(5)
+# @database_retry(5)
 def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXMLSubmissions, session: Session):
     try:
         row = DBLaTeXMLDocuments (
@@ -37,7 +37,7 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
     except Exception as e:
         raise DBConnectionError from e
 
-@database_retry(5)
+# @database_retry(5)
 def get_submission_timestamp (submission_id: int) -> Optional[str]:
     try:
         query = text("SELECT submit_time from arXiv_submissions WHERE submission_id=:submission_id")
@@ -48,7 +48,7 @@ def get_submission_timestamp (submission_id: int) -> Optional[str]:
         logging.info(str(e))
         raise DBConnectionError from e
 
-@database_retry(5)
+# @database_retry(5)
 def get_version_primary_category (paper_id: str, version: int) -> Optional[str]:
     try:
         query = text("SELECT abs_categories FROM arXiv_metadata WHERE paper_id=:paper_id AND version=:version")

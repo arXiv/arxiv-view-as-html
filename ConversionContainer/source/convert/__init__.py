@@ -318,10 +318,9 @@ def insert_license (fpath: str, id: str, is_submission: bool):
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         target_section = soup.new_tag('div', attrs={'class': 'section', 'id': 'target-section'})
-        title = soup.find('h1', attrs={'class': 'ltx_title_document'})
-        title.replace_with(target_section)
+        document_wrapper = soup.find('div', attrs={'class': 'ltx_page_content'})
+        document_wrapper.insert(2, target_section)
         target_section.append(license_html)
-        target_section.append(title)
         html.truncate()
         html.seek(0)
         html.write(str(soup))

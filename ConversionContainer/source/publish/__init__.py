@@ -3,7 +3,7 @@ import logging
 from base64 import b64decode
 import json
 
-from ..models.util import transaction
+from ..models.util import transaction, db
 
 from .db_queries import submission_has_html, \
     write_published_html
@@ -47,31 +47,31 @@ def publish (payload: Dict):
     # If there is a db error, the session will be rolled back, but 
     # the document bucket may still get the site
     
-    with transaction() as session:
-        # Check if there is an existing conversion for given submission.
-        submission_row = submission_has_html(submission_id, session)
-        if submission_row is None:
-            logging.info(f'No html found for submission {submission_id}')
-            return
-        
-        # Download submission conversion and rename. Return path to main .html file
-        html_file = download_sub_to_doc_dir(submission_id, paper_idv)
-
-        # Inject watermark into html
-        insert_watermark(html_file, 
-                         make_published_watermark(submission_id, paper_id, version))
-        
-        # Upload directory to published conversion bucket
-        upload_dir_to_doc_bucket (paper_idv)
-
-        # Update database accordingly
-        write_published_html (paper_id, version, submission_row, session)
-
-        # Move log output from sub bucket to published bucket
-        move_sub_qa_to_doc_qa (submission_id, paper_idv)
+    # with transaction() as session:
+    # Check if there is an existing conversion for given submission.
+    submission_row = submission_has_html(submission_id, db.session)
+    if submission_row is None:
+        logging.info(f'No html found for submission {submission_id}')
+        return
     
-        # Delete from local fs 
-        delete_sub (submission_id)    
+    # Download submission conversion and rename. Return path to main .html file
+    html_file = download_sub_to_doc_dir(submission_id, paper_idv)
+
+    # Inject watermark into html
+    insert_watermark(html_file, 
+                        make_published_watermark(submission_id, paper_id, version))
+    
+    # Upload directory to published conversion bucket
+    upload_dir_to_doc_bucket (paper_idv)
+
+    # Update database accordingly
+    write_published_html (paper_id, version, submission_row, db.session)
+
+    # Move log output from sub bucket to published bucket
+    move_sub_qa_to_doc_qa (submission_id, paper_idv)
+
+    # Delete from local fs 
+    delete_sub (submission_id)    
 
 
     

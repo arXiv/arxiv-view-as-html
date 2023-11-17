@@ -1095,3 +1095,18 @@ article{
   width: 100%;
 }
 
+/* modal */
+
+.ltx-page-content {
+z-index: 1000;
+position:relative;
+}
+/* Mobile view */
+.citation-desktop {
+    display: none;
+}
+.citation-mobile {
+    display: block;
+}
+
+

@@ -19,6 +19,12 @@ bs4 = "^0.0.1"
 filelock = "^3.12.2"
 mysqlclient = "*"
 
+[tool.pytest.ini_options]
+markers = [
+    "cc_unit_tests: Unit tests for concurrency control functions",
+    "processing_unit_tests: Unit tests for processing functions"
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

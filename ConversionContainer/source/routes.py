@@ -14,6 +14,7 @@ from flask import Blueprint, request, jsonify, \
 from .convert import process
 from .convert.batch_convert import batch_process
 from .publish import publish
+from .util import get_arxiv_id_from_blob
 
 
 # FlaskThread pushes the Flask applcation context
@@ -44,15 +45,19 @@ def _unwrap_payload (payload: Dict[str, str]) -> Tuple[str, str, str, bool]:
 
 def _unwrap_batch_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
+    arxiv_id, new_id = get_arxiv_id_from_blob(data['id'])
     return (
-        data['id'],
+        arxiv_id, 
+        new_id,
         data['blob'],
         data['bucket']
     )
 
 def _unwrap_single_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
+    arxiv_id, new_id = get_arxiv_id_from_blob(payload['id'])
     return {
-        payload['id'],
+        arxiv_id, 
+        new_id,
         payload['blob'],
         payload['bucket']
     }

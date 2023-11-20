@@ -73,8 +73,8 @@ def publish (payload: Dict):
     # Move log output from sub bucket to published bucket
     move_sub_qa_to_doc_qa (submission_id, paper_idv)
 
-    # Delete from local fs 
-    delete_sub (submission_id)    
+    # Delete from gcs
+    # delete_sub (submission_id)
 
 
     

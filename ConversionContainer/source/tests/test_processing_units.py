@@ -6,7 +6,6 @@ from ..convert import (
     untar,
     remove_ltxml,
     _clean_up,
-    _post_process,
     do_latexml,
     find_main_tex_source
 )

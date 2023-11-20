@@ -2,6 +2,7 @@ from typing import Dict, Tuple
 import logging
 from base64 import b64decode
 import json
+from flask import current_app
 
 from ..models.util import transaction, db
 
@@ -48,18 +49,20 @@ def publish (payload: Dict):
     # the document bucket may still get the site
     
     # with transaction() as session:
+    with current_app.app_context():
     # Check if there is an existing conversion for given submission.
-    submission_row = submission_has_html(submission_id, db.session)
-    if submission_row is None:
-        logging.info(f'No html found for submission {submission_id}')
-        return
+        submission_row = submission_has_html(submission_id, db.session)
+        if submission_row is None:
+            logging.info(f'No html found for submission {submission_id}')
+            return
     
     # Download submission conversion and rename. Return path to main .html file
     html_file = download_sub_to_doc_dir(submission_id, paper_idv)
 
-    # Inject watermark into html
-    insert_watermark(html_file, 
-                        make_published_watermark(submission_id, paper_id, version))
+    with current_app.app_context():
+        # Inject watermark into html
+        insert_watermark(html_file, 
+                            make_published_watermark(submission_id, paper_id, version))                 
     
     # Upload directory to published conversion bucket
     upload_dir_to_doc_bucket (paper_idv)

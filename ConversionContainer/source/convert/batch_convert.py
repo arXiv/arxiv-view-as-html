@@ -24,12 +24,12 @@ from . import (
     _clean_up
 )
 
-def batch_process(id: str, blob: str, bucket: str) -> bool:
+def batch_process(id: str, new_id: bool, blob: str, bucket: str) -> bool:
 
     if has_doc_been_tried(id):
         return
 
-    is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
+    is_submission = False
 
     """ File system we will be using """
     safe_name = str(uuid.uuid4()) # In case two machines download before locking

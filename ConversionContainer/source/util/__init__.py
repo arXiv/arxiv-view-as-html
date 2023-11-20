@@ -1,12 +1,37 @@
-from typing import Any
+from typing import Any, Tuple, Optional
 from contextlib import contextmanager
 import os
 import shutil
 import tarfile
 import gzip
+import re
 
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from filelock import FileLock
+
+# # arXiv ID format used from 1991 to 2007-03
+# RE_ARXIV_OLD_ID = re.compile(
+#     r'^(?P<archive>[a-z]{1,}(\-[a-z]{2,})?)(\.([a-zA-Z\-]{2,}))?\/'
+#     r'(?P<yymm>(?P<yy>\d\d)(?P<mm>\d\d))(?P<num>\d\d\d)'
+#     r'(v(?P<version>[1-9]\d*))?(?P<extra>[#\/].*)?$')
+
+# # arXiv ID format used from 2007-04 to present
+# RE_ARXIV_NEW_ID = re.compile(
+#     r'^(?P<yymm>(?P<yy>\d\d)(?P<mm>\d\d))\.(?P<num>\d{4,5})'
+#     r'(v(?P<version>[1-9]\d*))?(?P<extra>[#\/].*)?$'
+# )
+
+# def get_arxiv_id_from_blob (blob: str) -> Optional[Tuple[str, bool]]:
+#     """ 
+#     Returns a tuple containing the arxiv_id and whether 
+#     or not it's a new format id or None if there's no match
+#     """
+#     if (match := re.search(RE_ARXIV_NEW_ID, blob)):
+#         return match.group(), True
+#     elif (match := re.search(RE_ARXIV_OLD_ID, blob)):
+#         return match.group(), False
+#     else:
+#         return None
 
 def untar (fpath: str, dir_name: str):
     with tarfile.open(fpath) as tar:

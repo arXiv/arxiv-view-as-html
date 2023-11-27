@@ -70,6 +70,9 @@ def publish (payload: Dict):
     # Update database accordingly
     write_published_html (paper_id, version, submission_row, db.session)
 
+    db.session.commit()
+    db.session.close()
+
     # Move log output from sub bucket to published bucket
     move_sub_qa_to_doc_qa (submission_id, paper_idv)
 

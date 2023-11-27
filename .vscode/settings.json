@@ -12,5 +12,6 @@
     "python.linting.enabled": false,
     "python.testing.pytestArgs": [
         "ConversionContainer"
-    ]
+    ],
+    "editor.inlineSuggest.showToolbar": "always"
 }

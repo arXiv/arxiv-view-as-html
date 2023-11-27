@@ -322,7 +322,7 @@ def insert_license (fpath: str, id: str, is_submission: bool, is_missing_package
         if is_missing_packages:
             document_wrapper \
                 .find('div', attrs={'class': ['package-alerts', 'ltx_document']}) \
-                .insert_after(2, target_section)
+                .insert_after(target_section)
         else:
             document_wrapper.insert(0, target_section)
         target_section.append(license_html)

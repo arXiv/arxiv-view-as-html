@@ -6,6 +6,8 @@ from flask import current_app
 
 from ..models.util import transaction, db
 
+from ..convert import insert_base_tag
+
 from .db_queries import submission_has_html, \
     write_published_html
 from .buckets import (
@@ -59,9 +61,12 @@ def publish (payload: Dict):
     # Download submission conversion and rename. Return path to main .html file
     html_file = download_sub_to_doc_dir(submission_id, paper_idv)
 
+    # Insert base tag
+    insert_base_tag(html_file, paper_idv)
+
     with current_app.app_context():
         # Inject watermark into html
-        insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))                 
+        insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))             
     
     # Upload directory to published conversion bucket
     upload_dir_to_doc_bucket (submission_id)

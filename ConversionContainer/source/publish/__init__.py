@@ -61,8 +61,7 @@ def publish (payload: Dict):
 
     with current_app.app_context():
         # Inject watermark into html
-        insert_watermark(html_file, 
-                            make_published_watermark(submission_id, paper_id, version))                 
+        insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))                 
     
     # Upload directory to published conversion bucket
     upload_dir_to_doc_bucket (paper_idv)

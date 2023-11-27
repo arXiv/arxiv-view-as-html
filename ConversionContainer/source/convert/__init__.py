@@ -93,7 +93,7 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
                 insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
 
             try:
-                insert_license(f'{outer_bucket_dir}/{id}.html', id, is_submission)
+                insert_license(f'{outer_bucket_dir}/{id}.html', id, is_submission, missing_packages)
             except Exception as e:
                 logging.info(f'License failed with: {str(e)}')
                 raise e
@@ -305,7 +305,7 @@ def insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> 
         html.seek(0)
         html.write(str(soup))
 
-def insert_license (fpath: str, id: str, is_submission: bool):
+def insert_license (fpath: str, id: str, is_submission: bool, is_missing_packages: Optional[List]):
     logging.info (f"Getting license")
     if not is_submission:
         paper_id, version = id.split('v')
@@ -319,7 +319,12 @@ def insert_license (fpath: str, id: str, is_submission: bool):
         soup = BeautifulSoup(html.read(), 'html.parser')
         target_section = soup.new_tag('div', attrs={'class': 'section', 'id': 'target-section'})
         document_wrapper = soup.find('div', attrs={'class': 'ltx_page_content'})
-        document_wrapper.insert(2, target_section)
+        if is_missing_packages:
+            document_wrapper \
+                .find('div', attrs={'class': ['package-alerts', 'ltx_document']}) \
+                .insert_after(2, target_section)
+        else:
+            document_wrapper.insert(0, target_section)
         target_section.append(license_html)
         html.truncate()
         html.seek(0)

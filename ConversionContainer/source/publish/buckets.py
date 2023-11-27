@@ -19,8 +19,8 @@ def download_sub_to_doc_dir (submission_id: int, paper_idv: str):
     untar(tar_name, dir_name)
     return rename(dir_name, submission_id, paper_idv)
 
-def upload_dir_to_doc_bucket (paper_idv: str):
-    dir_name = f'sites/{paper_idv}'
+def upload_dir_to_doc_bucket (submission_id: int):
+    dir_name = f'sites/{submission_id}'
     upload_dir_to_gcs(dir_name, current_app.config['OUT_BUCKET_ARXIV_ID'])
 
 def move_sub_qa_to_doc_qa (submission_id: str, paper_idv: str):

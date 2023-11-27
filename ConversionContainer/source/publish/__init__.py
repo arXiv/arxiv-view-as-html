@@ -64,7 +64,7 @@ def publish (payload: Dict):
         insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))                 
     
     # Upload directory to published conversion bucket
-    upload_dir_to_doc_bucket (paper_idv)
+    upload_dir_to_doc_bucket (submission_id)
 
     # Update database accordingly
     write_published_html (paper_id, version, submission_row, db.session)

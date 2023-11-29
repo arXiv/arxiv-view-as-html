@@ -288,13 +288,24 @@ function addSRButton(modal) {
     return buttons;
 }
 
-function showModal(modal) {
+async function showModal(modal) {
     const theme = document.documentElement.getAttribute("data-theme");
     const modalHeader = document.getElementById("modal-header");
     if (theme === 'dark') {  
         modalHeader.setAttribute('data-bs-theme', "dark");
     }else{
         modalHeader.setAttribute('data-bs-theme', "light");
+    }
+
+    const uniqueId = window.crypto.randomUUID();
+    const issueUrl = await searchGitHubIssuesByUniqueId(uniqueId);
+    if (issueUrl) {
+        // If an issue exists, create a message and append it to the modal
+        const reportMessage = document.createElement('div');
+        reportMessage.id = 'report-message';
+        reportMessage.innerHTML = `This article has been reported before. See <a href="${issueUrl}" target="_blank">existing issue</a>.`;
+        // Assuming '.modal-body' is the class of the modal content container
+        document.querySelector('.modal-body').prepend(reportMessage);
     }
         
     modal.style.display = 'block';
@@ -304,7 +315,32 @@ function showModal(modal) {
 
 function hideModal(modal) {
     modal.style.display = 'none';
+    clearReportMessage();
 }
+
+async function searchGitHubIssuesByUniqueId(uniqueId) {
+    const GITHUB_ISSUES_SEARCH_URL = 'https://github.com/arXiv/html_feedback/issues?q=is%3Aissue+';
+    const searchQuery = encodeURIComponent(uniqueId);
+    const searchUrl = GITHUB_ISSUES_SEARCH_URL + searchQuery;
+    
+    const response = await fetch(`https://api.github.com/search/issues?q=${searchQuery}+repo:arXiv/html_feedback`);
+    if (!response.ok) {
+        console.error('GitHub API responded with an error:', response.status);
+        return null;
+    }
+    
+    const data = await response.json();
+    // If issues are found, return the search URL, otherwise return null.
+    console.log(searchUrl);
+    return data.items.length > 0 ? searchUrl : null;
+}
+
+function clearReportMessage() {
+    const reportMessageElement = document.getElementById('report-message');
+    if (reportMessageElement) {
+      reportMessageElement.remove();
+    }
+  }
 
 function showButtons(buttons) {
     // buttons.forEach((button) => {
@@ -407,28 +443,18 @@ function hideSmallButton(smallReportButton) {
 //submit to the backend, next step: finish
 function submitBugReport(e) {
     e.preventDefault();
-    //document.getElementById('notification').style = 'display: block';
     const issueData = {};
 
-    // Canonical URL
     ARXIV_ABS_PATH = 'https://arxiv.org/abs/';
     const arxivIdv = window.location.pathname.split('/')[2]; // pathname ex: '/html/2306.16433v1/2306.16433v1.html'
     const fullUrl = window.location.href;
     const canonicalURL = ARXIV_ABS_PATH + arxivIdv;
-
-    // const user_info = "account:yc2455 contact:@cornll.edu "
-
-    // Report Time
     const currentTime = Date.now();
-
-    // Browser Version
     const userAgent = navigator.userAgent;
     const browser = userAgent.match(/(firefox|edge|opr|chrome|safari)[\/]([\d.]+)/i)
     const browserName = browser[1];
     const browserVersion = browser[2];
     const browserInfo = browserName + '/' + browserVersion;
-
-    // Relevant Selection
     let elementIdentifier = bugReportState.getElementIdentifier();
     let topLayer = 'Unknown';
     console.log(currentAnchorNode);
@@ -436,25 +462,18 @@ function submitBugReport(e) {
         const parentNode = currentAnchorNode.parentNode;
         const id = parentNode.id;
         const classList = parentNode.classList;
-        //if there is no id, than use class to identify
         elementIdentifier = id || classList[0] || 'Unknown';
-        console.log(elementIdentifier);
-
-        //get the topLayer of id
         if (elementIdentifier.match(/^S\d/)) {
             topLayer = id ? id.split('.')[1] : classList[0];
         } else {
             topLayer = id ? id.split('.')[0] : classList[0];
         }
     }
-
     const dataDescription = document.getElementById('description').value;
     const formTitle = document.getElementById('form_title').value;
-
     const uniqueId = window.crypto.randomUUID();
 
     // add to the form data
-    // issueData['template'] = 'bug_report.md'); // TODO: Change this to a template with fields matching the ones below
     issueData['uniqueId'] = uniqueId;
     issueData['canonicalURL'] = canonicalURL;
     issueData['conversionURL'] = window.location.origin + window.location.pathname;
@@ -466,30 +485,72 @@ function submitBugReport(e) {
     issueData['selectedHtml'] = bugReportState.getSelectedHtml();
     issueData['initiationWay'] = bugReportState.getInitiateWay();
 
-    form = new FormData();
-    form.append('template', 'bug_report.md');
-    form.append('title', `Improve article : ${arxivIdv}`)
-    form.append('body', makeGithubBody(issueData));
-
     // Send to Database.
     postToDB(issueData);
 
-    // Send to Github Issue. !!!NEED: make sure submitter id is same as the html submit button id.
+    // Send to Github Issue.
     if (e.submitter.id === 'modal-submit') {
-        const GITHUB_BASE_URL = 'https://github.com/arXiv/html_feedback/issues/new?'
-        const queryString = new URLSearchParams(form).toString()
-        const link = GITHUB_BASE_URL + queryString;
-        // window.open(link, '_blank');
-        // disable, test later.
-
-        //Testing
-        const url = testForGitHubIssue(issueData, arxivIdv, formTitle, fullUrl);
+        const url = getGitHubIssueURL(issueData, arxivIdv, formTitle, fullUrl); 
         window.open(url, '_blank');
     } 
 
     document.querySelector('#myFormContent').reset();
     bugReportState.clear();
     hideModal(document.getElementById('myForm'));
+}
+
+function postToDB(issueData) {
+    const DB_BACKEND_URL = 'https://services.arxiv.org/latexml/feedback';
+    const queryString = new URLSearchParams(issueData).toString();
+    fetch(DB_BACKEND_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: queryString, // body data type must match "Content-Type" header
+    });
+}
+
+function getGitHubIssueURL(issueData, arxivIdv, formTitle, fullUrl){
+    var url = `https://github.com/arXiv/html_feedback/issues/new?assignees=&labels=&projects=&title= ${formTitle}&template=Feedback_about_HTML_formatted_papers.yml`;
+    url += `&description=${issueData.description}`;
+    url += `&uniqueId=${issueData.uniqueId}`;
+    url += `&arxivId=${arxivIdv}`;
+    url += `&browserInfo=${issueData.browserInfo}`;
+    // send the full url to the github issue
+    url += `&fullUrl=${fullUrl}`;
+    // device type
+    url += `&deviceType=${getDeviceType()}`;
+    // https://browse.arxiv.org/latexml/2308.06262v1/2308.06262v1.html
+
+    return url;
+}
+
+// test device type
+function getDeviceType() {
+    const userAgent = navigator.userAgent;
+
+    if (/iPad|iPadOS/i.test(userAgent)) {
+        return 'iPad';
+    }
+    if (/iP(hone|od)/i.test(userAgent)) {
+        return 'iOS';
+    }
+    if (/Android/i.test(userAgent)) {
+        return 'Android';
+    }
+    if (/BlackBerry|IEMobile|Windows Phone/i.test(userAgent)) {
+        return 'Other Smartphone';
+    }
+
+    if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile/i.test(userAgent)) {
+        return 'Smartphone';
+    }
+    if (/tablet|tab/i.test(userAgent) && !/Mobile/i.test(userAgent)) {
+        return 'Tablet';
+    }
+    return 'Desktop';
 }
 
 function handleClickOutsideModal(e, modal) {
@@ -533,74 +594,6 @@ function handleClickTOCToggle(e) {
         // content.style.flex='1 1 100%';
     }
 }
-
-function postToDB(issueData) {
-    const DB_BACKEND_URL = 'https://services.arxiv.org/latexml/feedback';
-    const queryString = new URLSearchParams(issueData).toString();
-    fetch(DB_BACKEND_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: queryString, // body data type must match "Content-Type" header
-    });
-}
-
-function makeGithubBody(issueData) {
-    let body = "## Describe the issue\n\n";
-    body += `**Description**: ${issueData.description}\n\n`;
-    body += "Feel free to attach a screenshot (or document) link below: \n\n\n\n";
-    // Auto Fill Data
-    body += "## Auto Fill Data - !!! Please do not edit below this line !!!\n";
-    body += "----------------------------------------------------------------------------------------\n\n";
-    body += `Id: ${issueData.uniqueId}\n`
-    return body;
-}
-
-function testForGitHubIssue(issueData, arxivIdv, formTitle, fullUrl){
-    var url = `https://github.com/arXiv/html_feedback/issues/new?assignees=&labels=&projects=&title= ${formTitle}&template=Feedback_about_HTML_formatted_papers.yml`;
-    url += `&description=${issueData.description}`;
-    url += `&uniqueId=${issueData.uniqueId}`;
-    url += `&arxivId=${arxivIdv}`;
-    url += `&browserInfo=${issueData.browserInfo}`;
-    // send the full url to the github issue
-    url += `&fullUrl=${fullUrl}`;
-    // device type
-    url += `&deviceType=${getDeviceType()}`;
-    // https://browse.arxiv.org/latexml/2308.06262v1/2308.06262v1.html
-
-    return url;
-}
-
-// test device type
-function getDeviceType() {
-    const userAgent = navigator.userAgent;
-
-    if (/iPad|iPadOS/i.test(userAgent)) {
-        return 'iPad';
-    }
-    if (/iP(hone|od)/i.test(userAgent)) {
-        return 'iOS';
-    }
-    if (/Android/i.test(userAgent)) {
-        return 'Android';
-    }
-    if (/BlackBerry|IEMobile|Windows Phone/i.test(userAgent)) {
-        return 'Other Smartphone';
-    }
-
-    if (/Mobile|iP(hone|od)|Android|BlackBerry|IEMobile/i.test(userAgent)) {
-        return 'Smartphone';
-    }
-    if (/tablet|tab/i.test(userAgent) && !/Mobile/i.test(userAgent)) {
-        return 'Tablet';
-    }
-    return 'Desktop';
-}
-
-
-
 
 function handleClickMobileTOC(e){
     const tocItems = document.querySelectorAll('.ltx_ref');

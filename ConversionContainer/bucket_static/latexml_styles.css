@@ -41,17 +41,17 @@
 
 /* Hover for modal button. */
 @media (min-width: 768px) {
-  #openForm:hover, #modal-submit:hover, small-report-button:hover {
+  #openForm:hover, #modal-submit:hover, #small-report-button:hover {
     text-decoration: underline;
-    background-color: var(--rp-button-hover-color);
+    background-color: var(--rp-button-hover-color) !important;
     color: black;
   }
 }
 
 @media (max-width: 767px) {
-  #openForm:active, #modal-submit:active, small-report-button:hover {
+  #openForm:active, #modal-submit:active, #small-report-button:hover {
     text-decoration: underline;
-    background-color: var(--rp-button-hover-color);
+    background-color: var(--rp-button-hover-color) !important;
     color: black;
   }
 }

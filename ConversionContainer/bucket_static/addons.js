@@ -230,45 +230,67 @@ function convertCitationsToRanges() {
 
       let newCitationHtml = ranges.map(function(range) {
       return '<a href="#ref" class="ltx_ref range">' + range + '</a>';
-      }).join(', ');
+      }).join(',');
 
       cite.innerHTML = '[' + newCitationHtml + ']';
   });
 }
 
 function setupModalPopup() {
+  modal = document.createElement('div');
+  modal.id = 'citationModal';
+  modal.className = 'modal fade';
 
-  let modal = document.getElementById('citationModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'citationModal';
-    modal.className = 'modal';
-    modal.innerHTML = `
-  <div class="modal-dialog" role="document">
-    <div class="modal-content text-dark">
-      <div class="modal-header">
-        <button type="button" class="close" aria-label="Close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-        </button>
+  modal.innerHTML = `
+  <div class="modal-dialog modal-dialog-scrollable modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header" id="my-header>
+        <h5 class="modal-title" id="modalLabel">Citation Details</h5>
+        <button type="button" class="btn-close" id="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <!-- Modal content goes here -->
+        <!-- Modal content will be populated here -->
       </div>
       <div class="modal-footer">
-        <a href="#bib" class="btn btn-primary go-to-references">Go to References</a>
+        <a href="#bib" class="btn btn-issue go-to-references">Go to References</a>
       </div>
     </div>
   </div>
-`;
-
-    modal.innerHTML += `
-    <a href="#" class="citation-range" data-toggle="modal" data-target="#citationModal"></a>
   `;
+
+  document.body.appendChild(modal);
+  let myModal = new bootstrap.Modal(modal, {
+    backdrop: 'static',
+    keyboard: true
+  });
   
-    document.body.appendChild(modal);
+  function populateModal(rangeText) {
+    let rangeParts = rangeText.split('-');
+    let start = parseInt(rangeParts[0]);
+    let end = rangeParts.length > 1 ? parseInt(rangeParts[1]) : start;
+    let citationTextHtml = '';
+
+    for (let i = start; i <= end; i++) {
+      let bibItem = document.getElementById('bib.bib' + i);
+      if (bibItem) {
+        let bibItemText = bibItem.textContent || bibItem.innerHTML;
+        citationTextHtml += '<p>' + bibItemText + '</p>';
+      }
+    }
+    console.log(citationTextHtml)
+    modalBody = modal.querySelector('.modal-body');
+    modalBody.innerHTML = '<strong>Citations for range: ' + rangeText + '</strong>' + '<br>' + citationTextHtml;
+    // let myModal = new bootstrap.Modal(document.getElementById('citationModal'));
+
+    // myModal.show();
+
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.setAttribute('aria-hidden', 'true');
+
+    focusFirstElement();
+    document.addEventListener('keydown', handleModalKeyDown);
+    modal.addEventListener('keydown', trapTabKey);
   }
-  let modalBody = modal.querySelector('.modal-body');
-  let modalTrigger;
 
   function focusFirstElement() {
       let focusableElements = modal.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
@@ -298,18 +320,16 @@ function setupModalPopup() {
   }
 
   function closeModal() {
-      modal.style.display = 'none';
-      document.removeEventListener('keydown', trapTabKey);
-      // if (modalTrigger) {
-      //     modalTrigger.focus();
-      // }
-      let myModalElement = document.getElementById('citationModal');
-      let myModal = bootstrap.Modal.getInstance(myModalElement);
+    console.log('Closing modal...');
 
-      if (myModal) {
-          myModal.hide();
-      }
-  }
+    if (myModal) {
+        console.log('Found Bootstrap modal instance, hiding it...');
+        myModal.hide();
+    } else {
+        console.log('No Bootstrap modal instance found.');
+    }
+}
+
 
   function handleModalKeyDown(e) {
       if (e.key === 'Escape') {
@@ -317,57 +337,40 @@ function setupModalPopup() {
       }
   }
 
-  const closeButton = modal.querySelector('.close');
-    if (closeButton) {
-        closeButton.addEventListener('click', function() {
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.removeAttribute('aria-hidden');
-            closeModal();
-        });
-    } else {
-        console.error('Close button not found in the modal');
-    }
-
   document.addEventListener('click', function(event) {
       if (event.target.classList.contains('range')) {
-          event.preventDefault();
-          modalTrigger = event.target;
-
-          let rangeText = event.target.textContent;
-          let rangeParts = rangeText.split('-');
-          let start = parseInt(rangeParts[0]);
-          let end = rangeParts.length > 1 ? parseInt(rangeParts[1]) : start;
-          let citationTextHtml = '';
-
-          for (let i = start; i <= end; i++) {
-              console.log("test",i)
-              let bibItem = document.getElementById('bib.bib' + i);
-              if (bibItem) {
-                  // Extract the text or inner HTML of the bibliography item
-                  let bibItemText = bibItem.textContent || bibItem.innerHTML;
-                  citationTextHtml += '<p>' + bibItemText + '</p>';
-              }
-          }
-
-          modalBody.innerHTML = 'Citations for range: ' + rangeText + '<br>' + citationTextHtml;
-          let myModal = new bootstrap.Modal(document.getElementById('citationModal'));
-          modal.style.display = 'block'
-          myModal.show();
-
-          modal.setAttribute('aria-hidden', 'false');
-          document.body.setAttribute('aria-hidden', 'true');
-          modal.style.display = 'block';
-          focusFirstElement();
-          document.addEventListener('keydown', handleModalKeyDown);
-          modal.addEventListener('keydown', trapTabKey);
+        populateModal(event.target.textContent);
+        myModal.show();
+         
       }
   });
 
-  modal.querySelector('.close').addEventListener('click', function() {
+
+  modal.querySelector('.btn-close').addEventListener('click', function() {
       modal.setAttribute('aria-hidden', 'true');
       document.body.removeAttribute('aria-hidden');
       closeModal();
   });
+
+  const isMobile = () => window.innerWidth <= 767; // Adjust the width as per your mobile breakpoint
+
+  function toggleBodyPadding(toggle) {
+      if (isMobile()) {
+          document.body.style.paddingRight = toggle ? '0' : '';
+      }
+  }
+
+  modal.addEventListener('show.bs.modal', () => {
+      toggleBodyPadding(true); // Remove padding when modal opens
+  });
+
+
+  modal.addEventListener('hidden.bs.modal', () => {
+      toggleBodyPadding(false); // Restore padding when modal closes
+  });
+
+
+
 }
 
 function assignNumbersToReferences() {

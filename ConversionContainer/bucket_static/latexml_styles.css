@@ -432,7 +432,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  /* background-color: rgba(0, 0, 0, 0.4); */
 }
 
 /* Modal Content/Box */
@@ -762,9 +762,9 @@ body:after {
   color: #c9d1d9;
 }
 
-/* [data-theme=dark] .ltx_ref {
-  color: var(--text-color);
-} */
+[data-theme=dark] .modal-header .btn-close {
+  filter: invert(1);
+}
 
 .ltx_TOC>.ltx_toclist>.ltx_tocentry {
   margin-bottom: 0.3em;
@@ -1096,6 +1096,14 @@ article{
 }
 
 /* modal */
+
+@media (max-width: 576px) { /* Bootstrap's breakpoint for mobile devices */
+  .modal-dialog {
+      max-width: 90%; /* Adjust as needed */
+      margin: 1.75rem auto; /* Adds some space around the modal */
+  }
+}
+
 
 .ltx-page-content {
 z-index: 1000;

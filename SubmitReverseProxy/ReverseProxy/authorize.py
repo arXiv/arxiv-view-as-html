@@ -12,12 +12,12 @@ from .exceptions import DBConnectionError, \
 
 def _get_arxiv_mod_user_ids (conn) -> List[str]:
     query = text("SELECT user_id FROM arXiv_moderators")
-    return [int(row['user_id']) for row in conn.execute(query).fetchall()]
+    return [int(row[0]) for row in conn.execute(query).fetchall()]
 
 def _get_arxiv_admin_user_ids (conn) -> List[str]:
     conn = current_session().connection()
     query = text("SELECT user_id FROM tapir_users WHERE flag_edit_users = 1")
-    return [int(row['user_id']) for row in conn.execute(query).fetchall()]
+    return [int(row[0]) for row in conn.execute(query).fetchall()]
 
 @database_retry(5)
 def authorize_user_for_submission(user_id: str, submission_id: str):
@@ -51,6 +51,7 @@ def authorize_user_for_submission(user_id: str, submission_id: str):
             if int(user_id) in _get_arxiv_admin_user_ids(conn):
                 return
         except Exception as exc:
+            logging.warning(str(exc))
             logging.warning('DB Connection Failed')
             raise DBConnectionError("DB Connection failed") from exc
         raise UnauthorizedError

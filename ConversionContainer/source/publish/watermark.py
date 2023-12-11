@@ -11,8 +11,6 @@ def make_published_watermark (submission_id: int, paper_id: str, version: int) -
 def insert_watermark (html_fpath: str, watermark: BeautifulSoup):
     with open(html_fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
-        logging.warn("HTML:")
-        logging.warn(str(soup))
         soup.find('div', attrs={'id': 'target-section'}).append(watermark)
         html.truncate()
         html.seek(0)

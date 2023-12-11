@@ -20,8 +20,7 @@ RUN python -m pip install .
 
 ########## INSTALL OTHER DEPENDENCIES ##########
 
-RUN python -m pip install flask google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
-
+RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 pydantic==1.10.13 google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
 ########## COPY SOURCE ##########
 
 WORKDIR /source

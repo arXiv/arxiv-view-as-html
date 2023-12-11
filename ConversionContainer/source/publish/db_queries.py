@@ -8,6 +8,8 @@ from flask import current_app
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
+from pg8000.legacy import IntegrityError
+
 from ..exceptions import DBConnectionError
 from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
 from ..models.util import database_retry
@@ -37,6 +39,8 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
             conversion_end_time=html_submission.conversion_end_time
         )
         session.add(row)
+    except IntegrityError as e:
+        logging.info(f'{paper_id}v{version} has already been successfully processed with {str(e)}')
     except Exception as e:
         logging.warn(str(e))
         raise DBConnectionError from e

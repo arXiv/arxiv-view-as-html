@@ -21,6 +21,7 @@ def submission_has_html (submission_id: int, session: Session) -> Optional[DBLaT
             .first()
         return row if (row and row.conversion_status == 1) else None
     except Exception as e:
+        logging.warn(str(e))
         raise DBConnectionError from e
 
 # @database_retry(5)
@@ -37,6 +38,7 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
         )
         session.add(row)
     except Exception as e:
+        logging.warn(str(e))
         raise DBConnectionError from e
 
 # @database_retry(5)

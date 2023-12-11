@@ -16,43 +16,47 @@ let create_favicon = () => {
 }
 
 let create_header = () => {
-    let desktop_header = document.createElement('header');
-    let ABS_URL_BASE = 'https://arxiv.org/abs';
-    let id = window.location.pathname.split('/')[2];
+  let desktop_header = document.createElement('header');
+  let ABS_URL_BASE = 'https://arxiv.org/abs';
+  let id = window.location.pathname.split('/')[2];
+  var match = window.location.href.match(/https:\/\/.+\/html\/(.+)/);
+  var backToAbstractLink = match ? `https://arxiv.org/abs/${match[1]}` : '#';
 
-    var LogoBanner = `
-    <div style="display: flex; width: 60%;">
-        <a href="https://arxiv.org/" style="text-decoration: none; width:80px">
-            <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logo-one-color-white.svg">
-            <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logomark-small-white.svg">
-        </a>
-        <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
-            ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span><a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.' :
-            'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> Learn more <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">about this project</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
-        </div>
-    </div>`;
+  var LogoBanner = `
+  <div style="display: flex; width: 60%;">
+      <a href="https://arxiv.org/" style="text-decoration: none; width:80px">
+          <img alt="logo" class="logo" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logo-one-color-white.svg">
+          <img alt="logo" class="logomark" role="presentation" style="background-color: transparent;" src="https://services.dev.arxiv.org/html/static/arxiv-logomark-small-white.svg">
+      </a>
+      <div class="header-message" role="banner" style="padding-left: 15px; padding-top: 5px;">
+          ${id === 'submission' ? 'This is <strong>Experimental HTML</strong>. By design, HTML will not look exactly like the PDF. We invite you to report any errors that don\'t represent the intent or meaning of your paper. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span><a href=https://github.com/brucemiller/LaTeXML/wiki/Porting-LaTeX-packages-for-LaTeXML target="_blank">View supported LaTeX packages</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.' :
+          'This is <strong>Experimental HTML</strong>. We invite you to report rendering errors. <span class="sr-only">Use Alt+Y to toggle on accessible reporting links and Alt+Shift+Y to toggle off.</span> Learn more <a href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">about this project</a> and <a href=https://github.com/brucemiller/LaTeXML/issues target="_blank">help improve conversions</a>.'}
+      </div>
+  </div>`;
 
 
-    var Links = `
-        <div style="display: inline-flex; align-items: center;">
-            <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why HTML?</a>
-            <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Report Issue</a>
-            ${id === 'submission' ? '' : `<a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://arxiv.org/abs/${window.location.href.match(/https:\/\/.+\/html\/(.+)/)[1]}">Back to Abstract</a>`}
+  var Links = `
+      <div style="display: inline-flex; align-items: center;">
+          <a class="ar5iv-footer-button hover-effect" style="color: white;" href="https://info.arxiv.org/about/accessible_HTML.html" target="_blank">Why HTML?</a>
+          <a class="ar5iv-footer-button hover-effect" target="_blank" style="color: white;" href="#myForm" onclick="event.preventDefault(); var modal = document.getElementById('myForm'); modal.style.display = 'block'; bugReportState.setInitiateWay('Header');">Report Issue</a>
+          ${id === 'submission' ? '' : `<a class="ar5iv-footer-button hover-effect" style="color: white;" href="${backToAbstractLink}">Back to Abstract</a>`}
 
-            <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
-                <span class="color-scheme-icon"></span>
-            </a>
-        </div>`;
+          <a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme" style="float: right;">
+              <span class="color-scheme-icon"></span>
+          </a>
+      </div>`;
 
-    desktop_header.innerHTML = LogoBanner + Links;
-    desktop_header.classList.add('desktop_header');
-    document.body.insertBefore(desktop_header, document.body.firstChild);
+  desktop_header.innerHTML = LogoBanner + Links;
+  desktop_header.classList.add('desktop_header');
+  document.body.insertBefore(desktop_header, document.body.firstChild);
 };
 
 let create_mobile_header = () => {
     let mob_header = document.createElement('header');
     let ABS_URL_BASE = 'https://arxiv.org/abs';
     let id = window.location.pathname.split('/')[2];
+    var match = window.location.href.match(/https:\/\/.+\/html\/(.+)/);
+    var backToAbstractLink = match ? `https://arxiv.org/abs/${match[1]}` : '#';
 
     var mobile_header= `
     <div class="container-fluid">
@@ -71,14 +75,9 @@ let create_mobile_header = () => {
           </button>
           <!--back to abstract-->
           ${id === 'submission' ? '' : `
-          <!-- <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; display:inline-flex; flex-direction: column; align-items:center; text-align:center" href="#"> -->
-            <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="https://arxiv.org/abs/${window.location.href.match(/https:\/\/.+\/html\/(.+)/)[1]}">
-            <svg xmlns="http://www.w3.org/2000/svg" height="1.5em" viewBox="0 0 512 512" style="background-color:transparent; z-index:2">
-                <style>svg{fill:rgb(255, 255, 255)}</style>
-                <path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 192 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128zM160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 32C43 32 0 75 0 128L0 384c0 53 43 96 96 96l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l64 0z"/>
-            </svg>
-            <!-- <span style="font-size: 0.75em;">Abstract</span> -->
-            </a>`}
+          <a class="nav-link ar5iv-footer-button hover-effect" style="color: white; margin-right:0em;" href="${backToAbstractLink}">
+          <!-- SVG and other elements -->
+          </a>`}
           <!--dark mode-->
           <a class="nav-link ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()"
             title="Toggle ar5iv color scheme" style="padding: 0.6rem;margin-top: 0rem;">
@@ -194,6 +193,199 @@ let unwrap_nav = () => {
     }
 }
 
+function convertCitationsToRanges() {
+  let citationElements = document.querySelectorAll('.ltx_cite.ltx_citemacro_cite');
+
+  citationElements.forEach(function(cite) {
+      let citationLinks = cite.getElementsByTagName('a');
+      let citationNumbers = Array.from(citationLinks).map(function(link) {
+      return parseInt(link.textContent);
+      });
+
+      citationNumbers.sort(function(a, b) { return a - b; });
+
+      let ranges = [];
+      let start = null, end = null;
+
+      let addRange = function(start, end) {
+      if (start !== null) {
+          ranges.push((start === end || end === null) ? String(start) : start + '-' + end);
+      }
+      };
+
+      for (let i = 0; i < citationNumbers.length; i++) {
+      if (start === null) {
+          start = citationNumbers[i];
+          end = start;
+      } else if (citationNumbers[i] === end + 1) {
+          end = citationNumbers[i];
+      } else {
+          addRange(start, end);
+          start = citationNumbers[i];
+          end = start;
+      }
+      }
+
+      addRange(start, end);
+
+      let newCitationHtml = ranges.map(function(range) {
+      return '<a href="#ref" class="ltx_ref range">' + range + '</a>';
+      }).join(',');
+
+      cite.innerHTML = '[' + newCitationHtml + ']';
+  });
+}
+
+function setupModalPopup() {
+  modal = document.createElement('div');
+  modal.id = 'citationModal';
+  modal.className = 'modal fade';
+
+  modal.innerHTML = `
+  <div class="modal-dialog modal-dialog-scrollable modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header" id="my-header>
+        <h5 class="modal-title" id="modalLabel">Citation Details</h5>
+        <button type="button" class="btn-close" id="modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Modal content will be populated here -->
+      </div>
+      <div class="modal-footer">
+        <a href="#bib" class="btn btn-issue go-to-references">Go to References</a>
+      </div>
+    </div>
+  </div>
+  `;
+
+  document.body.appendChild(modal);
+  let myModal = new bootstrap.Modal(modal, {
+    backdrop: 'static',
+    keyboard: true
+  });
+  
+  function populateModal(rangeText) {
+    let rangeParts = rangeText.split('-');
+    let start = parseInt(rangeParts[0]);
+    let end = rangeParts.length > 1 ? parseInt(rangeParts[1]) : start;
+    let citationTextHtml = '';
+
+    for (let i = start; i <= end; i++) {
+      let bibItem = document.getElementById('bib.bib' + i);
+      if (bibItem) {
+        let bibItemText = bibItem.textContent || bibItem.innerHTML;
+        citationTextHtml += '<p>' + bibItemText + '</p>';
+      }
+    }
+    console.log(citationTextHtml)
+    modalBody = modal.querySelector('.modal-body');
+    modalBody.innerHTML = '<strong>Citations for range: ' + rangeText + '</strong>' + '<br>' + citationTextHtml;
+    // let myModal = new bootstrap.Modal(document.getElementById('citationModal'));
+
+    // myModal.show();
+
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.setAttribute('aria-hidden', 'true');
+
+    focusFirstElement();
+    document.addEventListener('keydown', handleModalKeyDown);
+    modal.addEventListener('keydown', trapTabKey);
+  }
+
+  function focusFirstElement() {
+      let focusableElements = modal.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (focusableElements.length) {
+          focusableElements[0].focus();
+      }
+  }
+
+  function trapTabKey(e) {
+      let focusableElements = modal.querySelectorAll('a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      let firstFocusableElement = focusableElements[0];
+      let lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+      if (e.key === 'Tab') {
+          if (e.shiftKey) {
+              if (document.activeElement === firstFocusableElement) {
+                  lastFocusableElement.focus();
+                  e.preventDefault();
+              }
+          } else /* tab */ {
+              if (document.activeElement === lastFocusableElement) {
+                  firstFocusableElement.focus();
+                  e.preventDefault();
+              }
+          }
+      }
+  }
+
+  function closeModal() {
+    console.log('Closing modal...');
+
+    if (myModal) {
+        console.log('Found Bootstrap modal instance, hiding it...');
+        myModal.hide();
+    } else {
+        console.log('No Bootstrap modal instance found.');
+    }
+}
+
+
+  function handleModalKeyDown(e) {
+      if (e.key === 'Escape') {
+          closeModal();
+      }
+  }
+
+  document.addEventListener('click', function(event) {
+      if (event.target.classList.contains('range')) {
+        populateModal(event.target.textContent);
+        myModal.show();
+         
+      }
+  });
+
+
+  modal.querySelector('.btn-close').addEventListener('click', function() {
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.removeAttribute('aria-hidden');
+      closeModal();
+  });
+
+  const isMobile = () => window.innerWidth <= 767; // Adjust the width as per your mobile breakpoint
+
+  function toggleBodyPadding(toggle) {
+      if (isMobile()) {
+          document.body.style.paddingRight = toggle ? '0' : '';
+      }
+  }
+
+  modal.addEventListener('show.bs.modal', () => {
+      toggleBodyPadding(true); // Remove padding when modal opens
+  });
+
+
+  modal.addEventListener('hidden.bs.modal', () => {
+      toggleBodyPadding(false); // Restore padding when modal closes
+  });
+
+
+
+}
+
+function assignNumbersToReferences() {
+  let bibItems = document.querySelectorAll('.ltx_biblist .ltx_bibitem');
+
+  bibItems.forEach((item, index) => {
+      let referenceSpan = item.querySelector('.ltx_tag.ltx_role_refnum.ltx_tag_bibitem');
+      if (referenceSpan) {
+          let numberSpan = document.createElement('span');
+          numberSpan.innerText = `[${index + 1}] `;
+          referenceSpan.insertBefore(numberSpan, referenceSpan.firstChild);
+      }
+  });
+}
+
 function ref_ArXivFont(){
   var link = document.createElement("link");
   link.rel = "stylesheet";
@@ -211,6 +403,9 @@ window.addEventListener('load', function() {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    convertCitationsToRanges();
+    setupModalPopup();
+    assignNumbersToReferences();
     document.querySelector('.ltx_page_main').id = 'main';
 
     ref_ArXivFont();
@@ -221,6 +416,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     delete_footer();
     create_footer();
+    // added the following lines to convert citations to ranges and setup the modal popup
+
 
     window.addEventListener('resize', function() {
       if (window.innerWidth <=719) {
@@ -248,40 +445,40 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    const referenceItems = document.querySelectorAll(".ltx_bibitem");
+    // const referenceItems = document.querySelectorAll(".ltx_bibitem");
 
-    referenceItems.forEach(item => {
-      const referenceId = item.getAttribute("id");
-      const backToReferenceBtn = document.createElement("button");
-      backToReferenceBtn.innerHTML = "&#x2191;";
-      backToReferenceBtn.classList.add("back-to-reference-btn");
-      backToReferenceBtn.setAttribute("aria-label", "Back to the article");
+    // referenceItems.forEach(item => {
+    //   const referenceId = item.getAttribute("id");
+    //   const backToReferenceBtn = document.createElement("button");
+    //   backToReferenceBtn.innerHTML = "&#x2191;";
+    //   backToReferenceBtn.classList.add("back-to-reference-btn");
+    //   backToReferenceBtn.setAttribute("aria-label", "Back to the article");
 
-      let scrollPosition = 0;
-      let clickedCite = false;
+    //   let scrollPosition = 0;
+    //   let clickedCite = false;
 
-      backToReferenceBtn.addEventListener("click", function() {
-        if (clickedCite) {
-          window.scrollTo(0, scrollPosition);
-        } else {
-          const citeElement = document.querySelector(`cite a[href="#${referenceId}"]`);
-          if (citeElement) {
-            citeElement.scrollIntoView({ behavior: "smooth" });
-          }
-        }
-      });
+    //   backToReferenceBtn.addEventListener("click", function() {
+    //     if (clickedCite) {
+    //       window.scrollTo(0, scrollPosition);
+    //     } else {
+    //       const citeElement = document.querySelector(`cite a[href="#${referenceId}"]`);
+    //       if (citeElement) {
+    //         citeElement.scrollIntoView({ behavior: "smooth" });
+    //       }
+    //     }
+    //   });
 
-      const citeElements = document.querySelectorAll(`cite a[href="#${referenceId}"]`);
-      citeElements.forEach(citeElement => {
-        citeElement.addEventListener("click", function() {
-          scrollPosition = window.scrollY;
-          clickedCite = true;
-        });
-      });
+    //   const citeElements = document.querySelectorAll(`cite a[href="#${referenceId}"]`);
+    //   citeElements.forEach(citeElement => {
+    //     citeElement.addEventListener("click", function() {
+    //       scrollPosition = window.scrollY;
+    //       clickedCite = true;
+    //     });
+    //   });
 
-      const refNumElement = item.querySelector(".ltx_tag_bibitem");
-      if (refNumElement) {
-        refNumElement.appendChild(backToReferenceBtn);
-    }
-    });
+    //   const refNumElement = item.querySelector(".ltx_tag_bibitem");
+    //   if (refNumElement) {
+    //     refNumElement.appendChild(backToReferenceBtn);
+    // }
+    // });
   });

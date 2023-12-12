@@ -1,5 +1,6 @@
 from typing import Dict, Tuple
 import logging
+import shutil
 from base64 import b64decode
 import json
 from flask import current_app
@@ -81,6 +82,9 @@ def publish (payload: Dict):
     # Move log output from sub bucket to published bucket
     move_sub_qa_to_doc_qa (submission_id, paper_idv)
     logging.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')         
+
+    # Delete from local fs
+    shutil.rmtree(f'sites/{submission_id}')
 
     # Delete from gcs
     # delete_sub (submission_id)

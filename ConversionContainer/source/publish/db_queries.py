@@ -7,8 +7,7 @@ from flask import current_app
 
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-
-from pg8000.legacy import IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 from ..exceptions import DBConnectionError
 from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
@@ -16,34 +15,41 @@ from ..models.util import database_retry
 
 
 # @database_retry(5)
-def submission_has_html (submission_id: int, session: Session) -> Optional[DBLaTeXMLSubmissions]:
-    try:
-        row = session.query(DBLaTeXMLSubmissions) \
-            .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
-            .first()
-        return row if (row and row.conversion_status == 1) else None
-    except Exception as e:
-        logging.warn(str(e))
-        raise DBConnectionError from e
+def submission_has_html (submission_id: int) -> Optional[DBLaTeXMLSubmissions]:
+    with current_app.app_context():
+        try:
+            row = db.session.query(DBLaTeXMLSubmissions) \
+                .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
+                .first()
+            return row if (row and row.conversion_status == 1) else None
+        except Exception as e:
+            logging.warn(str(e))
+            # raise DBConnectionError from e
+            raise e
 
 # @database_retry(5)
-def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXMLSubmissions, session: Session):
-    try:
-        row = DBLaTeXMLDocuments (
-            paper_id=paper_id,
-            document_version=version,
-            conversion_status=1,
-            latexml_version=html_submission.latexml_version,
-            tex_checksum=html_submission.tex_checksum,
-            conversion_start_time=html_submission.conversion_start_time,
-            conversion_end_time=html_submission.conversion_end_time
-        )
-        session.add(row)
-    except IntegrityError as e:
-        logging.info(f'{paper_id}v{version} has already been successfully processed with {str(e)}')
-    except Exception as e:
-        logging.warn(str(e))
-        raise DBConnectionError from e
+def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXMLSubmissions):
+    with current_app.app_context():
+        try:
+            row = DBLaTeXMLDocuments (
+                paper_id=paper_id,
+                document_version=version,
+                conversion_status=1,
+                latexml_version=html_submission.latexml_version,
+                tex_checksum=html_submission.tex_checksum,
+                conversion_start_time=html_submission.conversion_start_time,
+                conversion_end_time=html_submission.conversion_end_time
+            )
+            db.session.add(row)
+            db.session.commit()
+            logging.info(f'Successfully wrote {submission_id}/{paper_idv} to db')         
+        except IntegrityError as e:
+            logging.info(f'{paper_id}v{version} has already been successfully processed with {str(e)}')
+            db.session.rollback()
+        except Exception as e:
+            logging.warn(str(e))
+            # raise DBConnectionError from e
+            raise e
 
 # @database_retry(5)
 def get_submission_timestamp (submission_id: int) -> Optional[str]:
@@ -54,8 +60,9 @@ def get_submission_timestamp (submission_id: int) -> Optional[str]:
             ts: datetime = db.session.execute(query).scalar() # TODO: Add error handling
             return ts.strftime('%d %b %Y')
         except Exception as e:
-            logging.info(str(e))
-            raise DBConnectionError from e
+            logging.warn(str(e))
+            # raise DBConnectionError from e
+            raise e
 
 # @database_retry(5)
 def get_version_primary_category (paper_id: str, version: int) -> Optional[str]:
@@ -66,4 +73,5 @@ def get_version_primary_category (paper_id: str, version: int) -> Optional[str]:
             return db.session.execute(query).scalar().split(' ')[0] # TODO: Needs to be tested
         except Exception as e:
             logging.info(str(e))
-            raise DBConnectionError from e
+            # raise DBConnectionError from e
+            raise e

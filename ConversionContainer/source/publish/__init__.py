@@ -51,14 +51,13 @@ def publish (payload: Dict):
     # the document bucket may still get the site
     
     # with transaction() as session:
-    with current_app.app_context():
     # Check if there is an existing conversion for given submission.
-        submission_row = submission_has_html(submission_id, db.session)
-        if submission_row is None:
-            logging.info(f'No html found for submission {submission_id}/{paper_idv}')
-            return
-        else:
-            logging.info(f'Identified successful conversion for {submission_id}/{paper_idv}')
+    submission_row = submission_has_html(submission_id)
+    if submission_row is None:
+        logging.info(f'No html found for submission {submission_id}/{paper_idv}')
+        return
+    else:
+        logging.info(f'Identified successful conversion for {submission_id}/{paper_idv}')
     
     # Download submission conversion and rename. Return path to main .html file
     html_file = download_sub_to_doc_dir(submission_id, paper_idv)
@@ -68,22 +67,16 @@ def publish (payload: Dict):
     insert_base_tag(html_file, paper_idv)
     logging.info(f'Successfully injected base tag for {submission_id}/{paper_idv}')
 
-    with current_app.app_context():
-        # Inject watermark into html
-        insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
-        logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')         
+    # Inject watermark into html
+    insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
+    logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')         
     
     # Upload directory to published conversion bucket
     upload_dir_to_doc_bucket (submission_id)
     logging.info(f'Successfully uploaded {submission_id}/{paper_idv}')         
 
     # Update database accordingly
-    write_published_html (paper_id, version, submission_row, db.session)
-    logging.info(f'Successfully wrote {submission_id}/{paper_idv} to db')         
-
-    db.session.commit()
-    db.session.close()
-    logging.info(f'DB committed for {submission_id}/{paper_idv}')         
+    write_published_html (paper_id, version, submission_row)
 
     # Move log output from sub bucket to published bucket
     move_sub_qa_to_doc_qa (submission_id, paper_idv)

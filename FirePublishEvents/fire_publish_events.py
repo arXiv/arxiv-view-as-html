@@ -49,6 +49,7 @@ def main(cloud_event):
             sleep(3)
         try: # We don't want to crash on one failed _format_payload or pub fire
             future = publisher.publish(topic_path, _format_payload(row))
-            future.result()
+            res = future.result()
+            print (f'{_format_payload(row)}: {res}')
         except Exception as e:
-            logging.warn(str(e))
+            print (f'WARNING: {str(e)}')

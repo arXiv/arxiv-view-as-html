@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..exceptions import DBConnectionError
 from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
-from ..models.util import database_retry
+from ..models.util import database_retry, transaction
 
 
 # @database_retry(5)
@@ -27,7 +27,7 @@ def submission_has_html (submission_id: int) -> Optional[DBLaTeXMLSubmissions]:
             # raise DBConnectionError from e
             raise e
 
-# @database_retry(5)
+@database_retry(3)
 def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXMLSubmissions):
     with current_app.app_context():
         try:
@@ -48,21 +48,21 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
             db.session.rollback()
         except Exception as e:
             logging.warn(str(e))
-            # raise DBConnectionError from e
-            raise e
+            raise DBConnectionError from e
 
 # @database_retry(5)
 def get_submission_timestamp (submission_id: int) -> Optional[str]:
     with current_app.app_context():
-        try:
-            query = text("SELECT submit_time from arXiv_submissions WHERE submission_id=:submission_id")
-            query = query.bindparams(submission_id=submission_id)
-            ts: datetime = db.session.execute(query).scalar() # TODO: Add error handling
-            return ts.strftime('%d %b %Y')
-        except Exception as e:
-            logging.warn(str(e))
-            # raise DBConnectionError from e
-            raise e
+        with transaction() as session:
+            try:
+                query = text("SELECT submit_time from arXiv_submissions WHERE submission_id=:submission_id")
+                query = query.bindparams(submission_id=submission_id)
+                ts: datetime = session.execute(query).scalar() # TODO: Add error handling
+                return ts.strftime('%d %b %Y')
+            except Exception as e:
+                logging.warn(str(e))
+                # raise DBConnectionError from e
+                raise e
 
 # @database_retry(5)
 def get_version_primary_category (paper_id: str, version: int) -> Optional[str]:

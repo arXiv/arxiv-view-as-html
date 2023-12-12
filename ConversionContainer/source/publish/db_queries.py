@@ -42,7 +42,7 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
             )
             db.session.add(row)
             db.session.commit()
-            logging.info(f'Successfully wrote {submission_id}/{paper_idv} to db')         
+            logging.info(f'Successfully wrote {paper_id} to db')         
         except IntegrityError as e:
             logging.info(f'{paper_id}v{version} has already been successfully processed with {str(e)}')
             db.session.rollback()

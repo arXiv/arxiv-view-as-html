@@ -42,52 +42,64 @@ def publish (payload: Dict):
       5. Delete from latexml_submission_converted
 
     """
-    logging.info(payload['message'])
 
-    # 1.
-    submission_id, paper_id, version = _parse_json_payload(payload)
-    paper_idv = f'{paper_id}v{version}'
+    try:
+        logging.info(payload['message'])
 
-    # If there is a db error, the session will be rolled back, but 
-    # the document bucket may still get the site
-    
-    # with transaction() as session:
-    # Check if there is an existing conversion for given submission.
-    submission_row = submission_has_html(submission_id)
-    if submission_row is None:
-        logging.info(f'No html found for submission {submission_id}/{paper_idv}')
-        return
-    else:
-        logging.info(f'Identified successful conversion for {submission_id}/{paper_idv}')
-    
-    # Download submission conversion and rename. Return path to main .html file
-    html_file = download_sub_to_doc_dir(submission_id, paper_idv)
-    logging.info(f'Successfully downloaded {submission_id} to {paper_idv} dir')
+        # 1.
+        submission_id, paper_id, version = _parse_json_payload(payload)
+        paper_idv = f'{paper_id}v{version}'
 
-    # Insert base tag
-    insert_base_tag(html_file, paper_idv)
-    logging.info(f'Successfully injected base tag for {submission_id}/{paper_idv}')
+        # If there is a db error, the session will be rolled back, but 
+        # the document bucket may still get the site
+        
+        # with transaction() as session:
+        # Check if there is an existing conversion for given submission.
+        submission_row = submission_has_html(submission_id)
+        if submission_row is None:
+            logging.info(f'No html found for submission {submission_id}/{paper_idv}')
+            return
+        else:
+            logging.info(f'Identified successful conversion for {submission_id}/{paper_idv}')
+        
+        # Download submission conversion and rename. Return path to main .html file
+        html_file = download_sub_to_doc_dir(submission_id, paper_idv)
+        logging.info(f'Successfully downloaded {submission_id} to {paper_idv} dir')
 
-    # Inject watermark into html
-    insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
-    logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')         
-    
-    # Upload directory to published conversion bucket
-    upload_dir_to_doc_bucket (submission_id)
-    logging.info(f'Successfully uploaded {submission_id}/{paper_idv}')         
+        # Insert base tag
+        insert_base_tag(html_file, paper_idv)
+        logging.info(f'Successfully injected base tag for {submission_id}/{paper_idv}')
 
-    # Update database accordingly
-    write_published_html (paper_id, version, submission_row)
+        # Inject watermark into html
+        insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
+        logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')         
+        
+        # Upload directory to published conversion bucket
+        upload_dir_to_doc_bucket (submission_id)
+        logging.info(f'Successfully uploaded {submission_id}/{paper_idv}')         
 
-    # Move log output from sub bucket to published bucket
-    move_sub_qa_to_doc_qa (submission_id, paper_idv)
-    logging.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')         
+        # Update database accordingly
+        write_published_html (paper_id, version, submission_row)
 
-    # Delete from local fs
-    shutil.rmtree(f'sites/{submission_id}')
+        # Move log output from sub bucket to published bucket
+        move_sub_qa_to_doc_qa (submission_id, paper_idv)
+        logging.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')         
 
-    # Delete from gcs
-    # delete_sub (submission_id)
+       
 
+    except Exception as e:
+        try:
+            logging.warn(f'Error publishing {submission_id}/{paper_id} with {str(e)}')
+        except:
+            logging.warn(f'Error publishing unknown with {str(e)}')
+    finally:
+        try:
+            # Delete from local fs
+            shutil.rmtree(f'sites/{submission_id}')
+        except:
+            try:
+                logging.warn(f'Failed to delete directory for {submission_id}')
+            except:
+                logging.warn('Failed to delete directory for unknown')
 
     

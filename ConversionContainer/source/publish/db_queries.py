@@ -14,23 +14,19 @@ from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
 from ..models.util import database_retry, transaction
 
 
-# @database_retry(5)
+@database_retry(3)
 def submission_has_html (submission_id: int) -> Optional[DBLaTeXMLSubmissions]:
     with current_app.app_context():
-        try:
+        with transaction() as session:
             row = db.session.query(DBLaTeXMLSubmissions) \
                 .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
                 .first()
             return row if (row and row.conversion_status == 1) else None
-        except Exception as e:
-            logging.warn(str(e))
-            # raise DBConnectionError from e
-            raise e
 
 @database_retry(3)
 def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXMLSubmissions):
     with current_app.app_context():
-        try:
+        with transaction() as session:
             row = DBLaTeXMLDocuments (
                 paper_id=paper_id,
                 document_version=version,
@@ -40,38 +36,22 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
                 conversion_start_time=html_submission.conversion_start_time,
                 conversion_end_time=html_submission.conversion_end_time
             )
-            db.session.add(row)
-            db.session.commit()
-            logging.info(f'Successfully wrote {paper_id} to db')         
-        except IntegrityError as e:
-            logging.info(f'{paper_id}v{version} has already been successfully processed with {str(e)}')
-            db.session.rollback()
-        except Exception as e:
-            logging.warn(str(e))
-            raise DBConnectionError from e
+            session.add(row)
 
-# @database_retry(5)
+
+@database_retry(3)
 def get_submission_timestamp (submission_id: int) -> Optional[str]:
     with current_app.app_context():
         with transaction() as session:
-            try:
-                query = text("SELECT submit_time from arXiv_submissions WHERE submission_id=:submission_id")
-                query = query.bindparams(submission_id=submission_id)
-                ts: datetime = session.execute(query).scalar() # TODO: Add error handling
-                return ts.strftime('%d %b %Y')
-            except Exception as e:
-                logging.warn(str(e))
-                # raise DBConnectionError from e
-                raise e
+            query = text("SELECT submit_time from arXiv_submissions WHERE submission_id=:submission_id")
+            query = query.bindparams(submission_id=submission_id)
+            ts: datetime = session.execute(query).scalar() # TODO: Add error handling
+            return ts.strftime('%d %b %Y')
 
-# @database_retry(5)
+@database_retry(3)
 def get_version_primary_category (paper_id: str, version: int) -> Optional[str]:
     with current_app.app_context():
-        try:
+        with transaction() as session:
             query = text("SELECT abs_categories FROM arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
             query = query.bindparams(paper_id=paper_id, version=version)
-            return db.session.execute(query).scalar().split(' ')[0] # TODO: Needs to be tested
-        except Exception as e:
-            logging.info(str(e))
-            # raise DBConnectionError from e
-            raise e
+            return session.execute(query).scalar().split(' ')[0] # TODO: Needs to be tested

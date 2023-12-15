@@ -19,10 +19,6 @@ steps:
       - 'gcr.io/$PROJECT_ID/html-conversion'
     id: Push
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
-    entrypoint: "bash"
-    args: ['-c', gsutil cp ./ConversionContainer/bucket_static/** gs://latexml_arxiv_id_converted]
-    id: OverwriteStatic
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
     args:
       - run
       - services

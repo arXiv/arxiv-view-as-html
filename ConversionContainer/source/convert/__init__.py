@@ -229,7 +229,7 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool
                       "--path=/opt/arxmliv-bindings/bindings",
                       "--path=/opt/arxmliv-bindings/supported_originals",
                       "--pmml", "--cmml", "--mathtex",
-                      "--timeout=300",
+                      "--timeout=500",
                       "--nodefaultresources",
                       "--css=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
                       f"--css={LATEXML_URL_BASE}/css/ar5iv_0.7.4.min.css",
@@ -246,7 +246,7 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool
         stderr=subprocess.STDOUT,
         check=True,
         text=True,
-        timeout=300)
+        timeout=500)
     errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
     with open(errpath, "w") as f:
         f.write(completed_process.stdout)

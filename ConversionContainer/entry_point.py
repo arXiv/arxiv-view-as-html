@@ -8,7 +8,7 @@ logging_client.setup_logging()
 
 app = create_web_app()
 
-@app.teardown_appcontext()
+@app.teardown_appcontext
 def shutdown_session(exception = None):
     db.session.remove()
 

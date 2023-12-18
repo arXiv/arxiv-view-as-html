@@ -289,7 +289,7 @@ def insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> 
                 <ul arial-label="Unsupported packages used in this paper">
                     {missing_packages_lis}
                 </ul>
-            <p>Authors: achieve the best HTML results from your LaTeX submissions by selecting from this list of <a href="https://corpora.mathweb.org/corpus/arxmliv/tex_to_html/info/loaded_file" target="_blank">supported packages</a>.</p>
+            <p>Authors: achieve the best HTML results from your LaTeX submissions by following these <a href="https://info.arxiv.org/help/submit_latex_best_practices.html" target="_blank">best practices</a>.</p>
         </div>
 
         <script>

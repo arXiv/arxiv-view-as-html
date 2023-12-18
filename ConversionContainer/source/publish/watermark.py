@@ -12,6 +12,6 @@ def insert_watermark (html_fpath: str, watermark: BeautifulSoup):
     with open(html_fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         soup.find('div', attrs={'id': 'target-section'}).append(watermark)
-        html.truncate()
+        html.truncate(0)
         html.seek(0)
         html.write(str(soup))

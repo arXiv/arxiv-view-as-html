@@ -37,6 +37,7 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
                 conversion_end_time=html_submission.conversion_end_time
             )
             session.add(row)
+            session.commit()
 
 
 @database_retry(3)

@@ -27,17 +27,21 @@ def submission_has_html (submission_id: int) -> Optional[DBLaTeXMLSubmissions]:
 def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXMLSubmissions):
     with current_app.app_context():
         with transaction() as session:
-            row = DBLaTeXMLDocuments (
-                paper_id=paper_id,
-                document_version=version,
-                conversion_status=1,
-                latexml_version=html_submission.latexml_version,
-                tex_checksum=html_submission.tex_checksum,
-                conversion_start_time=html_submission.conversion_start_time,
-                conversion_end_time=html_submission.conversion_end_time
-            )
-            session.add(row)
-            session.commit()
+            try:
+                row = DBLaTeXMLDocuments (
+                    paper_id=paper_id,
+                    document_version=version,
+                    conversion_status=1,
+                    latexml_version=html_submission.latexml_version,
+                    tex_checksum=html_submission.tex_checksum,
+                    conversion_start_time=html_submission.conversion_start_time,
+                    conversion_end_time=html_submission.conversion_end_time
+                )
+                session.add(row)
+                session.commit()
+            except IntegrityError as e:
+                logging.info(f'Integrity Error for {paper_id}, rolling back')
+                session.rollback()
 
 
 @database_retry(3)

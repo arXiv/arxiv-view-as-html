@@ -44,7 +44,7 @@ def poll (submission_id: int):
     authorize(submission_id)
     return poll_submission(submission_id)
 
-@blueprint.route('/<int:submission_id>/view', methods=['GET'])
+@blueprint.route('/<int:submission_id>/html', methods=['GET'])
 @cross_origin(supports_credentials=True)
 # @authorize
 def get (submission_id: int):

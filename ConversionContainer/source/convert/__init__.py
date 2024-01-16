@@ -278,7 +278,7 @@ def insert_missing_package_warning (fpath: str, missing_packages: List[str]) -> 
     """ This is the HTML for the closeable pop up warning for missing packages """
     missing_packages_lis = "\n".join(map(lambda x: f"<li>failed: {x}</li>", missing_packages))
     popup_html = f"""
-        <div class="package-alerts ltx_document" role=“status” aria-label=”Conversion errors have been found”>
+        <div class="package-alerts ltx_document" role="status" aria-label="Conversion errors have been found">
             <button aria-label="Dismiss alert" onclick="closePopup()">
                 <span aria-hidden="true"><svg role="presentation" width="20" height="20" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
                 <path d="M0.549989 4.44999L4.44999 0.549988L43.45 39.55L39.55 43.45L0.549989 4.44999Z" />

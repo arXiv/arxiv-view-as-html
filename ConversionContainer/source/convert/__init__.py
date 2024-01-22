@@ -282,7 +282,7 @@ def insert_absolute_anchors_for_submission (fpath: str, sub_id: int) -> None:
         soup = BeautifulSoup(html.read(), 'html.parser')
         for a in soup.find_all('a', attrs={'class': 'ltx_ref'}):
             if a.get('href') and a['href'][0] == '#':
-                a['href'] = f'{VIEW_SUB_BASE}/html/submission/{id}/view{a["href"]}'
+                a['href'] = f'{VIEW_SUB_BASE}/html/submission/{sub_id}/view{a["href"]}'
         html.truncate(0)
         html.seek(0)
         html.write(str(soup))

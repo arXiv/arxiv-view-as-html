@@ -1,5 +1,6 @@
 from flask import Flask
 import markupsafe
+import os
 
 from arxiv_auth import auth
 from arxiv_auth.auth.middleware import AuthMiddleware
@@ -24,6 +25,9 @@ def create_web_app() -> Flask:
     app = Flask(__name__, static_folder=None)
     app.config.from_pyfile('config.py')
     app.config['SERVER_NAME'] = None
+
+    os.mkdir(app.config['SITES_DIR'])
+    os.mkdir(app.config['TARS_DIR'])
 
     app.register_blueprint(blueprint)
 

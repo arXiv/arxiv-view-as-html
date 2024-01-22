@@ -50,6 +50,8 @@ def poll (submission_id: int):
 def get (submission_id: int):
     authorize(submission_id)
 
+    logging.info('SUCCESSFULLY AUTHORIZED')
+     
     BUCKET = current_app.config['CONVERTED_BUCKET_SUB_ID']
     TARS_DIR = current_app.config['TARS_DIR']
 
@@ -112,4 +114,5 @@ def handle_500(e):
 def handle_404(e):
     # TODO: 404 Page for submissions?
     logging.warning(f'Error: {e}')
+    logging.warning(f'FULL REQUEST PATH: {request.full_path}, USER_ID: {_get_arxiv_user_id()}')
     return 'This page does not exist', 404

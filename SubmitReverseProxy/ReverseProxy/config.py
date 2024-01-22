@@ -29,5 +29,3 @@ CLASSIC_HTML_BUCKET = os.environ.get('CLASSIC_HTML_BUCKET')
 
 SITES_DIR = '/source/ReverseProxy/sites/'
 TARS_DIR = '/source/ReverseProxy/downloads/'
-
-VIEW_SUB_BASE = os.environ.get('VIEW_SUB_BASE')

@@ -7,7 +7,7 @@ from flask import current_app
 
 from ..models.util import transaction, db
 
-from ..convert import insert_base_tag
+from ..convert import insert_base_tag, replace_absolute_anchors_for_doc
 
 from .db_queries import submission_has_html, \
     write_published_html
@@ -72,7 +72,10 @@ def publish (payload: Dict):
 
         # Inject watermark into html
         insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
-        logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')         
+        logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')
+
+        replace_absolute_anchors_for_doc(html_file, paper_idv)
+        logging.info(f'Successfully replaced anchor tags for {submission_id/paper_idv}')
         
         # Upload directory to published conversion bucket
         upload_dir_to_doc_bucket (submission_id)

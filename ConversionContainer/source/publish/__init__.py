@@ -75,7 +75,7 @@ def publish (payload: Dict):
         logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')
 
         replace_absolute_anchors_for_doc(html_file, paper_idv)
-        logging.info(f'Successfully replaced anchor tags for {submission_id/paper_idv}')
+        logging.info(f'Successfully replaced anchor tags for {submission_id}/{paper_idv}')
         
         # Upload directory to published conversion bucket
         upload_dir_to_doc_bucket (submission_id)

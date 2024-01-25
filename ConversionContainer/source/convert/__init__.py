@@ -282,7 +282,7 @@ def replace_absolute_anchors_for_doc (fpath: str, id: str) -> None:
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         for a in soup.find_all('a', attrs={'class': 'ltx_ref'}):
-            if a.get('href') and (re.search(HREF_RE, a['href']) is not None or a['href'][0] == '#'):
+            if a.get('href') and ((re.search(HREF_RE, a['href']) is not None) or a['href'][0] == '#'):
                 relative_anchor = a['href'].split('/view')[1]
                 a['href'] = f'{VIEW_DOC_BASE}/html/{id}{relative_anchor}'
             html.truncate(0)

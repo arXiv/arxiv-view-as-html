@@ -98,6 +98,8 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
                 logging.info(f'License failed with: {str(e)}')
                 raise e
             
+            insert_absolute_anchors_for_submission(f'{outer_bucket_dir}/{id}.html', id)
+            
             logging.info(f'get license worked for {id}')
 
             logging.info(f"Step 6: Upload html for {id}")
@@ -270,6 +272,30 @@ def insert_base_tag (fpath: str, id: str) -> None:
     with open(fpath, 'r+') as html:
         soup = BeautifulSoup(html.read(), 'html.parser')
         soup.head.append(BeautifulSoup(base_html, 'html.parser'))
+        html.truncate(0)
+        html.seek(0)
+        html.write(str(soup))
+
+def replace_absolute_anchors_for_doc (fpath: str, id: str) -> None:
+    HREF_RE = re.compile(r'\/html\/submission\/\d+\/view#.+')
+    VIEW_DOC_BASE = current_app.config['VIEW_DOC_BASE']
+    with open(fpath, 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        for a in soup.find_all('a', attrs={'class': 'ltx_ref'}):
+            if a.get('href') and ((re.search(HREF_RE, a['href']) is not None) or a['href'][0] == '#'):
+                relative_anchor = a['href'].split('/view')[1]
+                a['href'] = f'{VIEW_DOC_BASE}/html/{id}{relative_anchor}'
+            html.truncate(0)
+            html.seek(0)
+            html.write(str(soup))
+
+def insert_absolute_anchors_for_submission (fpath: str, sub_id: int) -> None:
+    VIEW_SUB_BASE = current_app.config['VIEW_SUB_BASE']
+    with open(fpath, 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        for a in soup.find_all('a', attrs={'class': 'ltx_ref'}):
+            if a.get('href') and a['href'][0] == '#':
+                a['href'] = f'{VIEW_SUB_BASE}/html/submission/{sub_id}/view{a["href"]}'
         html.truncate(0)
         html.seek(0)
         html.write(str(soup))

@@ -1,11 +1,14 @@
 from flask import Flask
 import markupsafe
+import os
 
 from arxiv_auth import auth
 from arxiv_auth.auth.middleware import AuthMiddleware
 from arxiv.base.middleware import wrap
 
 import google.cloud.logging
+
+import logging
 
 from .routes import blueprint
 
@@ -24,6 +27,12 @@ def create_web_app() -> Flask:
     app = Flask(__name__, static_folder=None)
     app.config.from_pyfile('config.py')
     app.config['SERVER_NAME'] = None
+
+    try:
+        os.mkdir(app.config['SITES_DIR'])
+        os.mkdir(app.config['TARS_DIR'])
+    except Exception as e:
+        logging.warn(f"Failed to create SITES or TARS_DIR with {e}")
 
     app.register_blueprint(blueprint)
 

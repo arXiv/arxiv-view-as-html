@@ -8,6 +8,8 @@ from arxiv.base.middleware import wrap
 
 import google.cloud.logging
 
+import logging
+
 from .routes import blueprint
 
 google.cloud.logging.Client().setup_logging()
@@ -26,8 +28,11 @@ def create_web_app() -> Flask:
     app.config.from_pyfile('config.py')
     app.config['SERVER_NAME'] = None
 
-    os.mkdir(app.config['SITES_DIR'])
-    os.mkdir(app.config['TARS_DIR'])
+    try:
+        os.mkdir(app.config['SITES_DIR'])
+        os.mkdir(app.config['TARS_DIR'])
+    except Exception as e:
+        logging.warn(f"Failed to create SITES or TARS_DIR with {e}")
 
     app.register_blueprint(blueprint)
 

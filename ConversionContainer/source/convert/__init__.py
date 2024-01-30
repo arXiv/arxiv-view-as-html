@@ -88,6 +88,10 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
             logging.info(f"Step 5: Do LaTeXML for {id}")
             missing_packages = do_latexml(main, outer_bucket_dir, id, is_submission)
 
+            logging.info(f"Upload raw LaTeXML output to gcs")
+            if is_submission:
+                upload_tar_to_gcs(id, bucket_dir_container, current_app.config['RAW_LATEXML_SUBMISSION'], f'{bucket_dir_container}/{id}.tar.gz')
+
             if missing_packages:
                 logging.info(f"Missing the following packages: {str(missing_packages)}")
                 insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)

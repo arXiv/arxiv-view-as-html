@@ -1,10 +1,7 @@
 """ORM models for latexml table"""
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Enum, \
-    ForeignKey, Integer, SmallInteger, \
-    String, Text, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, DateTime
 
 db: SQLAlchemy = SQLAlchemy()
 
@@ -27,6 +24,7 @@ class DBLaTeXMLDocuments(db.Model):
     tex_checksum = Column(String)
     conversion_start_time = Column(Integer)
     conversion_end_time = Column(Integer)
+    publish_dt = Column(DateTime)
 
 class DBLaTeXMLSubmissions (db.Model):
     """ 

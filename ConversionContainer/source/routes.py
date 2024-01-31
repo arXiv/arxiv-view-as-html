@@ -89,7 +89,8 @@ def batch_convert_route () -> Response:
 
 @blueprint.route('/single-convert', methods=['POST'])
 def single_convert_route () -> Response:
-    single_convert(**_unwrap_single_conversion_payload(request.json))
+    thread = FlaskThread(target=single_convert, args=_unwrap_single_conversion_payload(request.json))
+    thread.start()
     return '', 200
 
 @blueprint.route('/publish', methods=['POST'])

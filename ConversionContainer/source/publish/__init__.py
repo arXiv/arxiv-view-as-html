@@ -28,6 +28,9 @@ def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
     )
 
 def publish (payload: Dict):
+    _publish(**_parse_json_payload(payload))
+
+def _publish (submission_id: int, paper_id: str, version: int):
     """Triggered from a message on a Cloud Pub/Sub topic.
     Args:
          paylod (dict): Event payload containing a base64 encoded 
@@ -44,10 +47,7 @@ def publish (payload: Dict):
     """
 
     try:
-        logging.info(payload['message'])
-
         # 1.
-        submission_id, paper_id, version = _parse_json_payload(payload)
         paper_idv = f'{paper_id}v{version}'
 
         # If there is a db error, the session will be rolled back, but 

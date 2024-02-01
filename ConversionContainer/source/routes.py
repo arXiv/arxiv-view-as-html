@@ -13,6 +13,7 @@ from flask import Blueprint, request, jsonify, \
 
 from .convert import process
 from .convert.batch_convert import batch_process
+from .convert.single_convert import single_convert
 from .publish import publish
 from .util import get_arxiv_id_from_blob
 
@@ -53,14 +54,9 @@ def _unwrap_batch_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str
         data['bucket']
     )
 
-def _unwrap_single_conversion_payload (payload: Dict[str, str]) -> Tuple[str, str, str]:
-    arxiv_id, new_id = get_arxiv_id_from_blob(payload['id'])
-    return {
-        arxiv_id, 
-        new_id,
-        payload['blob'],
-        payload['bucket']
-    }
+def _unwrap_single_conversion_payload (payload: Dict[str, str]) -> Tuple[str, int]:
+    data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
+    return data['paper_id'], data['version']
 
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
@@ -93,7 +89,8 @@ def batch_convert_route () -> Response:
 
 @blueprint.route('/single-convert', methods=['POST'])
 def single_convert_route () -> Response:
-    batch_process(*_unwrap_single_conversion_payload(request.json))
+    thread = FlaskThread(target=single_convert, args=_unwrap_single_conversion_payload(request.json))
+    thread.start()
     return '', 200
 
 @blueprint.route('/publish', methods=['POST'])

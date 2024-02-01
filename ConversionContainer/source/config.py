@@ -7,6 +7,7 @@ CLASSIC_DATABASE_URI = os.environ.get('CLASSIC_DATABASE_URI')
 OUT_BUCKET_ARXIV_ID = os.environ['DOCUMENT_CONVERTED_BUCKET'] # Startup failure on miss
 IN_BUCKET_SUB_ID = os.environ['SUBMISSION_SOURCE_BUCKET'] # Startup failure on miss
 OUT_BUCKET_SUB_ID = os.environ['SUBMISSION_CONVERTED_BUCKET'] # Startup failure on miss
+RAW_LATEXML_SUBMISSION = os.environ['RAW_LATEXML_SUBMISSION']
 
 QA_BUCKET_SUB = os.environ['QA_BUCKET_SUB'] # Startup failure on miss
 QA_BUCKET_DOC = os.environ['QA_BUCKET_DOC']

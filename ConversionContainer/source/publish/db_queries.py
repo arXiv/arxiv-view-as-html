@@ -37,7 +37,7 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
                     conversion_start_time=html_submission.conversion_start_time,
                     conversion_end_time=html_submission.conversion_end_time
                 )
-                session.add(row)
+                session.merge(row)
                 session.commit()
             except IntegrityError as e:
                 logging.info(f'Integrity Error for {paper_id}, rolling back')

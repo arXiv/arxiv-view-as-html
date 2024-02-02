@@ -42,7 +42,7 @@ def transaction() -> Generator[Session, None, None]:
         if db.session.new or db.session.dirty or db.session.deleted:
             db.session.commit()
     except Exception as e:
-        logging.warn(f'{now()}: Commit failed, rolling back: {str(e)}')
+        logging.warn(f'Commit failed, rolling back', exc_info=1)
         db.session.rollback()
         raise DBConnectionError from e
 
@@ -76,7 +76,6 @@ def database_retry (retries: int):
                 try:
                     return func(*args, **kwargs)
                 except DBConnectionError:
-                    logging.warn(f'Database failure encountered, retrying (retry #{i + 1})')
                     time.sleep(3)
             raise DBConnectionError
         

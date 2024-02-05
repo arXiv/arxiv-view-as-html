@@ -28,7 +28,7 @@ def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
     )
 
 def publish (payload: Dict):
-    _publish(**_parse_json_payload(payload))
+    _publish(*_parse_json_payload(payload))
 
 def _publish (submission_id: int, paper_id: str, version: int):
     """Triggered from a message on a Cloud Pub/Sub topic.

@@ -19,6 +19,9 @@ bs4 = "^0.0.1"
 filelock = "^3.12.2"
 mysqlclient = "*"
 
+[tool.poetry.dev-dependencies]
+pytest-mock = "*"
+
 [tool.pytest.ini_options]
 markers = [
     "cc_unit_tests: Unit tests for concurrency control functions",

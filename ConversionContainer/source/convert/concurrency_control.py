@@ -59,8 +59,6 @@ def _write_start_doc (paper_idv: str, tar_fpath: str):
     except Exception as e:
         raise DBConnectionError from e
 
-    logging.info(f"Conversion started for document {paper_id}v{document_version}")
-
 @database_retry(5)
 def _write_start_sub (submission_id: int, tar_fpath: str):
     try:
@@ -85,11 +83,8 @@ def _write_start_sub (submission_id: int, tar_fpath: str):
     except Exception as e:
         raise DBConnectionError from e
 
-    logging.info(f"{now()}: Conversion started for submission {submission_id}")
-
 
 def write_start (id: Any, tar_fpath: str, is_submission: bool):
-    logging.info(f"{now()}: Trying write start for {tar_fpath}")
     if is_submission:
         _write_start_sub(int(id), tar_fpath)
     else:
@@ -113,11 +108,11 @@ def _write_success_doc (paper_idv: str, tar_fpath: str) -> bool:
                         obj.conversion_status = 1
                         obj.conversion_end_time = now()
                         success = True
-                        logging.info(f"{now()}: document {paper_id}v{document_version} successfully written")
+                        logging.info(f"document {paper_id}v{document_version} successfully written")
     except Exception as e:
         raise DBConnectionError from e
     if not success:
-        logging.info(f"{now()}: document {paper_id}v{document_version} failed to write")
+        logging.info(f"document {paper_id}v{document_version} failed to write")
     return success
 
 @database_retry(5)
@@ -128,7 +123,6 @@ def _write_success_sub (submission_id: int, tar_fpath: str) -> bool:
             obj = session.query(DBLaTeXMLSubmissions) \
                     .filter(int(submission_id) == DBLaTeXMLSubmissions.submission_id) \
                     .all()
-            # logging.log(f'We got the object, here\'s the checksum: {obj[0].tex_checksum}')
             if len(obj) > 0:
                 obj = obj[0]
                 if obj.tex_checksum == _get_checksum(tar_fpath) and \
@@ -137,11 +131,11 @@ def _write_success_sub (submission_id: int, tar_fpath: str) -> bool:
                         obj.conversion_status = 1
                         obj.conversion_end_time = now()
                         success = True
-                        logging.info(f"{now()}: document {submission_id} successfully written")
+                        logging.info(f"{submission_id}: Successfully written")
     except Exception as e:
         raise DBConnectionError from e
     if not success:
-        logging.info(f"{now()}: document {submission_id} failed to write")
+        logging.info(f"{submission_id}: Failed to write")
     return success
 
 def write_success (id: int, tar_fpath: str, is_submission: bool):
@@ -165,7 +159,7 @@ def _write_failure_doc (paper_idv: str, tar_fpath: str) -> bool:
                     obj.latexml_version == _latexml_commit():
                     obj.conversion_status = 2
                     obj.conversion_end_time = now()
-                    logging.info(f"{now()}: document {paper_id}v{document_version} conversion failure written")
+                    logging.info(f"document {paper_id}v{document_version} conversion failure written")
     except Exception as e:
         raise DBConnectionError from e
 
@@ -182,7 +176,7 @@ def _write_failure_sub (submission_id: int, tar_fpath: str) -> bool:
                     obj.latexml_version == _latexml_commit():
                     obj.conversion_status = 2
                     obj.conversion_end_time = now()
-                    logging.info(f"{now()}: document {submission_id} conversion failure written")
+                    logging.info(f"{submission_id}: Conversion failure written")
     except Exception as e:
         raise DBConnectionError from e
 

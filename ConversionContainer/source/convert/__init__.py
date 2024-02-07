@@ -54,59 +54,59 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
 
             # Check file format and download to ./[{id}.tar.gz]
             try:
-                logging.info(f"Step 1: Download {id}")
+                logging.info(f"{id}: Download")
                 download_blob(bucket, blob, download_file)
             except:
-                logging.info(f'Failed to download {id}')
-                traceback.print_exc()
+                logging.warning(f'{id}: Failed to download', exc_info=1)
                 return
 
             # Write to DB that process has started
-            logging.info(f"Write start process to db")
+            logging.info(f"{id}: Write start process to db")
             write_start(id, download_file, is_submission)
 
             # Untar file ./[tar] to ./extracted/id/
             if not single_file:
-                logging.info(f"Step 2: Untar {id}")
+                logging.info(f"{id}: Untar")
                 untar (download_file, src_dir)
             else:
-                logging.info(f"Step 2: Ungzip {id}")
+                logging.info(f"{id}: Ungzip")
                 try:
                     unzip_single_file(download_file, src_dir)
                 except Exception as e:
-                    logging.warn (f'UNGZIP ERROR: {str(e)}')
+                    logging.warning (f'{id}: Ungzip error', exc_info=1)
 
             # Remove .ltxml files from [source] (./extracted/id/)
-            logging.info(f"Step 3: Remove .ltxml for {id}")
+            logging.info(f"{id}: Remove .ltxml")
             remove_ltxml(src_dir)
 
             # Identify main .tex source in [source]
-            logging.info(f"Step 4: Identify main .tex source for {id}")
+            logging.info(f"{id}: Identify main .tex source")
             main = find_main_tex_source(src_dir)
 
             # Run LaTeXML on main and output to ./extracted/id/html/id
-            logging.info(f"Step 5: Do LaTeXML for {id}")
+            logging.info(f"{id}: Do LaTeXML")
             missing_packages = do_latexml(main, outer_bucket_dir, id, is_submission)
 
-            logging.info(f"Upload raw LaTeXML output to gcs")
             if is_submission:
+                logging.info(f"{id}: Upload raw LaTeXML output to GCS")
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['RAW_LATEXML_SUBMISSION'], f'{bucket_dir_container}/{id}.tar.gz')
 
             if missing_packages:
-                logging.info(f"Missing the following packages: {str(missing_packages)}")
+                logging.info(f"{id}: Missing packages {str(missing_packages)}")
                 insert_missing_package_warning(f'{outer_bucket_dir}/{id}.html', missing_packages)
 
             try:
+                logging.info(f'{id}: Insert license')
                 insert_license(f'{outer_bucket_dir}/{id}.html', id, is_submission, missing_packages)
             except Exception as e:
-                logging.info(f'License failed with: {str(e)}')
-                raise e
-            
-            insert_absolute_anchors_for_submission(f'{outer_bucket_dir}/{id}.html', id)
-            
-            logging.info(f'get license worked for {id}')
+                logging.warning(f'{id}: Insert license failed', exc_info=1)
+                return 
 
-            logging.info(f"Step 6: Upload html for {id}")
+            if is_submission: 
+                logging.info(f'{id}: Insert absolute anchor tags')
+                insert_absolute_anchors_for_submission(f'{outer_bucket_dir}/{id}.html', id)
+
+            logging.info(f"{id}: Upload html")
             if is_submission:
                 upload_tar_to_gcs(id, bucket_dir_container, current_app.config['OUT_BUCKET_SUB_ID'], f'{bucket_dir_container}/{id}.tar.gz')
             else:
@@ -117,18 +117,18 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
             download_blob(bucket, blob, download_file) # download again to double check for most recent tex source
             write_success(id, download_file, is_submission)
     except Exception as e:
-        logging.info(f'Conversion unsuccessful with {e}')
+        logging.info(f'{id}: Conversion unsuccessful', exc_info=1)
         try:
             download_blob(bucket, blob, download_file)
             write_failure(id, download_file, is_submission)
         except Exception as e:
-            logging.info(f'Failed to write failure for {id} with {e}')
+            logging.warning(f'{id}: Failed to write failure', exc_info=1)
     finally:
         try:
             with id_lock(id, current_app.config['LOCK_DIR'], 1):
                 _clean_up(download_file, id)
         except Exception as e:
-            logging.info(f"Failed to clean up {id} with {e}")
+            logging.warning(f"{id}: Failed to clean up lock and dir", exc_info=1)
 
 
 def remove_ltxml(path: str) -> None:

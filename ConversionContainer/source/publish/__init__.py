@@ -92,17 +92,17 @@ def _publish (submission_id: int, paper_id: str, version: int):
 
     except Exception as e:
         try:
-            logging.warn(f'Error publishing {submission_id}/{paper_id} with {str(e)}')
+            logging.warning(f'Error publishing {submission_id}/{paper_id}', exc_info=1)
         except:
-            logging.warn(f'Error publishing unknown with {str(e)}')
+            logging.warning(f'Error publishing unknown', exc_info=1)
     finally:
         try:
             # Delete from local fs
             shutil.rmtree(f'sites/{submission_id}')
         except:
             try:
-                logging.warn(f'Failed to delete directory for {submission_id}')
+                logging.warning(f'Failed to delete directory for {submission_id}', exc_info=1)
             except:
-                logging.warn('Failed to delete directory for unknown')
+                logging.warning('Failed to delete directory for unknown', exc_info=1)
 
     

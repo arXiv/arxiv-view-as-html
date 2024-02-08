@@ -18,7 +18,7 @@ from google.auth.transport import requests
 from google.cloud.pubsub_v1 import PublisherClient
 
 from .authorize import authorize_user_for_submission, is_editor, is_moderator
-from .html_queries import get_source_format
+from .db_queries import get_source_format
 from .poll import poll_submission
 from .util import untar, clean_up
 from .exceptions import AuthError, UnauthorizedError

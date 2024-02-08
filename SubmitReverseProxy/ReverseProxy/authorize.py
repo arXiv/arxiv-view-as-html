@@ -42,11 +42,18 @@ def authorize_user_for_submission(user_id: str, submission_id: str):
     if is_configured():
         try:
             logging.info('Made DB call')
-            query = text("SELECT submitter_id FROM arXiv_submissions WHERE submission_id=:submission_id") \
+            query = text("SELECT submitter_id, is_withdrawn, status FROM arXiv_submissions WHERE submission_id=:submission_id") \
                 .bindparams(submission_id=submission_id)
-            submitter_id = current_session().connection().execute(query).scalar()
+            row = current_session().connection().execute(query).first()
 
-            if submitter_id and int(submitter_id) == int(user_id):
+            if row:
+                submitter_id, is_withdrawn, status = row.tuple()
+            else:
+                logging.warning(f'Cannot find row for submission_id: {submission_id}')
+                raise DBConfigError
+
+            if submitter_id and int(submitter_id) == int(user_id) \
+                and not is_withdrawn and status < 9:
                 return
             if is_editor(user_id) or is_moderator(user_id):
                 return

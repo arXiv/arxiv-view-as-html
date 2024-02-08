@@ -15,7 +15,7 @@ from google.cloud.storage import Client
 import google.auth
 from google.auth.credentials import Credentials
 from google.auth.transport import requests
-from google.cloud import pubsub_v1
+from google.cloud.pubsub_v1 import PublisherClient
 
 from .authorize import authorize_user_for_submission, is_editor, is_moderator
 from .html_queries import get_source_format
@@ -94,7 +94,7 @@ def build_html (paper_id: str, version: int):
     PROJECT_ID = current_app.config['PROJECT_ID']
     BUILD_HTML_TOPIC_ID = current_app.config['BUILD_HTML_TOPIC']
 
-    publisher = pubsub_v1.PublisherClient()
+    publisher = PublisherClient()
     topic_path = publisher.topic_path(PROJECT_ID, BUILD_HTML_TOPIC_ID)
 
     message = json.dumps({
@@ -118,11 +118,13 @@ def reprocess_submission (submission_id: int):
     PROJECT_ID = current_app.config['PROJECT_ID']
     REPROCESS_SUBMISSION_TOPIC = current_app.config['REPROCESS_SUBMISSION_TOPIC']
 
-    publisher = pubsub_v1.PublisherClient()
+    publisher = PublisherClient()
+
+
     topic_path = publisher.topic_path(PROJECT_ID, REPROCESS_SUBMISSION_TOPIC)
 
     message = json.dumps({
-        'submission_id': submission_id, 
+        'submission_id': submission_id
     }).encode('utf-8')
 
     future = publisher.publish(topic_path, message)

@@ -21,7 +21,7 @@ from .authorize import authorize_user_for_submission, is_editor, is_moderator
 from .db_queries import get_source_format
 from .poll import poll_submission
 from .util import untar, clean_up
-from .exceptions import AuthError, UnauthorizedError
+from .exceptions import AuthError, DeletedError, UnauthorizedError
 
 blueprint = Blueprint('routes', __name__, '')
 
@@ -151,6 +151,12 @@ def handle_auth_error(e):
 def handle_unauth_error(e):
     logging.warning(f'Error {e}')
     return 'You do not have access to this page', 403
+
+@blueprint.app_errorhandler(DeletedError)
+@cross_origin(supports_credentials=True)
+def handle_deleted(e):
+    logging.warning(f'Error: {e}')
+    return 'This submission is not available', 404
 
 @blueprint.app_errorhandler(500)
 @cross_origin(supports_credentials=True)

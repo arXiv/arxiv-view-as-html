@@ -9,3 +9,6 @@ class AuthError (RuntimeError):
 
 class UnauthorizedError (ValueError):
     """ Raise on unauthorized request """
+
+class DeletedError (ValueError):
+    """ Raise on unauthorized request """

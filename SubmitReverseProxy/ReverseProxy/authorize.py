@@ -10,14 +10,17 @@ from .db.util import database_retry
 from .exceptions import DBConnectionError, \
     DBConfigError, UnauthorizedError
 
-def _get_arxiv_mod_user_ids (conn) -> List[str]:
-    query = text("SELECT user_id FROM arXiv_moderators")
-    return [int(row[0]) for row in conn.execute(query).fetchall()]
-
-def _get_arxiv_admin_user_ids (conn) -> List[str]:
+def is_editor (user_id: int) -> bool:
     conn = current_session().connection()
-    query = text("SELECT user_id FROM tapir_users WHERE flag_edit_users = 1")
-    return [int(row[0]) for row in conn.execute(query).fetchall()]
+    query = text("SELECT user_id FROM tapir_users WHERE flag_edit_users = 1 and user_id=:user_id") \
+        .bindparams(user_id=user_id)
+    return conn.execute(query).scalar() is not None
+
+def is_moderator (user_id: int) -> bool:
+    conn = current_session().connection()
+    query = text("SELECT user_id FROM arxiv_moderators WHERE user_id=:user_id") \
+        .bindparams(user_id=user_id)
+    return conn.execute(query).scalar() is not None
 
 @database_retry(5)
 def authorize_user_for_submission(user_id: str, submission_id: str):
@@ -39,16 +42,13 @@ def authorize_user_for_submission(user_id: str, submission_id: str):
     if is_configured():
         try:
             logging.info('Made DB call')
-            conn = current_session().connection()
-            query = text("SELECT submitter_id FROM arXiv_submissions WHERE submission_id=:submission_id")
-            query = query.bindparams(submission_id=submission_id)
-            submitter_id = conn.execute(query).scalar()
+            query = text("SELECT submitter_id FROM arXiv_submissions WHERE submission_id=:submission_id") \
+                .bindparams(submission_id=submission_id)
+            submitter_id = current_session().connection().execute(query).scalar()
 
             if submitter_id and int(submitter_id) == int(user_id):
                 return
-            if int(user_id) in _get_arxiv_mod_user_ids(conn):
-                return
-            if int(user_id) in _get_arxiv_admin_user_ids(conn):
+            if is_editor(user_id) or is_moderator(user_id):
                 return
         except Exception as exc:
             logging.warning(str(exc))

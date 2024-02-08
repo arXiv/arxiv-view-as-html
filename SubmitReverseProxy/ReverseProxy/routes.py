@@ -89,7 +89,7 @@ def get_static (submission_id: int, path: str):
 def build_html (paper_id: str, version: int):
     user_id = _get_arxiv_user_id()
     if not (is_editor(user_id) or is_moderator(user_id)):
-        raise AuthError
+        raise UnauthorizedError
     
     PROJECT_ID = current_app.config['PROJECT_ID']
     BUILD_HTML_TOPIC_ID = current_app.config['BUILD_HTML_TOPIC']
@@ -108,6 +108,29 @@ def build_html (paper_id: str, version: int):
 
     return '', 200
 
+@blueprint.route('/<int:submission_id>/reprocess', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def reprocess_submission (submission_id: int):
+    user_id = _get_arxiv_user_id()
+    if not (is_editor(user_id)):
+        raise UnauthorizedError
+    
+    PROJECT_ID = current_app.config['PROJECT_ID']
+    REPROCESS_SUBMISSION_TOPIC = current_app.config['REPROCESS_SUBMISSION_TOPIC']
+
+    publisher = pubsub_v1.PublisherClient()
+    topic_path = publisher.topic_path(PROJECT_ID, REPROCESS_SUBMISSION_TOPIC)
+
+    message = json.dumps({
+        'submission_id': submission_id, 
+    }).encode('utf-8')
+
+    future = publisher.publish(topic_path, message)
+    res = future.result()
+    logging.info(f'published HTML reprocess submission message: {res}')
+
+    return '', 200
+
 @blueprint.app_errorhandler(BadRequest)
 @cross_origin(supports_credentials=True)
 def handle_bad_request(e):
@@ -121,7 +144,7 @@ def handle_auth_error(e):
     logging.warning(f'Error {e}')
     return 'You do not have access to this page', 403
 
-@blueprint.app_errorhandler(AuthError)
+@blueprint.app_errorhandler(UnauthorizedError)
 @cross_origin(supports_credentials=True)
 def handle_unauth_error(e):
     logging.warning(f'Error {e}')

@@ -51,11 +51,13 @@ def authorize_user_for_submission(user_id: str, submission_id: str):
             else:
                 logging.warning(f'Cannot find row for submission_id: {submission_id}')
                 raise DBConfigError
+            
+            # Check for editor / moderator first so they can still see deleted papers
+            if is_editor(user_id) or is_moderator(user_id):
+                return
 
             if submitter_id and int(submitter_id) == int(user_id) \
                 and not is_withdrawn and status < 9:
-                return
-            if is_editor(user_id) or is_moderator(user_id):
                 return
         except Exception as exc:
             logging.warning(str(exc))

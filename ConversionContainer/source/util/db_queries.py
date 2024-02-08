@@ -13,3 +13,11 @@ def get_process_data_from_db (paper_id: str, version: int) -> Optional[Tuple[int
             query = query.bindparams(paper_id=paper_id, version=version)
             row = session.execute(query).first()
             return row.tuple() if row else None
+        
+@database_retry(3)
+def get_source_flags_for_submission (sub_id: int) -> Optional[str]:
+    with current_app.app_context():
+        with transaction() as session:
+            query = text("SELECT source_flags from arXiv_submissions WHERE submission_id=:submission_id")
+            query = query.bindparams(submission_id=sub_id)
+            return session.execute(query).scalar()

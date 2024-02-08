@@ -58,9 +58,9 @@ def _unwrap_single_conversion_payload (payload: Dict[str, str]) -> Tuple[str, in
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
     return data['paper_id'], data['version']
 
-def _unwrap_reconvert_sub_payload (payload: Dict[str, str]) -> Tuple[str, int]:
+def _unwrap_reconvert_sub_payload (payload: Dict[str, str]) -> Tuple[int]:
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
-    return data['submission_id']
+    return (data['submission_id'],)
 
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
@@ -98,7 +98,7 @@ def single_convert_route () -> Response:
     return '', 200
 
 @blueprint.route('/reconvert-submission', methods=['POST'])
-def reconvert_submission () -> Response:
+def reprocess_submission () -> Response:
     thread = FlaskThread(target=reconvert_submission, args=_unwrap_reconvert_sub_payload(request.json))
     thread.start()
     return '', 200

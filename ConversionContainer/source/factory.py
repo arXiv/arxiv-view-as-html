@@ -23,7 +23,7 @@ def create_web_app(config: Optional[Dict]=None) -> Flask:
     """
     app = Flask(__name__)
 
-    root = logging.getLogger()
+    root = logging.getLogger(__name__)
     root.addHandler(default_handler)
 
     if config:

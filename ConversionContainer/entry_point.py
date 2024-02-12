@@ -7,8 +7,7 @@ from source.factory import create_web_app
 from source.models.db import db
 
 
-logger = logging.getLogger(__name__)
-logger.basicConfig(level=logging.ERROR, 
+logging.basicConfig(level=logging.ERROR, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 logging_client = gcp_logging.Client()

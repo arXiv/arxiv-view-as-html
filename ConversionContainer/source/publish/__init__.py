@@ -19,7 +19,7 @@ from .buckets import (
 )
 from .watermark import make_published_watermark, insert_watermark
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))

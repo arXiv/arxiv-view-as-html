@@ -17,7 +17,7 @@ from .convert.single_convert import single_convert, reconvert_submission
 from .publish import publish
 from .util import get_arxiv_id_from_blob
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 # FlaskThread pushes the Flask applcation context
 class FlaskThread(Thread):

@@ -24,7 +24,7 @@ from . import (
     _clean_up
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 def batch_process(id: str, new_id: bool, blob: str, bucket: str) -> bool:
 

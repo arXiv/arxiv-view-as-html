@@ -15,7 +15,7 @@ from sqlalchemy.orm.session import Session
 from .db import db
 from ..exceptions import DBConnectionError
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 def now() -> int:
     """Get the current epoch/unix time."""

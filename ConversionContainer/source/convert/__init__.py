@@ -32,7 +32,7 @@ from .concurrency_control import (
     write_failure
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']

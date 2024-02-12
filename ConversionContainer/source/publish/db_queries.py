@@ -13,7 +13,7 @@ from ..exceptions import DBConnectionError
 from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
 from ..models.util import database_retry, transaction
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 @database_retry(3)
 def submission_has_html (submission_id: int) -> Optional[DBLaTeXMLSubmissions]:

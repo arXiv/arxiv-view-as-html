@@ -6,6 +6,12 @@ import logging
 from source.factory import create_web_app
 from source.models.db import db
 
+
+logging.getLogger.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+
+logging_client = gcp_logging.Client()
+logging_client.setup_logging()
+
 app = create_web_app()
 
 @app.teardown_appcontext

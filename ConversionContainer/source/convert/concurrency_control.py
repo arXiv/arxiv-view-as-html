@@ -11,7 +11,7 @@ from ..exceptions import DBConnectionError
 from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions, db
 from ..models.util import transaction, now, database_retry
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 def _latexml_commit (): return current_app.config['LATEXML_COMMIT']
 

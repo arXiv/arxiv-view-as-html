@@ -1,4 +1,5 @@
 import logging
+import sys
 from typing import Optional, Dict
 
 from flask import Flask
@@ -13,8 +14,8 @@ def create_web_app(config: Optional[Dict]=None) -> Flask:
 
     Parameters
     ----------
-    config_path : str, optional
-        Path to config.py file, by default None
+    config : Dict, optional
+        config dictionary
 
     Returns
     -------
@@ -23,8 +24,11 @@ def create_web_app(config: Optional[Dict]=None) -> Flask:
     """
     app = Flask(__name__)
 
-    root = logging.getLogger(__name__)
-    root.addHandler(default_handler)
+    main = logging.getLogger(__name__)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    main.addHandler(handler)
 
     if config:
         app.config.from_mapping(config)

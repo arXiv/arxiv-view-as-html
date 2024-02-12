@@ -1,6 +1,5 @@
 from typing import Optional
 import re
-import logging
 
 from sqlalchemy.sql import text
 from ..exceptions import DBConnectionError
@@ -22,7 +21,6 @@ def _license_url_to_str_mapping (url: Optional[str]) -> str:
         license = f'CC BY-NC-SA {match.group(1)}'
     elif (match := re.match(r'http:\/\/creativecommons\.org\/licenses\/by\/(\d\.0)\/', url)):
         license = f'CC BY {match.group(1)}'
-    logging.warn(f'License not raw: License: {license}')
     return f'License: {license}'
 
 @database_retry(5)

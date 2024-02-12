@@ -19,6 +19,8 @@ from .buckets import (
 )
 from .watermark import make_published_watermark, insert_watermark
 
+logger = logging.getLogger()
+
 def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
     return (
@@ -57,52 +59,52 @@ def _publish (submission_id: int, paper_id: str, version: int):
         # Check if there is an existing conversion for given submission.
         submission_row = submission_has_html(submission_id)
         if submission_row is None:
-            logging.info(f'No html found for submission {submission_id}/{paper_idv}')
+            logger.info(f'No html found for submission {submission_id}/{paper_idv}')
             return
         else:
-            logging.info(f'Identified successful conversion for {submission_id}/{paper_idv}')
+            logger.info(f'Identified successful conversion for {submission_id}/{paper_idv}')
         
         # Download submission conversion and rename. Return path to main .html file
         html_file = download_sub_to_doc_dir(submission_id, paper_idv)
-        logging.info(f'Successfully downloaded {submission_id} to {paper_idv} dir')
+        logger.info(f'Successfully downloaded {submission_id} to {paper_idv} dir')
 
         # Insert base tag
         insert_base_tag(html_file, paper_idv)
-        logging.info(f'Successfully injected base tag for {submission_id}/{paper_idv}')
+        logger.info(f'Successfully injected base tag for {submission_id}/{paper_idv}')
 
         # Inject watermark into html
         insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
-        logging.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')
+        logger.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')
 
         replace_absolute_anchors_for_doc(html_file, paper_idv)
-        logging.info(f'Successfully replaced anchor tags for {submission_id}/{paper_idv}')
+        logger.info(f'Successfully replaced anchor tags for {submission_id}/{paper_idv}')
         
         # Upload directory to published conversion bucket
         upload_dir_to_doc_bucket (submission_id)
-        logging.info(f'Successfully uploaded {submission_id}/{paper_idv}')         
+        logger.info(f'Successfully uploaded {submission_id}/{paper_idv}')         
 
         # Update database accordingly
         write_published_html (paper_id, version, submission_row)
 
         # Move log output from sub bucket to published bucket
         move_sub_qa_to_doc_qa (submission_id, paper_idv)
-        logging.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')         
+        logger.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')         
 
        
 
     except Exception as e:
         try:
-            logging.warn(f'Error publishing {submission_id}/{paper_id} with {str(e)}')
+            logger.warning(f'Error publishing {submission_id}/{paper_id}', exc_info=1)
         except:
-            logging.warn(f'Error publishing unknown with {str(e)}')
+            logger.warning(f'Error publishing unknown', exc_info=1)
     finally:
         try:
             # Delete from local fs
             shutil.rmtree(f'sites/{submission_id}')
         except:
             try:
-                logging.warn(f'Failed to delete directory for {submission_id}')
+                logger.warning(f'Failed to delete directory for {submission_id}', exc_info=1)
             except:
-                logging.warn('Failed to delete directory for unknown')
+                logger.warning('Failed to delete directory for unknown', exc_info=1)
 
     

@@ -13,10 +13,11 @@ from flask import Blueprint, request, jsonify, \
 
 from .convert import process
 from .convert.batch_convert import batch_process
-from .convert.single_convert import single_convert
+from .convert.single_convert import single_convert, reconvert_submission
 from .publish import publish
 from .util import get_arxiv_id_from_blob
 
+logger = logging.getLogger()
 
 # FlaskThread pushes the Flask applcation context
 class FlaskThread(Thread):
@@ -58,6 +59,10 @@ def _unwrap_single_conversion_payload (payload: Dict[str, str]) -> Tuple[str, in
     data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
     return data['paper_id'], data['version']
 
+def _unwrap_reconvert_sub_payload (payload: Dict[str, str]) -> Tuple[int]:
+    data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
+    return (data['submission_id'],)
+
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
 @blueprint.route('/process', methods=['POST'])
@@ -75,9 +80,8 @@ def process_route () -> Response:
     try:
         id, blob, bucket, single_file = _unwrap_payload(request.json)
     except Exception as e:
-        logging.info(f'Discarded request for {request.json["name"]}')
         return '', 202
-    logging.info(f'Begin processing for {blob} from {bucket}')
+    logger.info(f'Begin processing for {blob} from {bucket}')
     thread = FlaskThread(target=process, args=(id, blob, bucket, single_file,)) # This requires cpu allocation always on in cloud run
     thread.start()
     return '', 200
@@ -93,9 +97,14 @@ def single_convert_route () -> Response:
     thread.start()
     return '', 200
 
+@blueprint.route('/reconvert-submission', methods=['POST'])
+def reprocess_submission () -> Response:
+    thread = FlaskThread(target=reconvert_submission, args=_unwrap_reconvert_sub_payload(request.json))
+    thread.start()
+    return '', 200
+
 @blueprint.route('/publish', methods=['POST'])
 def publish_route () -> Response:
-    logging.info(request.json)
     publish(request.json)
     return '', 202
 
@@ -113,6 +122,5 @@ def health() -> tuple[flask.Response, int]:
         "time": datetime.now(),
         "CLOUD_RUN_TASK_INDEX": list(os.environ.items())
     }
-    print (data)
     return jsonify(data), 200
     

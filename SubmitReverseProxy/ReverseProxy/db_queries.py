@@ -10,7 +10,7 @@ from .db.util import database_retry
 
 from .exceptions import DBConnectionError
 
-@database_retry(5)
+@database_retry(3)
 def get_source_format (arxiv_id: str, version: Optional[int] = None) -> Optional[str]:
     conn = current_session().connection()
     if version:

@@ -8,16 +8,19 @@ from arxiv_auth.legacy.util import is_configured, current_session
 from .db.util import database_retry
 
 from .exceptions import DBConnectionError, \
-    DBConfigError, UnauthorizedError
+    DBConfigError, DeletedError, UnauthorizedError
 
-def _get_arxiv_mod_user_ids (conn) -> List[str]:
-    query = text("SELECT user_id FROM arXiv_moderators")
-    return [int(row[0]) for row in conn.execute(query).fetchall()]
-
-def _get_arxiv_admin_user_ids (conn) -> List[str]:
+def is_editor (user_id: int) -> bool:
     conn = current_session().connection()
-    query = text("SELECT user_id FROM tapir_users WHERE flag_edit_users = 1")
-    return [int(row[0]) for row in conn.execute(query).fetchall()]
+    query = text("SELECT user_id FROM tapir_users WHERE flag_edit_users = 1 and user_id=:user_id") \
+        .bindparams(user_id=user_id)
+    return conn.execute(query).scalar() is not None
+
+def is_moderator (user_id: int) -> bool:
+    conn = current_session().connection()
+    query = text("SELECT user_id FROM arxiv_moderators WHERE user_id=:user_id") \
+        .bindparams(user_id=user_id)
+    return conn.execute(query).scalar() is not None
 
 @database_retry(5)
 def authorize_user_for_submission(user_id: str, submission_id: str):
@@ -37,23 +40,25 @@ def authorize_user_for_submission(user_id: str, submission_id: str):
     UnauthorizedError
     """
     if is_configured():
-        try:
-            logging.info('Made DB call')
-            conn = current_session().connection()
-            query = text("SELECT submitter_id FROM arXiv_submissions WHERE submission_id=:submission_id")
-            query = query.bindparams(submission_id=submission_id)
-            submitter_id = conn.execute(query).scalar()
+        query = text("SELECT submitter_id, is_withdrawn, status FROM arXiv_submissions WHERE submission_id=:submission_id") \
+            .bindparams(submission_id=submission_id)
+        row = current_session().connection().execute(query).first()
 
-            if submitter_id and int(submitter_id) == int(user_id):
-                return
-            if int(user_id) in _get_arxiv_mod_user_ids(conn):
-                return
-            if int(user_id) in _get_arxiv_admin_user_ids(conn):
-                return
-        except Exception as exc:
-            logging.warning(str(exc))
-            logging.warning('DB Connection Failed')
-            raise DBConnectionError("DB Connection failed") from exc
+        if row:
+            submitter_id, is_withdrawn, status = row.tuple()
+        else:
+            logging.warning(f'Cannot find row for submission_id: {submission_id}')
+            raise DBConfigError
+        
+        # Check for editor / moderator first so they can still see deleted papers
+        if is_editor(user_id) or is_moderator(user_id):
+            return
+
+        if submitter_id and int(submitter_id) == int(user_id) \
+            and not is_withdrawn and status < 9:
+            return
+        elif status > 9:
+            raise DeletedError
         raise UnauthorizedError
     
     logging.warning('DB Not Configured')

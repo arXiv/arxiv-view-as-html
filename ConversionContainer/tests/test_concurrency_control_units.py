@@ -3,31 +3,19 @@ from unittest.mock import MagicMock
 from typing import Optional, Any
 from flask_sqlalchemy.query import Query
 import os
-import logging
 
-from ..factory import create_web_app
-from ..models.util import (
-    create_all,
-    drop_all,
+from source.models.util import (
     transaction,
     now
 )
-from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
-from ..convert.concurrency_control import write_start, write_success
+from source.models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
+from source.convert.concurrency_control import write_start, write_success
 
 from time import sleep
 
-@pytest.fixture(autouse=True)
-def change_test_dir(request, monkeypatch):
-    monkeypatch.chdir(request.fspath.dirname)
-
-@pytest.fixture
-def app():
-    app = create_web_app('tests/config.py')
-    with app.app_context():
-        drop_all()
-        create_all()
-    return app
+# @pytest.fixture(autouse=True)
+# def change_test_dir(request, monkeypatch):
+#     monkeypatch.chdir(request.fspath.dirname)
 
 @pytest.fixture
 def insert_into_sub():
@@ -97,10 +85,10 @@ def select_from_doc():
 
 @pytest.mark.cc_unit_tests
 def test_write_start_sub_simple (app, select_from_sub):
-    assert os.path.exists('ancillary_files/3966840.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/3966840.tar.gz'), \
         'This test depends on tests/ancillary_files/3966840.tar.gz'
     with app.app_context():
-        write_start(1, 'ancillary_files/3966840.tar.gz', 'sub')
+        write_start(1, 'tests/ancillary_files/3966840.tar.gz', 'sub')
 
         row: Optional[Query] = select_from_sub(1)
         assert row is not None, 'Failed to write row'
@@ -111,15 +99,15 @@ def test_write_start_sub_simple (app, select_from_sub):
         
 @pytest.mark.cc_unit_tests
 def test_write_start_sub_overlap (app, select_from_sub):
-    assert os.path.exists('ancillary_files/3966840.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/3966840.tar.gz'), \
         'This test depends on tests/ancillary_files/3966840.tar.gz'
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
-        write_start(1, 'ancillary_files/2012.02205.tar.gz', 'sub')
+        write_start(1, 'tests/ancillary_files/2012.02205.tar.gz', 'sub')
         old_ts = select_from_sub(1).conversion_start_time
         sleep(1)
-        write_start(1, 'ancillary_files/3966840.tar.gz', 'sub')
+        write_start(1, 'tests/ancillary_files/3966840.tar.gz', 'sub')
 
         row: Optional[Query] = select_from_sub(1)
         assert row is not None, 'Failed to write row'
@@ -133,10 +121,10 @@ def test_write_start_sub_overlap (app, select_from_sub):
 
 # @pytest.mark.cc_unit_tests
 # def test_write_start_doc_no_version_simple (app, select_from_doc):
-#     assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+#     assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
 #         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
 #     with app.app_context():
-#         write_start('2012.02205', 'ancillary_files/2012.02205.tar.gz', False)
+#         write_start('2012.02205', 'tests/ancillary_files/2012.02205.tar.gz', False)
 
 #         row: Query = select_from_doc('2012.02205', 1)
 #         assert row is not None, 'Failed to write row'
@@ -147,10 +135,10 @@ def test_write_start_sub_overlap (app, select_from_sub):
         
 @pytest.mark.cc_unit_tests
 def test_write_start_doc_with_version_simple (app, select_from_doc):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
-        write_start('2012.02205v2', 'ancillary_files/2012.02205.tar.gz', False)
+        write_start('2012.02205v2', 'tests/ancillary_files/2012.02205.tar.gz', False)
 
         row: Optional[Query] = select_from_doc('2012.02205', 2)
         assert row is not None, 'Failed to write row'
@@ -161,11 +149,11 @@ def test_write_start_doc_with_version_simple (app, select_from_doc):
         
 @pytest.mark.cc_unit_tests
 def test_write_start_doc_multiple_versions (app, select_from_doc):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
-        write_start('2012.02205v1', 'ancillary_files/2012.02205.tar.gz', False)
-        write_start('2012.02205v2', 'ancillary_files/3966840.tar.gz', False) 
+        write_start('2012.02205v1', 'tests/ancillary_files/2012.02205.tar.gz', False)
+        write_start('2012.02205v2', 'tests/ancillary_files/3966840.tar.gz', False) 
 
         row_v1: Optional[Query] = select_from_doc('2012.02205', 1)
         assert row_v1 is not None, 'Failed to write row'
@@ -183,13 +171,13 @@ def test_write_start_doc_multiple_versions (app, select_from_doc):
         
 @pytest.mark.cc_unit_tests
 def test_write_start_doc_overlap (app, select_from_doc):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
-        write_start('2012.02205v1', 'ancillary_files/2012.02205.tar.gz', False)
+        write_start('2012.02205v1', 'tests/ancillary_files/2012.02205.tar.gz', False)
         old_ts = select_from_doc('2012.02205', 1).conversion_start_time
         sleep(1)
-        write_start('2012.02205v1', 'ancillary_files/3966840.tar.gz', False)
+        write_start('2012.02205v1', 'tests/ancillary_files/3966840.tar.gz', False)
 
         row: Optional[Query] = select_from_doc('2012.02205', 1)
         assert row is not None, 'Failed to write row'
@@ -203,13 +191,13 @@ def test_write_start_doc_overlap (app, select_from_doc):
         
 @pytest.mark.cc_unit_tests
 def test_write_start_doc_overlap_with_version (app, select_from_doc):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():        
-        write_start('2012.02205v3', 'ancillary_files/2012.02205.tar.gz', False)
+        write_start('2012.02205v3', 'tests/ancillary_files/2012.02205.tar.gz', False)
         old_ts = select_from_doc('2012.02205', 3).conversion_start_time
         sleep(1)
-        write_start('2012.02205v3', 'ancillary_files/3966840.tar.gz', False)
+        write_start('2012.02205v3', 'tests/ancillary_files/3966840.tar.gz', False)
 
         row: Optional[Query] = select_from_doc('2012.02205', 3)
         assert row is not None, 'Failed to write row'
@@ -231,7 +219,7 @@ def test_write_start_doc_overlap_with_version (app, select_from_doc):
 
 @pytest.mark.cc_unit_tests
 def test_write_success_sub_simple (app, insert_into_sub, select_from_sub):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
         insert_into_sub (
@@ -243,7 +231,7 @@ def test_write_success_sub_simple (app, insert_into_sub, select_from_sub):
         )
         sleep(1)
 
-        result = write_success(1, 'ancillary_files/2012.02205.tar.gz', 'sub')
+        result = write_success(1, 'tests/ancillary_files/2012.02205.tar.gz', 'sub')
 
         row: Optional[Query] = select_from_sub (1)
         assert row is not None, 'Insert failed to write. Check test db configuration'
@@ -260,9 +248,9 @@ def test_write_success_sub_simple (app, insert_into_sub, select_from_sub):
         
 @pytest.mark.cc_unit_tests
 def test_write_success_sub_overlap (app, insert_into_sub, select_from_sub):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
-    assert os.path.exists('ancillary_files/3966840.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/3966840.tar.gz'), \
         'This test depends on tests/ancillary_files/3966840.tar.gz'
     with app.app_context():
         insert_into_sub (
@@ -275,7 +263,7 @@ def test_write_success_sub_overlap (app, insert_into_sub, select_from_sub):
         sleep(1)
 
         # Emulate old version being written while new is still processing
-        old_version_result = write_success(1, 'ancillary_files/3966840.tar.gz', 'sub')
+        old_version_result = write_success(1, 'tests/ancillary_files/3966840.tar.gz', 'sub')
         sleep(1)
 
         row: Optional[Query] = select_from_sub (1)
@@ -289,7 +277,7 @@ def test_write_success_sub_overlap (app, insert_into_sub, select_from_sub):
         assert not old_version_result, 'write_success should return False'
 
         # Now new version finishes processing
-        new_version_result = write_success(1, 'ancillary_files/2012.02205.tar.gz', 'sub')
+        new_version_result = write_success(1, 'tests/ancillary_files/2012.02205.tar.gz', 'sub')
 
         row: Optional[Query] = select_from_sub (1)
         assert row is not None, 'Row is None'
@@ -306,9 +294,9 @@ def test_write_success_sub_overlap (app, insert_into_sub, select_from_sub):
 
 @pytest.mark.cc_unit_tests
 def test_write_success_sub_overlap_out_of_order (app, insert_into_sub, select_from_sub):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
-    assert os.path.exists('ancillary_files/3966840.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/3966840.tar.gz'), \
         'This test depends on tests/ancillary_files/3966840.tar.gz'
     with app.app_context():
         insert_into_sub (
@@ -321,7 +309,7 @@ def test_write_success_sub_overlap_out_of_order (app, insert_into_sub, select_fr
         sleep(1)
 
         # Emulate new version beating the old version through the system
-        new_version_result = write_success(1, 'ancillary_files/2012.02205.tar.gz', 'sub')
+        new_version_result = write_success(1, 'tests/ancillary_files/2012.02205.tar.gz', 'sub')
         sleep(1)
 
         row: Optional[Query] = select_from_sub (1)
@@ -339,7 +327,7 @@ def test_write_success_sub_overlap_out_of_order (app, insert_into_sub, select_fr
         assert new_version_result, 'write_success should return True'
         
         # Now new version finishes processing
-        old_version_result = write_success(1, 'ancillary_files/3966840.tar.gz', 'sub')
+        old_version_result = write_success(1, 'tests/ancillary_files/3966840.tar.gz', 'sub')
 
         row: Optional[Query] = select_from_sub (1)
         assert row is not None, 'Row is None'
@@ -355,7 +343,7 @@ def test_write_success_sub_overlap_out_of_order (app, insert_into_sub, select_fr
 
 @pytest.mark.cc_unit_tests
 def test_write_success_doc_simple (app, insert_into_doc, select_from_doc):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
     with app.app_context():
         insert_into_doc (
@@ -368,7 +356,7 @@ def test_write_success_doc_simple (app, insert_into_doc, select_from_doc):
         )
         sleep(1)
 
-        result = write_success('2012.02205v1', 'ancillary_files/2012.02205.tar.gz', False)
+        result = write_success('2012.02205v1', 'tests/ancillary_files/2012.02205.tar.gz', False)
 
         row: Optional[Query] = select_from_doc ('2012.02205', 1)
         assert row is not None, 'Insert failed to write. Check test db configuration'
@@ -385,9 +373,9 @@ def test_write_success_doc_simple (app, insert_into_doc, select_from_doc):
         
 @pytest.mark.cc_unit_tests
 def test_write_success_doc_overlap (app, insert_into_doc, select_from_doc):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
-    assert os.path.exists('ancillary_files/3966840.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/3966840.tar.gz'), \
         'This test depends on tests/ancillary_files/3966840.tar.gz'
     with app.app_context():
         insert_into_doc (
@@ -401,7 +389,7 @@ def test_write_success_doc_overlap (app, insert_into_doc, select_from_doc):
         sleep(1)
 
         # Emulate old version being written while new is still processing
-        old_version_result = write_success('2012.02205v3', 'ancillary_files/3966840.tar.gz', False)
+        old_version_result = write_success('2012.02205v3', 'tests/ancillary_files/3966840.tar.gz', False)
         sleep(1)
 
         row: Optional[Query] = select_from_doc ('2012.02205', 3)
@@ -415,7 +403,7 @@ def test_write_success_doc_overlap (app, insert_into_doc, select_from_doc):
         assert not old_version_result, 'write_success should return False'
 
         # Now new version finishes processing
-        new_version_result = write_success('2012.02205v3', 'ancillary_files/2012.02205.tar.gz', False)
+        new_version_result = write_success('2012.02205v3', 'tests/ancillary_files/2012.02205.tar.gz', False)
 
         row: Optional[Query] = select_from_doc ('2012.02205', 3)
         assert row is not None, 'Row is None'
@@ -432,9 +420,9 @@ def test_write_success_doc_overlap (app, insert_into_doc, select_from_doc):
 
 @pytest.mark.cc_unit_tests
 def test_write_success_doc_overlap_out_of_order (app, insert_into_doc, select_from_doc):
-    assert os.path.exists('ancillary_files/2012.02205.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/2012.02205.tar.gz'), \
         'This test depends on tests/ancillary_files/2012.02205.tar.gz'
-    assert os.path.exists('ancillary_files/3966840.tar.gz'), \
+    assert os.path.exists('tests/ancillary_files/3966840.tar.gz'), \
         'This test depends on tests/ancillary_files/3966840.tar.gz'
     with app.app_context():
         insert_into_doc (
@@ -448,7 +436,7 @@ def test_write_success_doc_overlap_out_of_order (app, insert_into_doc, select_fr
         sleep(1)
 
         # Emulate new version beating the old version through the system
-        new_version_result = write_success('2012.02205v3', 'ancillary_files/2012.02205.tar.gz', False)
+        new_version_result = write_success('2012.02205v3', 'tests/ancillary_files/2012.02205.tar.gz', False)
         sleep(1)
 
         row: Optional[Query] = select_from_doc ('2012.02205', 3)
@@ -466,7 +454,7 @@ def test_write_success_doc_overlap_out_of_order (app, insert_into_doc, select_fr
         assert new_version_result, 'write_success should return True'
 
         # Now new version finishes processing
-        old_version_result = write_success('2012.02205v3', 'ancillary_files/3966840.tar.gz', False)
+        old_version_result = write_success('2012.02205v3', 'tests/ancillary_files/3966840.tar.gz', False)
 
         row: Optional[Query] = select_from_doc ('2012.02205', 3)
         assert row is not None, 'Row is None'

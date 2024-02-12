@@ -1,10 +1,12 @@
 """Initializes the Flask app"""
+import logging
+
+from google.cloud import logging as gcp_logging
+
 from source.factory import create_web_app
 from source.models.db import db
-from google.cloud import logging
 
-logging_client = logging.Client()
-logging_client.setup_logging()
+gcp_logging.Client().setup_logging()
 
 app = create_web_app()
 

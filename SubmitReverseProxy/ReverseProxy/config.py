@@ -27,5 +27,10 @@ CONVERTED_BUCKET_ARXIV_ID = os.environ.get('LATEXML_ARXIV_ID_CONVERSIONS')
 CONVERTED_BUCKET_SUB_ID = os.environ.get('LATEXML_SUBMISSION_CONVERSIONS')
 CLASSIC_HTML_BUCKET = os.environ.get('CLASSIC_HTML_BUCKET')
 
+# pub/sub
+PROJECT_ID = os.environ.get('PROJECT_ID', 'arxiv-development')
+BUILD_HTML_TOPIC = os.environ.get('BUILD_HTML_TOPIC', 'html-direct-convert')
+REPROCESS_SUBMISSION_TOPIC = os.environ.get('REPROCESS_SUBMISSION_TOPIC', 'html-reprocess-submission')
+
 SITES_DIR = '/source/ReverseProxy/sites/'
 TARS_DIR = '/source/ReverseProxy/downloads/'

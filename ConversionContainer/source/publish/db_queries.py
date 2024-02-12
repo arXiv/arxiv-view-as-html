@@ -35,7 +35,8 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
                     latexml_version=html_submission.latexml_version,
                     tex_checksum=html_submission.tex_checksum,
                     conversion_start_time=html_submission.conversion_start_time,
-                    conversion_end_time=html_submission.conversion_end_time
+                    conversion_end_time=html_submission.conversion_end_time,
+                    publish_dt=datetime.utcnow()
                 )
                 session.merge(row)
                 session.commit()

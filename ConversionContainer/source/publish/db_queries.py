@@ -13,6 +13,7 @@ from ..exceptions import DBConnectionError
 from ..models.db import db, DBLaTeXMLDocuments, DBLaTeXMLSubmissions
 from ..models.util import database_retry, transaction
 
+logger = logging.getLogger(__name__)
 
 @database_retry(3)
 def submission_has_html (submission_id: int) -> Optional[DBLaTeXMLSubmissions]:
@@ -41,7 +42,7 @@ def write_published_html (paper_id: str, version: int, html_submission: DBLaTeXM
                 session.merge(row)
                 session.commit()
             except IntegrityError as e:
-                logging.info(f'Integrity Error for {paper_id}, rolling back')
+                logger.info(f'Integrity Error for {paper_id}, rolling back')
                 session.rollback()
 
 

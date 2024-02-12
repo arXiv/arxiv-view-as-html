@@ -1,5 +1,4 @@
 from typing import Optional
-import logging
 from bs4 import BeautifulSoup
 from .db_queries import get_submission_timestamp, get_version_primary_category
 

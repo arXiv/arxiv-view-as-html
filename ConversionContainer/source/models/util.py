@@ -15,6 +15,8 @@ from sqlalchemy.orm.session import Session
 from .db import db
 from ..exceptions import DBConnectionError
 
+logger = logging.getLogger(__name__)
+
 def now() -> int:
     """Get the current epoch/unix time."""
     return epoch(datetime.now(tz=UTC))
@@ -42,7 +44,7 @@ def transaction() -> Generator[Session, None, None]:
         if db.session.new or db.session.dirty or db.session.deleted:
             db.session.commit()
     except Exception as e:
-        logging.warn(f'Commit failed, rolling back', exc_info=1)
+        logger.warn(f'Commit failed, rolling back', exc_info=1)
         db.session.rollback()
         raise DBConnectionError from e
 

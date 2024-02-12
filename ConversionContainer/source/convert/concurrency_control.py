@@ -11,6 +11,8 @@ from ..exceptions import DBConnectionError
 from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions, db
 from ..models.util import transaction, now, database_retry
 
+logger = logging.getLogger(__name__)
+
 def _latexml_commit (): return current_app.config['LATEXML_COMMIT']
 
 def _get_id_version (paper_idv: str) -> Tuple[str, int]:
@@ -108,11 +110,11 @@ def _write_success_doc (paper_idv: str, tar_fpath: str) -> bool:
                         obj.conversion_status = 1
                         obj.conversion_end_time = now()
                         success = True
-                        logging.info(f"document {paper_id}v{document_version} successfully written")
+                        logger.info(f"document {paper_id}v{document_version} successfully written")
     except Exception as e:
         raise DBConnectionError from e
     if not success:
-        logging.info(f"document {paper_id}v{document_version} failed to write")
+        logger.info(f"document {paper_id}v{document_version} failed to write")
     return success
 
 @database_retry(5)
@@ -131,11 +133,11 @@ def _write_success_sub (submission_id: int, tar_fpath: str) -> bool:
                         obj.conversion_status = 1
                         obj.conversion_end_time = now()
                         success = True
-                        logging.info(f"{submission_id}: Successfully written")
+                        logger.info(f"{submission_id}: Successfully written")
     except Exception as e:
         raise DBConnectionError from e
     if not success:
-        logging.info(f"{submission_id}: Failed to write")
+        logger.info(f"{submission_id}: Failed to write")
     return success
 
 def write_success (id: int, tar_fpath: str, is_submission: bool):
@@ -159,7 +161,7 @@ def _write_failure_doc (paper_idv: str, tar_fpath: str) -> bool:
                     obj.latexml_version == _latexml_commit():
                     obj.conversion_status = 2
                     obj.conversion_end_time = now()
-                    logging.info(f"document {paper_id}v{document_version} conversion failure written")
+                    logger.info(f"document {paper_id}v{document_version} conversion failure written")
     except Exception as e:
         raise DBConnectionError from e
 
@@ -176,7 +178,7 @@ def _write_failure_sub (submission_id: int, tar_fpath: str) -> bool:
                     obj.latexml_version == _latexml_commit():
                     obj.conversion_status = 2
                     obj.conversion_end_time = now()
-                    logging.info(f"{submission_id}: Conversion failure written")
+                    logger.info(f"{submission_id}: Conversion failure written")
     except Exception as e:
         raise DBConnectionError from e
 

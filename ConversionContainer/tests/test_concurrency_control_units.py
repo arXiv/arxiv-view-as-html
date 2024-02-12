@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 from typing import Optional, Any
 from flask_sqlalchemy.query import Query
 import os
-import logging
 
 from source.models.util import (
     transaction,

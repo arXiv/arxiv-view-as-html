@@ -17,6 +17,7 @@ from .convert.single_convert import single_convert, reconvert_submission
 from .publish import publish
 from .util import get_arxiv_id_from_blob
 
+logger = logging.getLogger(__name__)
 
 # FlaskThread pushes the Flask applcation context
 class FlaskThread(Thread):
@@ -79,9 +80,8 @@ def process_route () -> Response:
     try:
         id, blob, bucket, single_file = _unwrap_payload(request.json)
     except Exception as e:
-        logging.info(f'Discarded request for {request.json["name"]}')
         return '', 202
-    logging.info(f'Begin processing for {blob} from {bucket}')
+    logger.info(f'Begin processing for {blob} from {bucket}')
     thread = FlaskThread(target=process, args=(id, blob, bucket, single_file,)) # This requires cpu allocation always on in cloud run
     thread.start()
     return '', 200
@@ -105,7 +105,6 @@ def reprocess_submission () -> Response:
 
 @blueprint.route('/publish', methods=['POST'])
 def publish_route () -> Response:
-    logging.info(request.json)
     publish(request.json)
     return '', 202
 
@@ -123,6 +122,5 @@ def health() -> tuple[flask.Response, int]:
         "time": datetime.now(),
         "CLOUD_RUN_TASK_INDEX": list(os.environ.items())
     }
-    print (data)
     return jsonify(data), 200
     

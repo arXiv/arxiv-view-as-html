@@ -1,6 +1,5 @@
 from typing import Optional
 import re
-import logging
 
 from sqlalchemy.sql import text
 from ..exceptions import DBConnectionError

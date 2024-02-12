@@ -1,5 +1,9 @@
+import logging
 from typing import Optional, Dict
+
 from flask import Flask
+from flask.logging import default_handler
+
 from .routes import blueprint
 from .models.util import init_app
 
@@ -18,6 +22,10 @@ def create_web_app(config: Optional[Dict]=None) -> Flask:
         Flask web app
     """
     app = Flask(__name__)
+
+    root = logging.getLogger()
+    root.addHandler(default_handler)
+
     if config:
         app.config.from_mapping(config)
     else:

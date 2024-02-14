@@ -18,7 +18,7 @@ def is_editor (user_id: int) -> bool:
 
 def is_moderator (user_id: int) -> bool:
     conn = current_session().connection()
-    query = text("SELECT user_id FROM arxiv_moderators WHERE user_id=:user_id") \
+    query = text("SELECT user_id FROM arXiv_moderators WHERE user_id=:user_id") \
         .bindparams(user_id=user_id)
     return conn.execute(query).scalar() is not None
 

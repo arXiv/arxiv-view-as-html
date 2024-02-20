@@ -92,7 +92,8 @@ def _publish (submission_id: int, paper_id: str, version: int):
         logger.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')
 
         # Purge abs page from fastly so we can see it
-        fastly_purge_abs(paper_id, version, current_app.config['FASTLY_PURGE_KEY'])
+        if not current_app.config['IS_DEV']:
+            fastly_purge_abs(paper_id, version, current_app.config['FASTLY_PURGE_KEY'])
 
     except Exception as e:
         try:

@@ -15,11 +15,9 @@ def fastly_purge_abs (paper_id: str, version: int, fastly_key: str):
         response = requests.request("PURGE", url, headers=headers)
 
         if response.status_code == 200:
-            success.append(url)
+            logging.info(f'successfully purged { url }')
         else:
-            status_code = 500
-            msg = 'Error purging'
-            failed.append(url)
+            logging.warning(f'failed to purge { url }')
 
         url = f"https://{ domain }/abs/{ paper_id }v{ version }"
 

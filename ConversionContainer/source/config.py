@@ -22,7 +22,7 @@ VIEW_DOC_BASE = os.environ['VIEW_DOC_BASE']
 SQLALCHEMY_DATABASE_URI = CLASSIC_DATABASE_URI
 SQLALCHEMY_BINDS = { 'latexml': LATEXML_DB_URI }
 
-FASTLY_PURGE_KEY = os.environ['FASTLY_PURGE_KEY']
+FASTLY_PURGE_KEY = os.environ.get('FASTLY_PURGE_KEY', 'no-key-dev')
 IS_DEV = os.environ.get('IS_DEV', True)
 
 LOCK_DIR = '/arxiv/locks'

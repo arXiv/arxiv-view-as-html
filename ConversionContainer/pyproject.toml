@@ -18,6 +18,7 @@ google-cloud-logging = "^3.5.0"
 bs4 = "^0.0.1"
 filelock = "^3.12.2"
 mysqlclient = "*"
+requests = "^2.31.0"
 
 [tool.poetry.dev-dependencies]
 pytest-mock = "*"

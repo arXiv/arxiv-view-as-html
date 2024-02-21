@@ -1,4 +1,5 @@
 import logging
+import requests
 
 from flask import current_app
 
@@ -8,24 +9,13 @@ def fastly_purge_abs (paper_id: str, version: int, fastly_key: str):
         "Accept": "application/json",
     }
     domains = ["arxiv.org", "web3.arxiv.org", "www.arxiv.org"]
-    
     for domain in domains:
-        url = f"https://{ domain }/abs/{ paper_id }"
+        _purge_url (f"https://{ domain }/abs/{ paper_id }", headers)
+        _purge_url (f"https://{ domain }/abs/{ paper_id }v{ version }", headers)
 
-        response = requests.request("PURGE", url, headers=headers)
-
-        if response.status_code == 200:
-            success.append(url)
-        else:
-            status_code = 500
-            msg = 'Error purging'
-            failed.append(url)
-
-        url = f"https://{ domain }/abs/{ paper_id }v{ version }"
-
-        response = requests.request("PURGE", url, headers=headers)
-
-        if response.status_code == 200:
-            logging.info(f'successfully purged { url }')
-        else:
-            logging.warning(f'failed to purge { url }')
+def _purge_url (url: str, headers: dict):
+    response = requests.request("PURGE", url, headers=headers)
+    if response.status_code == 200:
+        logging.info(f'successfully purged { url }')
+    else:
+        logging.warning(f'failed to purge { url }')

@@ -18,6 +18,7 @@ from .buckets import (
     move_sub_qa_to_doc_qa
 )
 from .watermark import make_published_watermark, insert_watermark
+from .fastly_purge import fastly_purge_abs
 
 logger = logging.getLogger()
 
@@ -88,9 +89,11 @@ def _publish (submission_id: int, paper_id: str, version: int):
 
         # Move log output from sub bucket to published bucket
         move_sub_qa_to_doc_qa (submission_id, paper_idv)
-        logger.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')         
+        logger.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')
 
-       
+        # Purge abs page from fastly so we can see it
+        if not current_app.config['IS_DEV']:
+            fastly_purge_abs(paper_id, version, current_app.config['FASTLY_PURGE_KEY'])
 
     except Exception as e:
         try:

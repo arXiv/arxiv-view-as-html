@@ -3,12 +3,11 @@ import sys
 from typing import Optional, Dict
 
 from flask import Flask
-from flask.logging import default_handler
 
+from .config import Settings
 from .routes import blueprint
-from .models.util import init_app
 
-def create_web_app(config: Optional[Dict]=None) -> Flask:
+def create_web_app(**kwargs) -> Flask:
     """
     Creates the Flask app with config at config_path.
 
@@ -22,15 +21,12 @@ def create_web_app(config: Optional[Dict]=None) -> Flask:
     Flask
         Flask web app
     """
+    settings = Settings(**kwargs)
+
     app = Flask(__name__)
 
-    if config:
-        app.config.from_mapping(config)
-    else:
-        app.config.from_pyfile('config.py')
-    
+    app.config.from_object(settings)
+   
     app.register_blueprint(blueprint)
-
-    init_app(app)
 
     return app

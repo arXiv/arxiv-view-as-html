@@ -1,15 +1,14 @@
-from typing import Any, Optional, Tuple
+from typing import Any, Tuple
 import hashlib
-import os
 import gzip
 import logging
 from flask import current_app
 
-from google.cloud.storage.blob import Blob
+from arxiv.db.models import DBLaTeXMLDocuments, DBLaTeXMLSubmissions
+from arxiv.db import transaction, session
 
+from ..services.db.util import now
 from ..exceptions import DBConnectionError
-from ..models.db import DBLaTeXMLDocuments, DBLaTeXMLSubmissions, db
-from ..models.util import transaction, now, database_retry
 
 logger = logging.getLogger()
 
@@ -28,13 +27,13 @@ def _get_checksum (abs_fname: str) -> str:
 
 def has_doc_been_tried (paper_idv: str) -> bool:
     paper_id, document_version = _get_id_version (paper_idv)
-    rec = db.session.query(DBLaTeXMLDocuments) \
+    rec = session.query(DBLaTeXMLDocuments) \
             .filter(DBLaTeXMLDocuments.paper_id == paper_id) \
             .filter(DBLaTeXMLDocuments.document_version == document_version) \
             .first()
     return rec is not None
 
-@database_retry(5)
+# @database_retry(5)
 def _write_start_doc (paper_idv: str, tar_fpath: str):
     paper_id, document_version = _get_id_version (paper_idv)
     try:
@@ -57,11 +56,11 @@ def _write_start_doc (paper_idv: str, tar_fpath: str):
                 rec.conversion_status = 0
                 rec.latexml_version = _latexml_commit()
                 rec.tex_checksum = _get_checksum(tar_fpath)
-                rec.conversion_start_time = now()
+                rec.conversion_start_time=now()
     except Exception as e:
         raise DBConnectionError from e
 
-@database_retry(5)
+# @database_retry(5)
 def _write_start_sub (submission_id: int, tar_fpath: str):
     try:
         with transaction() as session:
@@ -92,7 +91,7 @@ def write_start (id: Any, tar_fpath: str, is_submission: bool):
     else:
         _write_start_doc(id, tar_fpath)
 
-@database_retry(5)
+# @database_retry(5)
 def _write_success_doc (paper_idv: str, tar_fpath: str) -> bool:
     paper_id, document_version = _get_id_version (paper_idv)
     success = False
@@ -117,7 +116,7 @@ def _write_success_doc (paper_idv: str, tar_fpath: str) -> bool:
         logger.info(f"document {paper_id}v{document_version} failed to write")
     return success
 
-@database_retry(5)
+# @database_retry(5)
 def _write_success_sub (submission_id: int, tar_fpath: str) -> bool:
     success = False
     try:
@@ -146,7 +145,7 @@ def write_success (id: int, tar_fpath: str, is_submission: bool):
     else:
         return _write_success_doc(id, tar_fpath)
     
-@database_retry(5)
+# @database_retry(5)
 def _write_failure_doc (paper_idv: str, tar_fpath: str) -> bool:
     paper_id, document_version = _get_id_version (paper_idv)
     try:
@@ -165,7 +164,7 @@ def _write_failure_doc (paper_idv: str, tar_fpath: str) -> bool:
     except Exception as e:
         raise DBConnectionError from e
 
-@database_retry(5)
+# @database_retry(5)
 def _write_failure_sub (submission_id: int, tar_fpath: str) -> bool:
     try:
         with transaction() as session:

@@ -17,24 +17,25 @@ from bs4 import BeautifulSoup
 from flask import current_app
 
 from .licenses import get_license_for_paper, get_license_for_submission
-from ..util import untar, id_lock, unzip_single_file
+from ..locking import id_lock
 from ..buckets.util import get_google_storage_client
 from ..buckets import (
     download_blob,
     upload_dir_to_gcs,
     upload_tar_to_gcs
 )
-from ..models.db import db
 from ..exceptions import *
 from .concurrency_control import (
     write_start,
     write_success,
     write_failure
 )
+from ..domain.conversion import ConversionPayload
+from ..services.files import get_file_manager
 
 logger = logging.getLogger()
 
-def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
+def process(conversion_payload: ConversionPayload) -> bool:
     is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
 
     """ File system we will be using """
@@ -46,44 +47,26 @@ def process(id: str, blob: str, bucket: str, single_file: bool) -> bool:
 
     try:
         with id_lock(id, current_app.config['LOCK_DIR']):
-
-            try:
-                os.makedirs(outer_bucket_dir)
-            except OSError:
-                shutil.rmtree(src_dir)
-                os.makedirs(outer_bucket_dir)
-                # Abort if this fails
-
-            # Check file format and download to ./[{id}.tar.gz]
-            try:
-                logger.info(f"{id}: Download")
-                download_blob(bucket, blob, download_file)
-            except:
-                logger.warning(f'{id}: Failed to download', exc_info=1)
-                return
+            main_src = get_file_manager().download_source(conversion_payload)
 
             # Write to DB that process has started
             logger.info(f"{id}: Write start process to db")
             write_start(id, download_file, is_submission)
 
-            # Untar file ./[tar] to ./extracted/id/
-            if not single_file:
-                logger.info(f"{id}: Untar")
-                untar (download_file, src_dir)
-            else:
-                logger.info(f"{id}: Ungzip")
-                try:
-                    unzip_single_file(download_file, src_dir)
-                except Exception as e:
-                    logger.warning (f'{id}: Ungzip error', exc_info=1)
+            # # Untar file ./[tar] to ./extracted/id/
+            # if not single_file:
+            #     logger.info(f"{id}: Untar")
+            #     untar (download_file, src_dir)
+            # else:
+            #     logger.info(f"{id}: Ungzip")
+            #     try:
+            #         unzip_single_file(download_file, src_dir)
+            #     except Exception as e:
+            #         logger.warning (f'{id}: Ungzip error', exc_info=1)
 
             # Remove .ltxml files from [source] (./extracted/id/)
             logger.info(f"{id}: Remove .ltxml")
             remove_ltxml(src_dir)
-
-            # Identify main .tex source in [source]
-            logger.info(f"{id}: Identify main .tex source")
-            main = find_main_tex_source(src_dir)
 
             # Run LaTeXML on main and output to ./extracted/id/html/id
             logger.info(f"{id}: Do LaTeXML")
@@ -153,123 +136,12 @@ def remove_ltxml(path: str) -> None:
             f".ltxml file at {path} failed to be removed") from exc
 
 
-def find_main_tex_source(path: str) -> str:
-    """
-    Looks inside the directory at "path" and determines the
-    main .tex source. Assumes that the main .tex file
-    must start with "documentclass". To account for
-    common Overleaf templates that have multiple .tex
-    files that start with "documentclass", assumes that
-    the main .tex file is not of class "standalone"
-    or "subfiles".
-
-    Parameters
-    ----------
-    path : str
-        File path to a directory containing unzipped .tex source
-
-    Returns
-    -------
-    main_tex_source : str
-        File path to the main .tex source in the directory
-    """
-    try:
-        tex_files = [f for f in os.listdir(path) if f.endswith('.tex')]
-        if len(tex_files) == 1:
-            return os.path.join(path, tex_files[0])
-            # Returns the only .tex file in the source files
-        else:
-            main_files = {}
-            for tf in tex_files:
-                with open(os.path.join(path, tf), "r") as file:
-                    for line in file:
-                        if re.search(r"^\s*\\document(?:style|class)", line):
-                            # https://arxiv.org/help/faq/mistakes#wrongtex
-                            # according to this page, there should only be one tex file with a \documentclass
-                            if tf in ["paper.tex", "main.tex", "ms.tex", "article.tex"]:
-                                main_files[tf] = 1
-                            else:
-                                main_files[tf] = 0
-                            break
-            if len(main_files) == 1:
-                return (os.path.join(path, list(main_files)[0]))
-            elif len(main_files) == 0:
-                raise MainTeXError(
-                    f"No main .tex found file in {path}")
-            else:
-                # account for the two main ways of creating multi-file
-                # submissions on overleaf (standalone, subfiles)
-                for mf in main_files:
-                    with open(os.path.join(path, mf), "r") as file:
-                        for line in file:
-                            if re.search(r"^\s*\\document(?:style|class).*(?:\{standalone\}|\{subfiles\})", line):
-                                main_files[mf] = -99999
-                                break
-                                # document class of main should not be standalone or subfiles
-                                # #the main file is just {article} or something else
-                return (os.path.join(path, max(main_files, key=main_files.__getitem__)))
-    except Exception as exc:
-        raise MainTeXError(
-            f"Process to find main .tex file in {path} failed") from exc
-
 def _list_missing_packages (stdout: str) -> Optional[List[str]]:
     MISSING_PACKAGE_RE = re.compile(r"Warning:missing_file:.+Can't\sfind\spackage\s(.+)\sat")
     matches = MISSING_PACKAGE_RE.finditer(stdout)
     return list(map(lambda x: x.group(1), matches)) or None
 
-def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> Optional[List[str]]:
-    """
-    Runs latexml on the .tex file at main_fpath and
-    outputs the html at out_fpath.
 
-    Parameters
-    ----------
-    main_fpath : str
-        Main .tex file path
-    out_dpath : str
-        Output directory file path
-    sub_id: str
-        submission id of the article
-    """
-    LATEXML_URL_BASE = current_app.config['LATEXML_URL_BASE']
-    latexml_config = ["latexmlc",
-                      "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
-                      "--path=/opt/arxmliv-bindings/bindings",
-                      "--path=/opt/arxmliv-bindings/supported_originals",
-                      "--pmml", "--cmml", "--mathtex",
-                      "--timeout=500",
-                      "--nodefaultresources",
-                      "--css=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
-                      f"--css={LATEXML_URL_BASE}/css/ar5iv_0.7.4.min.css",
-                      f"--css={LATEXML_URL_BASE}/css/latexml_styles.css",
-                      "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
-                      "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
-                      f"--javascript={LATEXML_URL_BASE}/js/addons.js",
-                      f"--javascript={LATEXML_URL_BASE}/js/feedbackOverlay.js",
-                      "--navigationtoc=context",
-                      f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
-    completed_process = subprocess.run(
-        latexml_config,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=True,
-        text=True,
-        timeout=500)
-    errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
-    with open(errpath, "w") as f:
-        f.write(completed_process.stdout)
-    try:
-        if is_submission:
-            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_SUB'])
-        else:
-            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_DOC'])
-        errblob = bucket.blob(f"{sub_id}_stdout.txt")
-        errblob.upload_from_filename(f"{sub_id}_stdout.txt")
-    except Exception as exc:
-        raise GCPBlobError(
-            f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_SUB'] if is_submission else current_app.config['QA_BUCKET_DOC']} failed in do_latexml") from exc
-    os.remove(errpath)
-    return _list_missing_packages(completed_process.stdout)
 
 def insert_base_tag (fpath: str, id: str) -> None:
     """ This inserts the base tag into the html so we can use the /html/arxiv_id url """

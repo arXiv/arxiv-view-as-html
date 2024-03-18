@@ -1,18 +1,26 @@
-def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool) -> Optional[List[str]]:
-    """
-    Runs latexml on the .tex file at main_fpath and
-    outputs the html at out_fpath.
+from typing import List
+import re
+import subprocess
 
-    Parameters
-    ----------
-    main_fpath : str
-        Main .tex file path
-    out_dpath : str
-        Output directory file path
-    sub_id: str
-        submission id of the article
-    """
+from flask import current_app
+
+from arxiv.files import LocalFileObj
+
+from ..files import get_file_manager
+from ...domain.conversion import ConversionPayload, LaTeXMLOutput
+
+MISSING_PACKAGE_RE = re.compile(r"Warning:missing_file:.+Can't\sfind\spackage\s(.+)\sat")
+
+def list_missing_packages (stdout: str) -> List[str]:
+    matches = MISSING_PACKAGE_RE.finditer(stdout)
+    return list(map(lambda x: x.group(1), matches))
+
+def latexml(main_src: LocalFileObj, payload: ConversionPayload) -> LaTeXMLOutput:
     LATEXML_URL_BASE = current_app.config['LATEXML_URL_BASE']
+
+    main_src_path = main_src.item
+    output_path = f'{get_file_manager().latexml_output_dir(payload)}{payload.name}.html'
+
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
                       "--path=/opt/arxmliv-bindings/bindings",
@@ -28,7 +36,8 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool
                       f"--javascript={LATEXML_URL_BASE}/js/addons.js",
                       f"--javascript={LATEXML_URL_BASE}/js/feedbackOverlay.js",
                       "--navigationtoc=context",
-                      f"--source={main_fpath}", f"--dest={out_dpath}/{sub_id}.html"]
+                      f"--source={main_src_path}", f"--dest={output_path}"]
+    
     completed_process = subprocess.run(
         latexml_config,
         stdout=subprocess.PIPE,
@@ -36,18 +45,9 @@ def do_latexml(main_fpath: str, out_dpath: str, sub_id: str, is_submission: bool
         check=True,
         text=True,
         timeout=500)
-    errpath = os.path.join(os.getcwd(), f"{sub_id}_stdout.txt")
-    with open(errpath, "w") as f:
-        f.write(completed_process.stdout)
-    try:
-        if is_submission:
-            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_SUB'])
-        else:
-            bucket = get_google_storage_client().bucket(current_app.config['QA_BUCKET_DOC'])
-        errblob = bucket.blob(f"{sub_id}_stdout.txt")
-        errblob.upload_from_filename(f"{sub_id}_stdout.txt")
-    except Exception as exc:
-        raise GCPBlobError(
-            f"Uploading {sub_id}_stdout.txt to {current_app.config['QA_BUCKET_SUB'] if is_submission else current_app.config['QA_BUCKET_DOC']} failed in do_latexml") from exc
-    os.remove(errpath)
-    return _list_missing_packages(completed_process.stdout)
+    
+    return LaTeXMLOutput(
+        output=completed_process.stdout,
+        missing_packages=list_missing_packages(completed_process.stdout)
+    )
+    

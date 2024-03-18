@@ -1,7 +1,6 @@
 """Module that handles the conversion process from LaTeX to HTML"""
 import os
 import re
-import subprocess
 import shutil
 from typing import (
     Any,
@@ -18,7 +17,6 @@ from flask import current_app
 
 from .licenses import get_license_for_paper, get_license_for_submission
 from ..locking import id_lock
-from ..buckets.util import get_google_storage_client
 from ..buckets import (
     download_blob,
     upload_dir_to_gcs,
@@ -134,12 +132,6 @@ def remove_ltxml(path: str) -> None:
     except Exception as exc:
         raise LaTeXMLRemoveError(
             f".ltxml file at {path} failed to be removed") from exc
-
-
-def _list_missing_packages (stdout: str) -> Optional[List[str]]:
-    MISSING_PACKAGE_RE = re.compile(r"Warning:missing_file:.+Can't\sfind\spackage\s(.+)\sat")
-    matches = MISSING_PACKAGE_RE.finditer(stdout)
-    return list(map(lambda x: x.group(1), matches)) or None
 
 
 

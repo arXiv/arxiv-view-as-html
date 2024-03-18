@@ -19,7 +19,7 @@ def doc_src_path (payload: DocumentConversionPayload) -> str:
     src_ext = '.gz' if payload.single_file else '.tar.gz'
     path = abs_path_current_parent(payload.identifier) if payload.is_latest \
         else abs_path_orig_parent(payload.identifier)
-    return f'{path}/{payload.identifier.filename}{src_ext}'
+    return f'{path}/{payload.identifier.filename}{src_ext}'    
 
 class FileManager:
 
@@ -43,9 +43,9 @@ class FileManager:
         
         if payload.single_file:
             with src.open('rb') as ungzip_file:
-                with open(self.local_store.prefix+src.name, 'xb') as local_file:
+                with open(f'{self.local_store.prefix}{payload.name}/{src.name}', 'xb') as local_file:
                     local_file.write(ungzip_file.read())
-            return self.local_store.to_obj(src.name)
+            return self.local_store.to_obj(f'{payload.name}/{src.name}')
 
         with src.open('rb') as ungzip_file:
             with tarfile.open(fileobj=ungzip_file) as tar:
@@ -54,3 +54,6 @@ class FileManager:
         main_src = find_main_tex_source(self.local_store.prefix+payload.name)
 
         return self.local_store.to_obj(main_src)
+    
+    def latexml_output_dir (self, payload: ConversionPayload) -> str:
+        return f'{self.local_store.prefix}{payload.name}/html/'

@@ -78,17 +78,26 @@ ENV MAGICK_TIME_LIMIT=900
 ENV MAGICK_TMPDIR=/dev/shm
 ENV TMPDIR=/dev/shm
 
+######## Install Python 3.11 ########
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt install software-properties-common -y
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update -y
+RUN apt install python3.11 python3-pip -y
+
 ########## Everything Else ##########
 
 WORKDIR /arxiv
 
-RUN apt-get update && apt-get install -y python3-dev python3-pip pkg-config default-libmysqlclient-dev
+RUN apt-get install -y python3-dev pkg-config default-libmysqlclient-dev
 
-RUN pip install --upgrade pip
-RUN pip install poetry
+RUN python3.11 -m pip install --upgrade pip
+RUN python3.11 -m pip install poetry
 RUN poetry config virtualenvs.create false
 
 COPY . .
+RUN apt remove python3-blinker -y
 RUN poetry install
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "-w", "4", "--threads", "2", "entry_point:app"]

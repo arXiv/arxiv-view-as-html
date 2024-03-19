@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-arxiv-base = {git = "https://github.com/arXiv/arxiv-base.git", rev = "3bdc3161bd10322cd4581db50a7f5ef06663ed85"}
+arxiv-base = {git = "https://github.com/arXiv/arxiv-base.git", rev = "75cef1432ab9c84022ca82ddf43475c066719cc3"}
 gunicorn = "^20.1.0"
 bs4 = "^0.0.1"
 filelock = "^3.12.2"

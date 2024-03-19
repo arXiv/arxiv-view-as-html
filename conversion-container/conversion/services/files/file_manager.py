@@ -1,4 +1,5 @@
 import tarfile
+import os
 
 from arxiv.files import UngzippedFileObj, FileObj
 from arxiv.files.object_store import ObjectStore, LocalObjectStore
@@ -6,6 +7,9 @@ from arxiv.files.key_patterns import (
     abs_path_current_parent, 
     abs_path_orig_parent
 )
+
+from google.cloud import storage
+from flask import current_app
 
 from ...domain.conversion import ConversionPayload, \
     SubmissionConversionPayload, DocumentConversionPayload
@@ -57,3 +61,28 @@ class FileManager:
     
     def latexml_output_dir (self, payload: ConversionPayload) -> str:
         return f'{self.local_store.prefix}{payload.name}/html/'
+    
+    def upload_latexml (self, payload: ConversionPayload, metadata: str):
+        src_dir = self.latexml_output_dir(payload)
+        with open (f'{src_dir}{payload.name}/{payload.name}_metadata.json', 'x') as meta:
+            meta.write(metadata)
+
+        if isinstance(payload, DocumentConversionPayload):
+            bucket = storage.Client().bucket(current_app.config['DOCUMENT_CONVERTED_BUCKET'])
+            for root, _, fnames in os.walk(src_dir):
+                for fname in fnames:
+                    abs_fpath = os.path.join(root, fname)
+                    bucket.blob(
+                        os.path.relpath(
+                            abs_fpath,
+                            src_dir
+                        )
+                    ) \
+                    .upload_from_filename(abs_fpath)
+        else:
+            destination_fname = f'{src_dir}{payload.identifier}.tar.gz'
+            bucket = storage.Client().bucket(current_app.config['SUBMISSION_CONVERTED_BUCKET'])
+            with tarfile.open(destination_fname, "w:gz") as tar:
+                tar.add(f'{src_dir}/{payload.identifier}', arcname=str(payload.identifier))
+            blob = bucket.blob(f'{payload.identifier}.tar.gz')
+            blob.upload_from_filename(destination_fname)

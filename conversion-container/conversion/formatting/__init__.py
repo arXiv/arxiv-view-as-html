@@ -1,11 +1,6 @@
 from typing import Optional
 import re
 
-from sqlalchemy.sql import text
-from ..exceptions import DBConnectionError
-from ..models.util import database_retry, transaction
-from ..models.db import db
-
 def _license_url_to_str_mapping (url: Optional[str]) -> str:
     if not url:
         return 'No License'
@@ -22,20 +17,3 @@ def _license_url_to_str_mapping (url: Optional[str]) -> str:
     elif (match := re.match(r'http:\/\/creativecommons\.org\/licenses\/by\/(\d\.0)\/', url)):
         license = f'CC BY {match.group(1)}'
     return f'License: {license}'
-
-@database_retry(5)
-def get_license_for_paper (paper_id: str, version: int) -> str:
-    query = text("SELECT license from arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
-    query = query.bindparams(paper_id=paper_id, version=version)
-    with transaction() as session:
-        license_raw = session.execute(query).scalar()
-    return _license_url_to_str_mapping(license_raw)
-    
-@database_retry(5)
-def get_license_for_submission (submission_id: int) -> str:
-    query = text("SELECT license from arXiv_submissions WHERE submission_id=:submission_id")
-    query = query.bindparams(submission_id=submission_id)
-    with transaction() as session:
-        license_raw = session.execute(query).scalar()
-    return _license_url_to_str_mapping(license_raw)
-

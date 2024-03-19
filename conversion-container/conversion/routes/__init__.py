@@ -12,7 +12,7 @@ from flask import Blueprint, request, jsonify, \
 
 from arxiv.identifier import Identifier
 
-from ..convert import process
+from ..processes.convert import process
 from ..convert.batch_convert import batch_process
 from ..convert.single_convert import single_convert, reconvert_submission
 from ..publish import publish

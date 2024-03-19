@@ -1,10 +1,12 @@
+from dataclasses import dataclass
 from typing import List, Union
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
 
 from arxiv.identifier import Identifier
 
-class ConversionPayload (BaseModel, ABC):
+@dataclass
+class ConversionPayload (ABC):
     identifier: Union[Identifier, int]
     single_file: bool
 
@@ -27,7 +29,8 @@ class DocumentConversionPayload (ConversionPayload):
     @property
     def name (self) -> str:
         return self.identifier.idv
-    
-class LaTeXMLOutput (BaseModel):
+
+@dataclass
+class LaTeXMLOutput:
     output: str
     missing_packages: List[str]

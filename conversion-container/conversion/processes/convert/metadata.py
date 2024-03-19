@@ -11,7 +11,7 @@ def generate_metadata (missing_packages: List[str], payload: ConversionPayload):
         license = get_license_for_paper(payload.identifier.id, payload.identifier.version)
         base_url = f'{current_app.config["VIEW_DOC_BASE"]}/html/{payload.identifier.idv}'
     else:
-        licence = get_license_for_submission(payload.identifier)
+        license = get_license_for_submission(payload.identifier)
         base_url = f'{current_app.config["VIEW_SUB_BASE"]}/html/submission/{payload.identifier}/view'
     return json.dumps({
         'missing_packages': missing_packages,

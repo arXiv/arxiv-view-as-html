@@ -13,9 +13,9 @@ from flask import Blueprint, request, jsonify, \
 from arxiv.identifier import Identifier
 
 from ..processes.convert import process
-from ..convert.batch_convert import batch_process
-from ..convert.single_convert import single_convert, reconvert_submission
-from ..publish import publish
+# from ..convert.batch_convert import batch_process
+# from ..convert.single_convert import single_convert, reconvert_submission
+# from ..publish import publish
 from ..domain.conversion import SubmissionConversionPayload, \
     DocumentConversionPayload
 
@@ -88,10 +88,10 @@ def process_route () -> Response:
 #     thread.start()
 #     return '', 200
 
-@blueprint.route('/publish', methods=['POST'])
-def publish_route () -> Response:
-    publish(request.json)
-    return '', 202
+# @blueprint.route('/publish', methods=['POST'])
+# def publish_route () -> Response:
+#     publish(request.json)
+#     return '', 202
 
 @blueprint.route('/health', methods=['GET'])
 def health() -> tuple[flask.Response, int]:

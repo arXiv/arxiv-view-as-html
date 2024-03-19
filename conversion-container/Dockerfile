@@ -90,10 +90,10 @@ RUN apt install python3.11 python3-pip -y
 
 WORKDIR /arxiv
 
-RUN apt-get install -y python3-dev pkg-config default-libmysqlclient-dev
+RUN apt-get install -y python3.11-dev pkg-config default-libmysqlclient-dev build-essential
 
 RUN python3.11 -m pip install --upgrade pip
-RUN python3.11 -m pip install poetry
+RUN python3.11 -m pip install poetry 
 RUN poetry config virtualenvs.create false
 
 COPY . .

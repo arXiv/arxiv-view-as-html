@@ -1,5 +1,6 @@
 import tarfile
 import os
+import logging
 
 from arxiv.files import UngzippedFileObj, FileObj
 from arxiv.files.object_store import ObjectStore, LocalObjectStore
@@ -44,10 +45,13 @@ class FileManager:
             src = UngzippedFileObj(self.doc_src_store.to_obj(doc_src_path(payload)))
         else:
             src = UngzippedFileObj(self.sub_src_store.to_obj(sub_src_path(payload)))
+            logging.info(f'SRC STORE: {self.sub_src_store}')
+            logging.info(f'SRC: {src}')
+        
         
         if payload.single_file:
             with src.open('rb') as ungzip_file:
-                with open(f'{self.local_store.prefix}{payload.name}/{src.name}', 'xb') as local_file:
+                with open(f'{self.local_store.prefix}{payload.name}/{src.name}', 'wb+') as local_file:
                     local_file.write(ungzip_file.read())
             return self.local_store.to_obj(f'{payload.name}/{src.name}')
 
@@ -57,14 +61,17 @@ class FileManager:
 
         main_src = find_main_tex_source(self.local_store.prefix+payload.name)
 
-        return self.local_store.to_obj(main_src)
+        return self.local_store.to_obj(os.path.relpath(main_src, self.local_store.prefix))
     
     def latexml_output_dir (self, payload: ConversionPayload) -> str:
+        return f'{self.local_store.prefix}{payload.name}/html/{payload.name}/'
+    
+    def upload_dir (self, payload: ConversionPayload) -> str:
         return f'{self.local_store.prefix}{payload.name}/html/'
     
     def upload_latexml (self, payload: ConversionPayload, metadata: str):
-        src_dir = self.latexml_output_dir(payload)
-        with open (f'{src_dir}{payload.name}/{payload.name}_metadata.json', 'x') as meta:
+        src_dir = self.upload_dir(payload)
+        with open(f'{self.latexml_output_dir(payload)}{payload.name}_metadata.json', 'w+') as meta:
             meta.write(metadata)
 
         if isinstance(payload, DocumentConversionPayload):
@@ -80,9 +87,9 @@ class FileManager:
                     ) \
                     .upload_from_filename(abs_fpath)
         else:
-            destination_fname = f'{src_dir}{payload.identifier}.tar.gz'
+            destination_fname = f'{src_dir}{payload.name}.tar.gz'
             bucket = storage.Client().bucket(current_app.config['SUBMISSION_CONVERTED_BUCKET'])
             with tarfile.open(destination_fname, "w:gz") as tar:
-                tar.add(f'{src_dir}/{payload.identifier}', arcname=str(payload.identifier))
-            blob = bucket.blob(f'{payload.identifier}.tar.gz')
+                tar.add(f'{src_dir}/{payload.name}', arcname=str(payload.name))
+            blob = bucket.blob(f'{payload.name}.tar.gz')
             blob.upload_from_filename(destination_fname)

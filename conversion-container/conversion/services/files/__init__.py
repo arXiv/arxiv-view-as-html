@@ -30,7 +30,8 @@ def get_file_manager () -> "FileManager":
     if _file_manager is None:
         config= current_app.config
         _file_manager = FileManager(
-            sub_src_store=get_global_object_store(config['SUBMISSION_SOURCE_BUCKET'], _sub_src_store),
-            doc_src_store=get_global_object_store(config['DOCUMENT_SOURCE_BUCKET'], _doc_src_store),
-            local_store=get_global_object_store(config['LOCAL_WORK_DIR'], _local_store)
+            sub_src_store=get_global_object_store(config['SUBMISSION_SOURCE_BUCKET'], '_sub_src_store'),
+            doc_src_store=get_global_object_store(config['DOCUMENT_SOURCE_BUCKET'], '_doc_src_store'),
+            local_store=get_global_object_store(config['LOCAL_WORK_DIR'], '_local_store')
         )
+    return _file_manager

@@ -5,8 +5,6 @@ from base64 import b64decode
 import json
 from flask import current_app
 
-from ..models.util import transaction, db
-
 from ..convert import insert_base_tag, replace_absolute_anchors_for_doc
 
 from .db_queries import submission_has_html, \

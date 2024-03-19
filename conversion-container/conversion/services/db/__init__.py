@@ -4,7 +4,7 @@ from flask import current_app
 from sqlalchemy.sql import text, select
 
 from arxiv.db import session
-from arxiv.db.models import Submission
+from arxiv.db.models import Submission, Metadata
 
 from ...formatting import _license_url_to_str_mapping
 
@@ -25,14 +25,17 @@ def get_source_flags_for_submission (sub_id: int) -> Optional[str]:
 
 # @database_retry(5)
 def get_license_for_paper (paper_id: str, version: int) -> str:
-    query = text("SELECT license from arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
-    query = query.bindparams(paper_id=paper_id, version=version)
-    license_raw = session.execute(query).scalar()
+    license_raw = session.execute(
+        select(Metadata.license)
+        .filter(Metadata.paper_id == paper_id)
+        .filter(Metadata.version == version)
+    ).scalar()
     return _license_url_to_str_mapping(license_raw)
     
 # @database_retry(5)
 def get_license_for_submission (submission_id: int) -> str:
-    query = text("SELECT license from arXiv_submissions WHERE submission_id=:submission_id")
-    query = query.bindparams(submission_id=submission_id)
-    license_raw = session.execute(query).scalar()
+    license_raw = session.execute(
+        select(Submission.license)
+        .filter(Submission.submission_id == submission_id)
+    ).scalar()
     return _license_url_to_str_mapping(license_raw)

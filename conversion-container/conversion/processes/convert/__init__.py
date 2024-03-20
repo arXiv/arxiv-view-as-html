@@ -15,17 +15,12 @@ from bs4 import BeautifulSoup
 from flask import current_app
 
 from ...locking import id_lock
-from ...buckets import (
-    download_blob,
-    upload_dir_to_gcs,
-    upload_tar_to_gcs
-)
 from ...exceptions import *
-# from ...concurrency_control import (
-#     write_start,
-#     write_success,
-#     write_failure
-# )
+from ...services.db import (
+    write_start,
+    write_success,
+    write_failure
+)
 from ...domain.conversion import ConversionPayload
 from ...services.files import get_file_manager
 from ...services.latexml import latexml
@@ -34,71 +29,32 @@ from .metadata import generate_metadata
 logger = logging.getLogger()
 
 def process(conversion_payload: ConversionPayload) -> bool:
-    # is_submission = bucket == current_app.config['IN_BUCKET_SUB_ID']
-
-    # """ File system we will be using """
-    # safe_name = str(uuid.uuid4()) # In case two machines download before locking
-    # download_file = f'{safe_name}.gz' if single_file else f'{safe_name}.tar.gz' # the file we download the blob to
-    # src_dir = f'extracted/{id}' # the directory we untar the blob to
-    # bucket_dir_container = f'{src_dir}/html' # the directory we will upload the *contents* of
-    # outer_bucket_dir = f'{bucket_dir_container}/{id}' # the highest level directory that will appear in the out bucket
-
     try:
         with id_lock(conversion_payload.name, current_app.config['LOCK_DIR']):
-            logging.info(f"STARTING FOR {conversion_payload.name}")
-            main_src = get_file_manager().download_source(conversion_payload)
-            logging.info(f"MAIN SRC IS {str(main_src)}")
+            logger.info(f"starting conversion for {conversion_payload.name}")
+            checksum, main_src = get_file_manager().download_source(conversion_payload)
 
-            # Write to DB that process has started
-            # logger.info(f"{id}: Write start process to db")
-            # write_start(id, download_file, is_submission)
+            write_start (conversion_payload, checksum)
 
-
-            # remove_ltxml(src_dir) # TODO
+            get_file_manager().remove_ltxml(conversion_payload)
 
             latexml_output = latexml(main_src, conversion_payload) # Also need to upload stdout
 
             metadata = generate_metadata(latexml_output.missing_packages, conversion_payload)
 
+            write_success (conversion_payload, checksum)
+
+            # Note: There is a gap between when the user would see that html is ready and when it is uploaded. 
+            # In my opinion, this is a smaller problem than the user seeing an incorrect version of their html
             get_file_manager().upload_latexml(conversion_payload, metadata)
-
-            # TODO: Maybe remove for batch
-            # download_blob(bucket, blob, download_file) # download again to double check for most recent tex source
-            # write_success(id, download_file, is_submission)
     except Exception as e:
-        logger.info(f'{conversion_payload.name}: Conversion unsuccessful', exc_info=1)
-        logger.warn(e)
-        # try:
-        #     download_blob(bucket, blob, download_file)
-        #     write_failure(id, download_file, is_submission)
-        # except Exception as e:
-        #     logger.warning(f'{id}: Failed to write failure', exc_info=1)
-    # finally:
-    #     try:
-    #         with id_lock(id, current_app.config['LOCK_DIR'], 1):
-    #             _clean_up(download_file, id)
-    #     except Exception as e:
-    #         logger.warning(f"{id}: Failed to clean up lock and dir", exc_info=1)
+        logger.info(f'conversion unsuccessful for {conversion_payload.name}', exc_info=1)
+        try:
+            write_failure(conversion_payload, checksum)
+        except Exception as e:
+            logger.warning(f'failed to write failure for {conversion_payload.name}', exc_info=1)
 
 
-def remove_ltxml(path: str) -> None:
-    """
-    Remove files with the .ltxml extension from the
-    directory "path".
-
-    Parameters
-    ----------
-    path : str
-        File path to the directory containing unzipped .tex source
-    """
-    try:
-        for root, _, files in os.walk(path):
-            for file in files:
-                if str(file).endswith('.ltxml'):
-                    os.remove(os.path.join(root, file))
-    except Exception as exc:
-        raise LaTeXMLRemoveError(
-            f".ltxml file at {path} failed to be removed") from exc
 
 
 
@@ -191,7 +147,3 @@ def remove_ltxml(path: str) -> None:
 #         html.truncate(0)
 #         html.seek(0)
 #         html.write(str(soup))
-
-def _clean_up (tar, id):
-    os.remove(tar)
-    shutil.rmtree(f'extracted/{id}')

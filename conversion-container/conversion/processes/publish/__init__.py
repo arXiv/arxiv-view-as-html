@@ -5,10 +5,13 @@ from base64 import b64decode
 import json
 from flask import current_app
 
-from ..convert import insert_base_tag, replace_absolute_anchors_for_doc
 
-from .db_queries import submission_has_html, \
-    write_published_html
+from arxiv.identifier import Identifier
+
+from ...domain.publish import PublishPayload
+from ...services.db import get_submission_with_html, write_published_html
+from ...services.files import get_file_manager
+# from ..convert import insert_base_tag, replace_absolute_anchors_for_doc
 from .buckets import (
     download_sub_to_doc_dir,
     upload_dir_to_doc_bucket, 
@@ -20,18 +23,7 @@ from .fastly_purge import fastly_purge_abs
 
 logger = logging.getLogger()
 
-def _parse_json_payload (payload: Dict) -> Tuple[int, str, int]:
-    data = json.loads(b64decode(payload['message']['data']).decode('utf-8'))
-    return (
-        data['submission_id'],
-        data['paper_id'],
-        data['version']
-    )
-
-def publish (payload: Dict):
-    _publish(*_parse_json_payload(payload))
-
-def _publish (submission_id: int, paper_id: str, version: int):
+def publish (payload: PublishPayload):
     """Triggered from a message on a Cloud Pub/Sub topic.
     Args:
          paylod (dict): Event payload containing a base64 encoded 
@@ -48,44 +40,38 @@ def _publish (submission_id: int, paper_id: str, version: int):
     """
 
     try:
-        # 1.
-        paper_idv = f'{paper_id}v{version}'
-
-        # If there is a db error, the session will be rolled back, but 
-        # the document bucket may still get the site
-        
-        # with transaction() as session:
         # Check if there is an existing conversion for given submission.
-        submission_row = submission_has_html(submission_id)
+        submission_row = get_submission_with_html (payload.submission_id)
         if submission_row is None:
-            logger.info(f'No html found for submission {submission_id}/{paper_idv}')
+            logger.info(f'No html found for {payload}')
             return
         else:
-            logger.info(f'Identified successful conversion for {submission_id}/{paper_idv}')
+            logger.info(f'Identified successful conversion for {payload}')
         
         # Download submission conversion and rename. Return path to main .html file
-        html_file = download_sub_to_doc_dir(submission_id, paper_idv)
-        logger.info(f'Successfully downloaded {submission_id} to {paper_idv} dir')
+        # TODO: Move to file manager
+        get_file_manager().download_submission_conversion(payload)
+        logger.info(f'Successfully moved conversion {payload}')
 
         # Insert base tag
-        insert_base_tag(html_file, paper_idv)
-        logger.info(f'Successfully injected base tag for {submission_id}/{paper_idv}')
+        # insert_base_tag(html_file, paper_idv)
+        # logger.info(f'Successfully injected base tag for {submission_id}/{paper_idv}')
 
         # Inject watermark into html
-        insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
-        logger.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')
+        # insert_watermark(html_file, make_published_watermark(submission_id, paper_id, version))    
+        # logger.info(f'Successfully injected watermark for {submission_id}/{paper_idv}')
 
-        replace_absolute_anchors_for_doc(html_file, paper_idv)
-        logger.info(f'Successfully replaced anchor tags for {submission_id}/{paper_idv}')
+        # replace_absolute_anchors_for_doc(html_file, paper_idv)
+        # logger.info(f'Successfully replaced anchor tags for {submission_id}/{paper_idv}')
         
         # Upload directory to published conversion bucket
-        upload_dir_to_doc_bucket (submission_id)
-        logger.info(f'Successfully uploaded {submission_id}/{paper_idv}')         
 
         # Update database accordingly
-        write_published_html (paper_id, version, submission_row)
+        # TODO: Move to db service
+        write_published_html (payload.paper_id, submission_row)
 
         # Move log output from sub bucket to published bucket
+        # TODO: Move to file manager
         move_sub_qa_to_doc_qa (submission_id, paper_idv)
         logger.info(f'Successfully wrote {submission_id}/{paper_idv} qa to doc bucket')
 
@@ -93,6 +79,7 @@ def _publish (submission_id: int, paper_id: str, version: int):
         if not current_app.config['IS_DEV']:
             fastly_purge_abs(paper_id, version, current_app.config['FASTLY_PURGE_KEY'])
 
+    # TODO: Clean this shit up
     except Exception as e:
         try:
             logger.warning(f'Error publishing {submission_id}/{paper_id}', exc_info=1)

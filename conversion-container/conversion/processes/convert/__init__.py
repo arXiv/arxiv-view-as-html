@@ -24,35 +24,34 @@ from ...services.db import (
 from ...domain.conversion import ConversionPayload
 from ...services.files import get_file_manager
 from ...services.latexml import latexml
-from .metadata import generate_metadata
 
 logger = logging.getLogger()
 
-def process(conversion_payload: ConversionPayload) -> bool:
+def process(payload: ConversionPayload) -> bool:
     try:
-        with id_lock(conversion_payload.name, current_app.config['LOCK_DIR']):
-            logger.info(f"starting conversion for {conversion_payload.name}")
-            checksum, main_src = get_file_manager().download_source(conversion_payload)
+        with id_lock(payload.name, current_app.config['LOCK_DIR']):
+            logger.info(f"starting conversion for {payload.name}")
+            checksum, main_src = get_file_manager().download_source(payload)
 
-            write_start (conversion_payload, checksum)
+            write_start (payload, checksum)
 
-            get_file_manager().remove_ltxml(conversion_payload)
+            get_file_manager().remove_ltxml(payload)
 
-            latexml_output = latexml(main_src, conversion_payload) # Also need to upload stdout
+            latexml_output = latexml(payload, main_src) # Also need to upload stdout
 
-            metadata = generate_metadata(latexml_output.missing_packages, conversion_payload)
+            get_file_manager().write_latexml_extras(payload, latexml_output)
 
-            write_success (conversion_payload, checksum)
+            write_success (payload, checksum)
 
             # Note: There is a gap between when the user would see that html is ready and when it is uploaded. 
             # In my opinion, this is a smaller problem than the user seeing an incorrect version of their html
-            get_file_manager().upload_latexml(conversion_payload, metadata)
+            get_file_manager().upload_latexml(payload)
     except Exception as e:
-        logger.info(f'conversion unsuccessful for {conversion_payload.name}', exc_info=1)
+        logger.info(f'conversion unsuccessful for {payload.name}', exc_info=1)
         try:
-            write_failure(conversion_payload, checksum)
+            write_failure(payload, checksum)
         except Exception as e:
-            logger.warning(f'failed to write failure for {conversion_payload.name}', exc_info=1)
+            logger.warning(f'failed to write failure for {payload.name}', exc_info=1)
 
 
 

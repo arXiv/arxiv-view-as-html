@@ -15,11 +15,11 @@ def list_missing_packages (stdout: str) -> List[str]:
     matches = MISSING_PACKAGE_RE.finditer(stdout)
     return list(map(lambda x: x.group(1), matches))
 
-def latexml(main_src: LocalFileObj, payload: ConversionPayload) -> LaTeXMLOutput:
+def latexml(payload: ConversionPayload, main_src: LocalFileObj) -> LaTeXMLOutput:
     LATEXML_URL_BASE = current_app.config['LATEXML_URL_BASE']
 
     main_src_path = main_src.item
-    output_path = f'{get_file_manager().latexml_output_dir(payload)}{payload.name}.html'
+    output_path = f'{get_file_manager()._latexml_output_dir_name(payload)}{payload.name}.html'
 
     latexml_config = ["latexmlc",
                       "--preload=[nobibtex,ids,localrawstyles,mathlexemes,magnify=2,zoomout=2,tokenlimit=99999999,iflimit=1499999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",

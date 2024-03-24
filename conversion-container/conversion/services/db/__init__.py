@@ -1,7 +1,10 @@
 from typing import Optional, Tuple
+from datetime import datetime
+import logging
 
 from flask import current_app
-from sqlalchemy.sql import text, select
+from sqlalchemy.sql import select
+from sqlalchemy.exc import IntegrityError
 
 from arxiv.identifier import Identifier
 from arxiv.db import session, transaction
@@ -13,7 +16,7 @@ from arxiv.db.models import (
 )
 
 from ...domain.conversion import ConversionPayload, DocumentConversionPayload
-from ...formatting import _license_url_to_str_mapping
+from ...formatting import license_url_to_str_mapping
 from .util import now
 
 # @database_retry(3)
@@ -38,7 +41,7 @@ def get_license_for_paper (identifier: Identifier) -> str:
         .filter(Metadata.paper_id == identifier.id)
         .filter(Metadata.version == identifier.version)
     ).scalar()
-    return _license_url_to_str_mapping(license_raw)
+    return license_url_to_str_mapping(license_raw)
     
 # @database_retry(5)
 def get_license_for_submission (submission_id: int) -> str:
@@ -46,7 +49,7 @@ def get_license_for_submission (submission_id: int) -> str:
         select(Submission.license)
         .filter(Submission.submission_id == submission_id)
     ).scalar()
-    return _license_url_to_str_mapping(license_raw)
+    return license_url_to_str_mapping(license_raw)
 
 def has_doc_been_tried (identifier: Identifier) -> bool:
     rec = session.query(DBLaTeXMLDocuments) \
@@ -128,7 +131,7 @@ def _write_success_sub (submission_id: int, checksum: str) -> bool:
         obj = session.query(DBLaTeXMLSubmissions) \
                 .filter(int(submission_id) == DBLaTeXMLSubmissions.submission_id) \
                 .one()
-        obj = obj[0]
+        obj = obj
         if obj.tex_checksum == checksum and \
             obj.latexml_version == current_app.config['LATEXML_COMMIT'] and \
             obj.conversion_status != 1:
@@ -149,26 +152,22 @@ def _write_failure_doc (identifier: Identifier, checksum: str) -> bool:
         obj = session.query(DBLaTeXMLDocuments) \
                 .filter(DBLaTeXMLDocuments.paper_id == identifier.id) \
                 .filter(DBLaTeXMLDocuments.document_version == identifier.version) \
-                .all()
-        if len(obj) > 0:
-            obj = obj[0]
-            if obj.tex_checksum == checksum and \
-                obj.latexml_version == current_app.config['LATEXML_COMMIT']:
-                obj.conversion_status = 2
-                obj.conversion_end_time = now()
+                .one()
+        if obj.tex_checksum == checksum and \
+            obj.latexml_version == current_app.config['LATEXML_COMMIT']:
+            obj.conversion_status = 2
+            obj.conversion_end_time = now()
 
 # @database_retry(5)
 def _write_failure_sub (submission_id: int, checksum: str) -> bool:
     with transaction() as session:
         obj = session.query(DBLaTeXMLSubmissions) \
                 .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
-                .all()
-        if len(obj) > 0:
-            obj = obj[0]
-            if obj.tex_checksum == checksum and \
-                obj.latexml_version == current_app.config['LATEXML_COMMIT']:
-                obj.conversion_status = 2
-                obj.conversion_end_time = now()
+                .one()
+        if obj.tex_checksum == checksum and \
+            obj.latexml_version == current_app.config['LATEXML_COMMIT']:
+            obj.conversion_status = 2
+            obj.conversion_end_time = now()
 
 
 def write_failure (payload: ConversionPayload, checksum: str):
@@ -176,3 +175,60 @@ def write_failure (payload: ConversionPayload, checksum: str):
         return _write_failure_doc(payload.identifier, checksum)
     else:
         return _write_failure_sub(payload.identifier, checksum)
+    
+
+# @database_retry(3)
+def get_submission_with_html (submission_id: int) -> Optional[DBLaTeXMLSubmissions]:
+    row = session.scalar(
+        select(DBLaTeXMLSubmissions) \
+        .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
+        .first()
+    )
+    return row if (row and row.conversion_status == 1) else None
+
+
+# @database_retry(3)
+def write_published_html (identifier: Identifier, html_submission: DBLaTeXMLSubmissions):
+    with transaction() as session:
+        # try:
+        row = DBLaTeXMLDocuments (
+            paper_id=identifier.id,
+            document_version=identifier.version,
+            conversion_status=1,
+            latexml_version=html_submission.latexml_version,
+            tex_checksum=html_submission.tex_checksum,
+            conversion_start_time=html_submission.conversion_start_time,
+            conversion_end_time=html_submission.conversion_end_time,
+            publish_dt=datetime.utcnow()
+        )
+        session.merge(row)
+        # except IntegrityError as e:
+        #     logging.info(f'Integrity Error for {paper_id}, rolling back')
+        #     session.rollback()
+
+
+# @database_retry(3)
+def get_submission_timestamp (submission_id: int) -> Optional[str]:
+    timestamp = session.scalar(
+        select(Submission.submit_time)
+        .filter(Submission.submission_id == submission_id)
+    )
+    return timestamp.strftime('%d %b %Y') if timestamp else None
+        
+def get_submission_timestamp_from_paper_identifier (identifier: Identifier) -> Optional[str]:
+    timestamp = session.scalar(
+        select(Submission.submit_time)
+        .filter(Submission.doc_paper_id == identifier.id)
+        .filter(Submission.version == identifier.version)
+    )
+    return timestamp.strftime('%d %b %Y') if timestamp else None
+
+# @database_retry(3)
+def get_version_primary_category (identifier: Identifier) -> Optional[str]:
+    query = text("SELECT abs_categories FROM arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
+    query = query.bindparams(paper_id=paper_id, version=version)
+    row = session.scalar(
+        select(Metadata.abs_categories)
+        .filter(Metadata.paper_id == identifier.id)
+        .filter(Metadata.version == identifier.version)
+    ).split(' ')[0] # TODO: Needs to be tested

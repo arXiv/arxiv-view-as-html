@@ -13,11 +13,13 @@ from flask import Blueprint, request, jsonify, \
 from arxiv.identifier import Identifier
 
 from ..processes.convert import process
+from ..processes.publish import publish
 # from ..convert.batch_convert import batch_process
 # from ..convert.single_convert import single_convert, reconvert_submission
 # from ..publish import publish
 from ..domain.conversion import SubmissionConversionPayload, \
     DocumentConversionPayload
+from ..domain.publish import PublishPayload
 
 from .flask_thread import FlaskThread
 
@@ -42,7 +44,12 @@ def unwrap_document_conversion_payload (payload: Dict[str, str]) -> DocumentConv
         single_file=data['single_file']
     )
 
-
+def unwrap_publish_payload (payload: Dict[str, str]) -> PublishPayload:
+    data = _unwrap_pubsub_payload(payload)
+    return PublishPayload(
+        submission_id=data['submission_id'],
+        paper_id = Identifier(f"{data['paper_id']}v{data['version']}")
+    )
 
 # The post request from the eventarc trigger that queries this route will come in this format:
 # https://github.com/googleapis/google-cloudevents/blob/main/proto/google/events/cloud/storage/v1/data.proto
@@ -62,9 +69,9 @@ def process_route () -> Response:
         sub_conversion_payload = unwrap_submission_conversion_payload(request.json)
     except Exception as e:
         try:
-            logger.warn(f'Failed to parse payload for {request.json}')
+            logger.warn(f'PROCESS: Failed to parse payload for {request.json}')
         except:
-            logger.warn(f'Failed to process due to malformed payload')
+            logger.warn(f'PROCESS: Failed to process due to malformed payload')
         return '', 202
     # thread = FlaskThread(target=process, args=(sub_conversion_payload,)) # This requires cpu allocation always on in cloud run
     # thread.start()
@@ -88,10 +95,18 @@ def process_route () -> Response:
 #     thread.start()
 #     return '', 200
 
-# @blueprint.route('/publish', methods=['POST'])
-# def publish_route () -> Response:
-#     publish(request.json)
-#     return '', 202
+@blueprint.route('/publish', methods=['POST'])
+def publish_route () -> Response:
+    try:
+        publish_payload = unwrap_publish_payload(request.json)
+    except Exception as e:
+        try:
+            logger.warn(f'PUBLISH: Failed to parse payload for {request.json}')
+        except:
+            logger.warn(f'PUBLISH: Failed to publish due to malformed payload')
+        return '', 202
+    publish(publish_payload)
+    return '', 202
 
 @blueprint.route('/health', methods=['GET'])
 def health() -> tuple[flask.Response, int]:

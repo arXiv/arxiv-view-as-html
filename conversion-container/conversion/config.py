@@ -22,5 +22,6 @@ class Settings (BaseSettings):
     FASTLY_PURGE_KEY: str = 'no-key-dev'
     IS_DEV: bool = True
 
-    LOCAL_WORK_DIR = '/arxiv/extracted/'
+    LOCAL_CONVERSION_DIR = '/arxiv/extracted/'
+    LOCAL_PUBLISH_DIR = '/arxiv/publish/'
     LOCK_DIR: str = '/arxiv/locks/'

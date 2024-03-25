@@ -214,8 +214,9 @@ def get_submission_timestamp (submission_id: int) -> Optional[str]:
         .filter(Submission.submission_id == submission_id)
     )
     return timestamp.strftime('%d %b %Y') if timestamp else None
-        
-def get_submission_timestamp_from_paper_identifier (identifier: Identifier) -> Optional[str]:
+
+# @database_retry(3)
+def get_submission_timestamp_from_arxiv_identifier (identifier: Identifier) -> Optional[str]:
     timestamp = session.scalar(
         select(Submission.submit_time)
         .filter(Submission.doc_paper_id == identifier.id)
@@ -225,10 +226,9 @@ def get_submission_timestamp_from_paper_identifier (identifier: Identifier) -> O
 
 # @database_retry(3)
 def get_version_primary_category (identifier: Identifier) -> Optional[str]:
-    query = text("SELECT abs_categories FROM arXiv_metadata WHERE paper_id=:paper_id AND version=:version")
-    query = query.bindparams(paper_id=paper_id, version=version)
     row = session.scalar(
         select(Metadata.abs_categories)
         .filter(Metadata.paper_id == identifier.id)
         .filter(Metadata.version == identifier.version)
-    ).split(' ')[0] # TODO: Needs to be tested
+    )
+    return row.split(' ')[0] if row else None

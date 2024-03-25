@@ -5,7 +5,7 @@ import os
 import shutil
 import hashlib
 
-from arxiv.files import UngzippedFileObj, FileObj
+from arxiv.files import UngzippedFileObj, FileObj, LocalFileObj
 from arxiv.files.object_store import ObjectStore, LocalObjectStore
 from arxiv.files.key_patterns import (
     abs_path_current_parent, 
@@ -19,12 +19,10 @@ from ...domain.conversion import (
     ConversionPayload,
     SubmissionConversionPayload, 
     DocumentConversionPayload,
-    LaTeXMLOutput
 )
 from ...domain.publish import PublishPayload
-from ..latexml.metadata import generate_metadata
 from .main_src import find_main_tex_source
-from . import WritableGsObjectStore
+from .writable_gs_obj_store import WritableGsObjectStore
 
 def sub_src_path (payload: SubmissionConversionPayload) -> str:
     src_ext = '.gz' if payload.single_file else '.tar.gz'
@@ -83,18 +81,11 @@ class FileManager:
 
         return checksum, self.local_conversion_store.to_obj(os.path.relpath(main_src, self.local_conversion_store.prefix))
     
-    def _latexml_output_dir_name (self, payload: ConversionPayload) -> str:
+    def latexml_output_dir_name (self, payload: ConversionPayload) -> str:
         return f'{self.local_conversion_store.prefix}{payload.name}/html/{payload.name}/'
     
     def _upload_dir_name (self, payload: ConversionPayload) -> str:
         return f'{self.local_conversion_store.prefix}{payload.name}/html/'
-    
-    def write_latexml_extras (self, payload: ConversionPayload, latexml_output: LaTeXMLOutput):
-        metadata = generate_metadata(payload, latexml_output.missing_packages)
-        with open(f'{self._latexml_output_dir_name(payload)}__metadata.json', 'w') as f:
-            f.write(metadata)
-        with open(f'{self._latexml_output_dir_name(payload)}__stdout.txt', 'w') as f:
-            f.write(latexml_output.output)
     
     def upload_latexml (self, payload: ConversionPayload):
         """
@@ -106,13 +97,11 @@ class FileManager:
             self.doc_converted_store.copy_local_dir(self.local_publish_store.prefix+payload.paper_id.idv, '')
         else:
             destination_fname = f'{src_dir}{payload.name}.tar.gz'
-            bucket = storage.Client().bucket(current_app.config['SUBMISSION_CONVERTED_BUCKET'])
             with tarfile.open(destination_fname, "w:gz") as tar:
                 tar.add(f'{src_dir}/{payload.name}', arcname=str(payload.name))
-            blob = bucket.blob(f'{payload.name}.tar.gz')
-            blob.upload_from_filename(destination_fname)
-        
-        self.clean_up(payload)
+            self.sub_converted_store.write_obj(LocalFileObj(destination_fname),
+                                               self.sub_converted_store.bucket.blob(f'{payload.name}.tar.gz'))
+        self.clean_up_conversion(payload)
 
     
     def remove_ltxml(self, payload: ConversionPayload) -> None:
@@ -126,10 +115,12 @@ class FileManager:
                     os.remove(os.path.join(root, file))
 
     
-    def clean_up (self, payload: ConversionPayload):
+    def clean_up_conversion (self, payload: ConversionPayload):
         shutil.rmtree(self.local_conversion_store.prefix+payload.name)
 
-    
+    def clean_up_publish (self, payload: PublishPayload):
+        shutil.rmtree(self.local_publish_store.prefix+payload.paper_id.idv)
+
     def download_submission_conversion (self, payload: PublishPayload) -> None:
         # Download and expand submission conversion .tar.gz
         sub_conversion = UngzippedFileObj(
@@ -148,7 +139,7 @@ class FileManager:
             f'{self.local_publish_store.prefix}{payload.paper_id.idv}/{payload.paper_id.idv}.html'
         )
 
-    # TODO: refactor so publish and convert can use
+    # TODO: refactor so publish and convert can both use
     def upload_document_conversion (self, payload: PublishPayload) -> None:
         # Upload directory back
         self.doc_converted_store.copy_local_dir(self.local_publish_store.prefix+payload.paper_id.idv,

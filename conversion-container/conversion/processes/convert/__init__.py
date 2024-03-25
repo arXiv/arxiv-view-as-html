@@ -24,6 +24,7 @@ from ...services.db import (
 from ...domain.conversion import ConversionPayload
 from ...services.files import get_file_manager
 from ...services.latexml import latexml
+from ...services.latexml.metadata import generate_metadata_convert
 
 logger = logging.getLogger()
 
@@ -39,7 +40,11 @@ def process(payload: ConversionPayload) -> bool:
 
             latexml_output = latexml(payload, main_src) # Also need to upload stdout
 
-            get_file_manager().write_latexml_extras(payload, latexml_output)
+            metadata = generate_metadata_convert(payload, latexml_output.missing_packages)
+            with open(f'{get_file_manager().latexml_output_dir_name(payload)}__metadata.json', 'w') as f:
+                f.write(metadata)
+            with open(f'{get_file_manager().latexml_output_dir_name(payload)}__stdout.txt', 'w') as f:
+                f.write(latexml_output.output)
 
             write_success (payload, checksum)
 

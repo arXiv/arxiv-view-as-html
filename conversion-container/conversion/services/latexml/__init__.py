@@ -35,7 +35,6 @@ def latexml(payload: ConversionPayload, main_src: LocalFileObj) -> LaTeXMLOutput
                       "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
                       f"--javascript={LATEXML_URL_BASE}/js/addons.js",
                       f"--javascript={LATEXML_URL_BASE}/js/feedbackOverlay.js",
-                      "--navigationtoc=context",
                       f"--source={main_src_path}", f"--dest={output_path}"]
     
     completed_process = subprocess.run(

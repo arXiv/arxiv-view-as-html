@@ -28,7 +28,7 @@ from ...services.latexml.metadata import generate_metadata_convert
 
 logger = logging.getLogger()
 
-def process(payload: ConversionPayload) -> bool:
+def process(payload: ConversionPayload) -> None:
     try:
         with id_lock(payload.name, current_app.config['LOCK_DIR']):
             logger.info(f"starting conversion for {payload.name}")
@@ -52,11 +52,11 @@ def process(payload: ConversionPayload) -> bool:
             # In my opinion, this is a smaller problem than the user seeing an incorrect version of their html
             get_file_manager().upload_latexml(payload)
     except Exception as e:
-        logger.info(f'conversion unsuccessful for {payload.name}', exc_info=1)
+        logger.info(f'conversion unsuccessful for {payload.name}', exc_info=True)
         try:
             write_failure(payload, checksum)
         except Exception as e:
-            logger.warning(f'failed to write failure for {payload.name}', exc_info=1)
+            logger.warning(f'failed to write failure for {payload.name}', exc_info=True)
 
 
 

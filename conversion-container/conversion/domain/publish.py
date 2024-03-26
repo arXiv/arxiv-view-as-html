@@ -7,5 +7,5 @@ class PublishPayload:
     submission_id: int
     paper_id: Identifier
 
-    def __str__ (self):
+    def __str__ (self) -> str:
         return f'{self.submission_id}->{self.paper_id.idv}'

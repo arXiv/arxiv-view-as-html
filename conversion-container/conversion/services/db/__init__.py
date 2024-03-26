@@ -15,25 +15,11 @@ from arxiv.db.models import (
     DBLaTeXMLSubmissions
 )
 
-from ...domain.conversion import ConversionPayload, DocumentConversionPayload
+from ...domain.conversion import ConversionPayload, \
+    DocumentConversionPayload, SubmissionConversionPayload
 from ...formatting import license_url_to_str_mapping
 from .util import now
-
-# @database_retry(3)
-def get_process_data_from_db (paper_id: str, version: int) -> Optional[Tuple[int, str]]:
-    return session.scalar(
-            select (Submission.submission_id, Submission.source_flags)
-            .filter(Submission.doc_paper_id == paper_id)
-            .filter(Submission.version == version)
-          )
         
-# @database_retry(3)
-def get_source_flags_for_submission (sub_id: int) -> Optional[str]:
-    return session.scalar(
-        select(Submission.source_flags)
-        .filter(Submission.submission_id == sub_id)
-    )
-
 # @database_retry(5)
 def get_license_for_paper (identifier: Identifier) -> str:
     license_raw = session.execute(
@@ -59,7 +45,7 @@ def has_doc_been_tried (identifier: Identifier) -> bool:
     return rec is not None
 
 # @database_retry(5)
-def _write_start_doc (identifier: Identifier, checksum: str):
+def _write_start_doc (identifier: Identifier, checksum: str) -> None:
     paper_id = identifier.id
     version = identifier.version
     with transaction() as session:
@@ -84,7 +70,7 @@ def _write_start_doc (identifier: Identifier, checksum: str):
             rec.conversion_start_time = now()
 
 # @database_retry(5)
-def _write_start_sub (submission_id: int, checksum: str):
+def _write_start_sub (submission_id: int, checksum: str) -> None:
     with transaction() as session:
         rec = session.query(DBLaTeXMLSubmissions) \
                 .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
@@ -105,18 +91,18 @@ def _write_start_sub (submission_id: int, checksum: str):
             rec.conversion_start_time = now()
 
 
-def write_start (payload: ConversionPayload, checksum: str):
+def write_start (payload: ConversionPayload, checksum: str) -> None:
     if isinstance(payload, DocumentConversionPayload):
         _write_start_doc(payload.identifier, checksum)
-    else:
+    elif isinstance(payload, SubmissionConversionPayload):
         _write_start_sub(payload.identifier, checksum)
 
 
 # @database_retry(5)
-def _write_success_doc (identifier: Identifier, checksum: str) -> bool:
+def _write_success_doc (identifier: Identifier, checksum: str) -> None:
     with transaction() as session:
         obj = session.query(DBLaTeXMLDocuments) \
-                .filter(DBLaTeXMLDocuments.paper_id == identifier.paper_id) \
+                .filter(DBLaTeXMLDocuments.paper_id == identifier.id) \
                 .filter(DBLaTeXMLDocuments.document_version == identifier.version) \
                 .one()
         if obj.tex_checksum == checksum and \
@@ -126,7 +112,7 @@ def _write_success_doc (identifier: Identifier, checksum: str) -> bool:
                 obj.conversion_end_time = now()
 
 # @database_retry(5)
-def _write_success_sub (submission_id: int, checksum: str) -> bool:
+def _write_success_sub (submission_id: int, checksum: str) -> None:
     with transaction() as session:
         obj = session.query(DBLaTeXMLSubmissions) \
                 .filter(int(submission_id) == DBLaTeXMLSubmissions.submission_id) \
@@ -139,15 +125,15 @@ def _write_success_sub (submission_id: int, checksum: str) -> bool:
                 obj.conversion_end_time = now()
 
 
-def write_success (payload: ConversionPayload, checksum: str):
+def write_success (payload: ConversionPayload, checksum: str) -> None:
     if isinstance(payload, DocumentConversionPayload):
-        return _write_success_doc(payload.identifier, checksum)
-    else:
-        return _write_success_sub(payload.identifier, checksum)
+        _write_success_doc(payload.identifier, checksum)
+    elif isinstance(payload, SubmissionConversionPayload):
+        _write_success_sub(payload.identifier, checksum)
     
 
 # @database_retry(5)
-def _write_failure_doc (identifier: Identifier, checksum: str) -> bool:
+def _write_failure_doc (identifier: Identifier, checksum: str) -> None:
     with transaction() as session:
         obj = session.query(DBLaTeXMLDocuments) \
                 .filter(DBLaTeXMLDocuments.paper_id == identifier.id) \
@@ -159,7 +145,7 @@ def _write_failure_doc (identifier: Identifier, checksum: str) -> bool:
             obj.conversion_end_time = now()
 
 # @database_retry(5)
-def _write_failure_sub (submission_id: int, checksum: str) -> bool:
+def _write_failure_sub (submission_id: int, checksum: str) -> None:
     with transaction() as session:
         obj = session.query(DBLaTeXMLSubmissions) \
                 .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
@@ -170,11 +156,11 @@ def _write_failure_sub (submission_id: int, checksum: str) -> bool:
             obj.conversion_end_time = now()
 
 
-def write_failure (payload: ConversionPayload, checksum: str):
+def write_failure (payload: ConversionPayload, checksum: str) -> None:
     if isinstance(payload, DocumentConversionPayload):
-        return _write_failure_doc(payload.identifier, checksum)
-    else:
-        return _write_failure_sub(payload.identifier, checksum)
+        _write_failure_doc(payload.identifier, checksum)
+    elif isinstance(payload, SubmissionConversionPayload):
+        _write_failure_sub(payload.identifier, checksum)
     
 
 # @database_retry(3)
@@ -182,13 +168,12 @@ def get_submission_with_html (submission_id: int) -> Optional[DBLaTeXMLSubmissio
     row = session.scalar(
         select(DBLaTeXMLSubmissions) \
         .filter(DBLaTeXMLSubmissions.submission_id == submission_id) \
-        .first()
     )
     return row if (row and row.conversion_status == 1) else None
 
 
 # @database_retry(3)
-def write_published_html (identifier: Identifier, html_submission: DBLaTeXMLSubmissions):
+def write_published_html (identifier: Identifier, html_submission: DBLaTeXMLSubmissions) -> None:
     with transaction() as session:
         # try:
         row = DBLaTeXMLDocuments (

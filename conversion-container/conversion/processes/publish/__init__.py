@@ -7,6 +7,7 @@ from flask import current_app
 
 
 from arxiv.identifier import Identifier
+from arxiv.files import LocalFileObj
 
 from ...domain.publish import PublishPayload
 from ...services.db import get_submission_with_html, write_published_html
@@ -17,7 +18,7 @@ from .fastly_purge import fastly_purge_abs
 
 logger = logging.getLogger()
 
-def publish (payload: PublishPayload):
+def publish (payload: PublishPayload) -> None:
     """Triggered from a message on a Cloud Pub/Sub topic.
     Args:
          paylod (dict): Event payload containing a base64 encoded 
@@ -59,10 +60,12 @@ def publish (payload: PublishPayload):
         # logger.info(f'Successfully replaced anchor tags for {submission_id}/{paper_idv}')
 
         submission_metadata = get_file_manager().local_publish_store.to_obj(f'{payload.paper_id.idv}/__metadata.json')
+    
+        assert isinstance(submission_metadata, LocalFileObj)
         with submission_metadata.open('r') as f:
-            published_metadata = generate_metadata_publish(payload, f.read())
+            published_metadata = generate_metadata_publish(payload, f.read()) # type: ignore
         with submission_metadata.open('w') as f:
-            f.write(published_metadata)
+            f.write(published_metadata) # type: ignore
 
         write_published_html (payload.paper_id, submission_row)
 
@@ -82,6 +85,6 @@ def publish (payload: PublishPayload):
     # TODO: Clean this shit up
     except Exception as e:
         try:
-            logger.warning(f'Error publishing {payload}', exc_info=1)
+            logger.warning(f'Error publishing {payload}', exc_info=True)
         except:
-            logger.warning(f'Error publishing unknown', exc_info=1)
+            logger.warning(f'Error publishing unknown', exc_info=True)

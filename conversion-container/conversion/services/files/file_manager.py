@@ -4,6 +4,7 @@ import tarfile
 import os
 import shutil
 import hashlib
+from pathlib import Path
 
 from arxiv.files import UngzippedFileObj, FileObj, LocalFileObj
 from arxiv.files.object_store import ObjectStore, LocalObjectStore
@@ -22,7 +23,7 @@ from ...domain.conversion import (
 )
 from ...domain.publish import PublishPayload
 from .main_src import find_main_tex_source
-from .writable_gs_obj_store import WritableGsObjectStore
+from .writable_gs_obj_store import WritableGSObjectStore
 
 def sub_src_path (payload: SubmissionConversionPayload) -> str:
     src_ext = '.gz' if payload.single_file else '.tar.gz'
@@ -42,18 +43,26 @@ class FileManager:
     def __init__ (self, 
                   sub_src_store: ObjectStore, 
                   doc_src_store: ObjectStore,
-                  local_conversion_store: LocalObjectStore,
-                  local_publish_store: LocalObjectStore,
-                  sub_converted_store: WritableGsObjectStore,
-                  doc_converted_store: WritableGsObjectStore):
+                  local_conversion_store: ObjectStore,
+                  local_publish_store: ObjectStore,
+                  sub_converted_store: ObjectStore,
+                  doc_converted_store: ObjectStore):
         self.sub_src_store = sub_src_store
         self.doc_src_store = doc_src_store
+
+        assert isinstance(local_conversion_store, LocalObjectStore)
         self.local_conversion_store = local_conversion_store
+
+        assert isinstance(local_publish_store, LocalObjectStore)
         self.local_publish_store = local_publish_store
+
+        assert isinstance(sub_converted_store, WritableGSObjectStore)
         self.sub_converted_store = sub_converted_store
+
+        assert isinstance(doc_converted_store, WritableGSObjectStore)
         self.doc_converted_store = doc_converted_store
 
-    def download_source (self, payload: ConversionPayload) -> Tuple[str, FileObj]:
+    def download_source (self, payload: ConversionPayload) -> Tuple[str, LocalFileObj]:
         """
         Download the src files and return the main tex file
         """
@@ -61,6 +70,7 @@ class FileManager:
         if isinstance(payload, DocumentConversionPayload):
             src = UngzippedFileObj(self.doc_src_store.to_obj(doc_src_path(payload)))
         else:
+            assert isinstance(payload, SubmissionConversionPayload)
             src = UngzippedFileObj(self.sub_src_store.to_obj(sub_src_path(payload)))
 
         with src.open('rb') as ungzip_file:
@@ -72,14 +82,21 @@ class FileManager:
                 input_bytes = ungzip_file.read()
                 checksum = _get_checksum(input_bytes)
                 local_file.write(input_bytes)
-            return checksum, self.local_conversion_store.to_obj(f'{payload.name}/{src.name}')
+
+            main_src_obj = self.local_conversion_store.to_obj(f'{payload.name}/{src.name}')
+            assert isinstance(main_src_obj, LocalFileObj)
+
+            return checksum, main_src_obj
 
         with tarfile.open(fileobj=BytesIO(input_bytes)) as tar:
             tar.extractall(self.local_conversion_store.prefix+payload.name)
 
         main_src = find_main_tex_source(self.local_conversion_store.prefix+payload.name)
 
-        return checksum, self.local_conversion_store.to_obj(os.path.relpath(main_src, self.local_conversion_store.prefix))
+        main_src_obj = self.local_conversion_store.to_obj(os.path.relpath(main_src, self.local_conversion_store.prefix))
+        assert isinstance(main_src_obj, LocalFileObj)
+
+        return checksum, main_src_obj
     
     def latexml_output_dir_name (self, payload: ConversionPayload) -> str:
         return f'{self.local_conversion_store.prefix}{payload.name}/html/{payload.name}/'
@@ -87,19 +104,19 @@ class FileManager:
     def _upload_dir_name (self, payload: ConversionPayload) -> str:
         return f'{self.local_conversion_store.prefix}{payload.name}/html/'
     
-    def upload_latexml (self, payload: ConversionPayload):
+    def upload_latexml (self, payload: ConversionPayload) -> None:
         """
         Upload the latexml and metadata for the given payload. Delete the 
         working directory for the payload after.
         """
         src_dir = self._upload_dir_name(payload)
         if isinstance(payload, DocumentConversionPayload):
-            self.doc_converted_store.copy_local_dir(self.local_publish_store.prefix+payload.paper_id.idv, '')
+            self.doc_converted_store.copy_local_dir(self.local_publish_store.prefix+payload.identifier.idv, '')
         else:
             destination_fname = f'{src_dir}{payload.name}.tar.gz'
             with tarfile.open(destination_fname, "w:gz") as tar:
                 tar.add(f'{src_dir}/{payload.name}', arcname=str(payload.name))
-            self.sub_converted_store.write_obj(LocalFileObj(destination_fname),
+            self.sub_converted_store.write_obj(LocalFileObj(Path(destination_fname)),
                                                self.sub_converted_store.bucket.blob(f'{payload.name}.tar.gz'))
         self.clean_up_conversion(payload)
 
@@ -115,10 +132,10 @@ class FileManager:
                     os.remove(os.path.join(root, file))
 
     
-    def clean_up_conversion (self, payload: ConversionPayload):
+    def clean_up_conversion (self, payload: ConversionPayload) -> None:
         shutil.rmtree(self.local_conversion_store.prefix+payload.name)
 
-    def clean_up_publish (self, payload: PublishPayload):
+    def clean_up_publish (self, payload: PublishPayload) -> None:
         shutil.rmtree(self.local_publish_store.prefix+payload.paper_id.idv)
 
     def download_submission_conversion (self, payload: PublishPayload) -> None:
@@ -126,7 +143,7 @@ class FileManager:
         sub_conversion = UngzippedFileObj(
             self.sub_converted_store.to_obj(f'{payload.submission_id}.tar.gz'))
         with sub_conversion.open('rb') as ungzip_file:
-            with tarfile.open(fileobj=ungzip_file) as tar:
+            with tarfile.open(fileobj=ungzip_file) as tar: # type: ignore
                 tar.extractall(self.local_publish_store.prefix)
 
         # Rename outer directory and html file to paper_idv

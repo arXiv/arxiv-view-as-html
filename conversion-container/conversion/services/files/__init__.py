@@ -1,4 +1,4 @@
-import os
+from typing import Optional
 from urllib.parse import urlparse
 
 from flask import current_app
@@ -7,15 +7,15 @@ from google.cloud import storage
 from arxiv.files.object_store import ObjectStore, LocalObjectStore
 
 from .file_manager import FileManager
-from .writable_gs_obj_store import WritableGsObjectStore
+from .writable_gs_obj_store import WritableGSObjectStore
 
-_file_manager: FileManager = None
-_local_conversion_store = None
-_local_publish_store = None
-_sub_src_store = None
-_doc_src_store = None
-_sub_converted_store = None
-_doc_converted_store = None
+_file_manager: Optional[FileManager] = None
+_local_conversion_store: Optional[ObjectStore] = None
+_local_publish_store: Optional[ObjectStore] = None
+_sub_src_store: Optional[ObjectStore] = None
+_doc_src_store: Optional[ObjectStore] = None
+_sub_converted_store: Optional[ObjectStore] = None
+_doc_converted_store: Optional[ObjectStore] = None
 
 def get_global_object_store (path: str, global_name: str) -> ObjectStore:
     """Creates an object store from given path."""
@@ -24,7 +24,7 @@ def get_global_object_store (path: str, global_name: str) -> ObjectStore:
         uri = urlparse(path)
         if uri.scheme == "gs":
             gs_client = storage.Client()
-            store = WritableGsObjectStore(gs_client.bucket(uri.netloc))
+            store = WritableGSObjectStore(gs_client.bucket(uri.netloc))
         else:
             store = LocalObjectStore(path)
         globals()[global_name] = store

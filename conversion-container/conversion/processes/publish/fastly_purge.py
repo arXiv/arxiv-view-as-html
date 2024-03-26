@@ -3,7 +3,7 @@ import requests
 
 from flask import current_app
 
-def fastly_purge_abs (paper_id: str, version: int, fastly_key: str):
+def fastly_purge_abs (paper_id: str, version: int, fastly_key: str) -> None:
     headers = {
         "Fastly-Key": fastly_key,
         "Accept": "application/json",
@@ -13,7 +13,7 @@ def fastly_purge_abs (paper_id: str, version: int, fastly_key: str):
         _purge_url (f"https://{ domain }/abs/{ paper_id }", headers)
         _purge_url (f"https://{ domain }/abs/{ paper_id }v{ version }", headers)
 
-def _purge_url (url: str, headers: dict):
+def _purge_url (url: str, headers: dict) -> None:
     response = requests.request("PURGE", url, headers=headers)
     if response.status_code == 200:
         logging.info(f'successfully purged { url }')

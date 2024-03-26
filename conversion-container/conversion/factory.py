@@ -1,13 +1,11 @@
-import logging
-import sys
-from typing import Optional, Dict
+from typing import Any, Dict
 
 from flask import Flask
 
 from .config import Settings
 from .routes import blueprint
 
-def create_web_app(**kwargs) -> Flask:
+def create_web_app(**kwargs: Dict[str, Any]) -> Flask:
     """
     Creates the Flask app with config at config_path.
 

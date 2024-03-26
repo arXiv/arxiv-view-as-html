@@ -27,10 +27,10 @@ logger = logging.getLogger()
 
 blueprint = Blueprint('routes', __name__)
 
-def _unwrap_pubsub_payload (payload: Dict[str, str]) -> Any:
+def _unwrap_pubsub_payload (payload: Dict[str, Any]) -> Any:
     return json.loads(b64decode(payload['message']['data']).decode('utf-8'))
 
-def unwrap_submission_conversion_payload (payload: Dict[str, str]) -> SubmissionConversionPayload:
+def unwrap_submission_conversion_payload (payload: Dict[str, Any]) -> SubmissionConversionPayload:
     data = _unwrap_pubsub_payload(payload)
     return SubmissionConversionPayload(
         identifier=int(data['submission_id']),
@@ -66,17 +66,17 @@ def process_route () -> Response:
         Returns a 202 response with no payload
     """
     try:
-        sub_conversion_payload = unwrap_submission_conversion_payload(request.json)
+        sub_conversion_payload = unwrap_submission_conversion_payload(request.json) # type: ignore
     except Exception as e:
         try:
             logger.warn(f'PROCESS: Failed to parse payload for {request.json}')
         except:
             logger.warn(f'PROCESS: Failed to process due to malformed payload')
-        return '', 202
+        return Response(status=202)
     # thread = FlaskThread(target=process, args=(sub_conversion_payload,)) # This requires cpu allocation always on in cloud run
     # thread.start()
     process (sub_conversion_payload)
-    return '', 200
+    return Response(status=200)
 
 # @blueprint.route('/batch-convert', methods=['POST'])
 # def batch_convert_route () -> Response:
@@ -98,29 +98,12 @@ def process_route () -> Response:
 @blueprint.route('/publish', methods=['POST'])
 def publish_route () -> Response:
     try:
-        publish_payload = unwrap_publish_payload(request.json)
+        publish_payload = unwrap_publish_payload(request.json) # type: ignore
     except Exception as e:
         try:
             logger.warn(f'PUBLISH: Failed to parse payload for {request.json}')
         except:
             logger.warn(f'PUBLISH: Failed to publish due to malformed payload')
-        return '', 202
+        return Response(status=202)
     publish(publish_payload)
-    return '', 202
-
-@blueprint.route('/health', methods=['GET'])
-def health() -> tuple[flask.Response, int]:
-    """
-    Returns the latexml statuses and current time.
-
-    Returns
-    -------
-    tuple[flask.Response, int]
-        List of current cloud run tasks and the current time.
-    """
-    data = {
-        "time": datetime.now(),
-        "CLOUD_RUN_TASK_INDEX": list(os.environ.items())
-    }
-    return jsonify(data), 200
-    
+    return Response(status=202)

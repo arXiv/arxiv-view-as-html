@@ -1,10 +1,6 @@
 import pytest
 
-from source.factory import create_web_app
-from source.models.util import (
-    create_all,
-    drop_all,
-)
+from conversion.factory import create_web_app
 
 LATEXML_DB_URI = 'sqlite:///:memory:?cache=latexml'
 CLASSIC_DATABASE_URI = 'sqlite:///:memory:'
@@ -34,9 +30,9 @@ def get_test_config():
 @pytest.fixture
 def app():
     app = create_web_app(get_test_config())
-    with app.app_context():
-        drop_all()
-        create_all()
+    # with app.app_context():
+    #     drop_all()
+    #     create_all()
     return app
 
 @pytest.fixture

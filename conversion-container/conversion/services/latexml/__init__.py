@@ -1,6 +1,7 @@
 from typing import List
 import re
 import subprocess
+from bs4 import BeautifulSoup
 
 from flask import current_app
 
@@ -50,3 +51,14 @@ def latexml(payload: ConversionPayload, main_src: LocalFileObj) -> LaTeXMLOutput
         missing_packages=list_missing_packages(completed_process.stdout)
     )
     
+def insert_base_tag (idv: str, html_file_path: str) -> None:
+    """ This inserts the base tag into the html so we can use the /html/arxiv_id url """
+    base_html = f'<base href="/html/{idv}">'
+
+    with open(html_file_path, 'r+') as html:
+        soup = BeautifulSoup(html.read(), 'html.parser')
+        if soup.head:
+            soup.head.append(BeautifulSoup(base_html, 'html.parser'))
+            html.truncate(0)
+            html.seek(0)
+            html.write(str(soup))

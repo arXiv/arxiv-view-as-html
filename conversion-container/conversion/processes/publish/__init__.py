@@ -14,6 +14,7 @@ from ...services.db import get_submission_with_html, write_published_html
 from ...services.files import get_file_manager
 # from ..convert import insert_base_tag, replace_absolute_anchors_for_doc
 from ...services.latexml.metadata import generate_metadata_publish
+from ...services.latexml import insert_base_tag
 from .fastly_purge import fastly_purge_abs
 
 logger = logging.getLogger()
@@ -46,7 +47,7 @@ def publish (payload: PublishPayload) -> None:
         # Download submission conversion and rename. Return path to main .html file
         # TODO: Move to file manager
         get_file_manager().download_submission_conversion(payload)
-        logger.info(f'Successfully moved conversion {payload}')
+        logger.info(f'Successfully downloaded conversion {payload}')
 
         # Insert base tag
         # insert_base_tag(html_file, paper_idv)
@@ -58,6 +59,9 @@ def publish (payload: PublishPayload) -> None:
 
         # replace_absolute_anchors_for_doc(html_file, paper_idv)
         # logger.info(f'Successfully replaced anchor tags for {submission_id}/{paper_idv}')
+
+        insert_base_tag(payload.paper_id.idv, 
+                        f'{get_file_manager().local_publish_store.prefix}{payload.paper_id.idv}/{payload.paper_id.idv}.html')
 
         submission_metadata = get_file_manager().local_publish_store.to_obj(f'{payload.paper_id.idv}/__metadata.json')
     

@@ -10,7 +10,6 @@ from typing import (
 )
 import logging
 import uuid
-from bs4 import BeautifulSoup
 
 from flask import current_app
 
@@ -21,9 +20,9 @@ from ...services.db import (
     write_success,
     write_failure
 )
-from ...domain.conversion import ConversionPayload
+from ...domain.conversion import ConversionPayload, DocumentConversionPayload
 from ...services.files import get_file_manager
-from ...services.latexml import latexml
+from ...services.latexml import latexml, insert_base_tag
 from ...services.latexml.metadata import generate_metadata_convert
 
 logger = logging.getLogger()
@@ -46,6 +45,10 @@ def process(payload: ConversionPayload) -> None:
             with open(f'{get_file_manager().latexml_output_dir_name(payload)}__stdout.txt', 'w') as f:
                 f.write(latexml_output.output)
 
+            if isinstance(payload, DocumentConversionPayload):
+                insert_base_tag(payload.identifier.idv, 
+                                f'{get_file_manager().latexml_output_dir_name(payload)}{payload.name}.html')
+
             write_success (payload, checksum)
 
             # Note: There is a gap between when the user would see that html is ready and when it is uploaded. 
@@ -60,18 +63,6 @@ def process(payload: ConversionPayload) -> None:
 
 
 
-
-
-# def insert_base_tag (fpath: str, id: str) -> None:
-#     """ This inserts the base tag into the html so we can use the /html/arxiv_id url """
-#     base_html = f'<base href="/html/{id}/">'
-
-#     with open(fpath, 'r+') as html:
-#         soup = BeautifulSoup(html.read(), 'html.parser')
-#         soup.head.append(BeautifulSoup(base_html, 'html.parser'))
-#         html.truncate(0)
-#         html.seek(0)
-#         html.write(str(soup))
 
 # def replace_absolute_anchors_for_doc (fpath: str, id: str) -> None:
 #     HREF_RE = re.compile(r'\/html\/submission\/\d+\/view#.+')

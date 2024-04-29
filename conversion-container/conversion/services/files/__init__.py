@@ -4,10 +4,10 @@ from urllib.parse import urlparse
 from flask import current_app
 from google.cloud import storage
 
-from arxiv.files.object_store import ObjectStore, LocalObjectStore
+from arxiv.files.object_store import ObjectStore
 
 from .file_manager import FileManager
-from .writable_gs_obj_store import WritableGSObjectStore
+from .writable_obj_store import WritableGSObjectStore, WritableFSObjectStore
 
 _file_manager: Optional[FileManager] = None
 _local_conversion_store: Optional[ObjectStore] = None
@@ -26,7 +26,7 @@ def get_global_object_store (path: str, global_name: str) -> ObjectStore:
             gs_client = storage.Client()
             store = WritableGSObjectStore(gs_client.bucket(uri.netloc))
         else:
-            store = LocalObjectStore(path)
+            store = WritableFSObjectStore(path)
         globals()[global_name] = store
     return store
 

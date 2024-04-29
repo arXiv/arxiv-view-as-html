@@ -8,7 +8,6 @@ class Settings (BaseSettings):
     DOCUMENT_SOURCE_BUCKET: str
     SUBMISSION_CONVERTED_BUCKET: str
     DOCUMENT_CONVERTED_BUCKET: str
-    RAW_LATEXML_SUBMISSION: str
 
     QA_BUCKET_SUB: str
     QA_BUCKET_DOC: str

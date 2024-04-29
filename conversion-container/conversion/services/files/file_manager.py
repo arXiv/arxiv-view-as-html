@@ -24,7 +24,7 @@ from ...domain.conversion import (
 )
 from ...domain.publish import PublishPayload
 from .main_src import find_main_tex_source
-from .writable_gs_obj_store import WritableGSObjectStore
+from .writable_obj_store import WritableObjectStore
 from tex_inspection import find_primary_tex, ZeroZeroReadMe
 
 def sub_src_path (payload: SubmissionConversionPayload) -> str:
@@ -58,10 +58,10 @@ class FileManager:
         assert isinstance(local_publish_store, LocalObjectStore)
         self.local_publish_store = local_publish_store
 
-        assert isinstance(sub_converted_store, WritableGSObjectStore)
+        assert isinstance(sub_converted_store, WritableObjectStore)
         self.sub_converted_store = sub_converted_store
 
-        assert isinstance(doc_converted_store, WritableGSObjectStore)
+        assert isinstance(doc_converted_store, WritableObjectStore)
         self.doc_converted_store = doc_converted_store
 
 

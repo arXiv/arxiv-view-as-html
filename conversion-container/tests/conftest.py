@@ -32,7 +32,12 @@ def get_test_config():
     return TESTING_CONFIG.copy()
 
 @pytest.fixture
-def app() -> Flask:
+def fake_latexml (mocker):
+    mocker.patch('')
+
+
+@pytest.fixture
+def app():
     app = create_web_app(get_test_config())
     # with app.app_context():
     #     drop_all()

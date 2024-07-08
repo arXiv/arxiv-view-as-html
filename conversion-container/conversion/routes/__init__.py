@@ -6,7 +6,6 @@ import logging
 import json
 from base64 import b64decode
 
-import flask
 from flask import Blueprint, request, jsonify, \
     current_app, Response
 
@@ -20,6 +19,7 @@ from ..processes.publish import publish
 from ..domain.conversion import SubmissionConversionPayload, \
     DocumentConversionPayload
 from ..domain.publish import PublishPayload
+from ..services.db import get_document_is_single_file, get_document_is_latest
 
 from .flask_thread import FlaskThread
 
@@ -39,9 +39,11 @@ def unwrap_submission_conversion_payload (payload: Dict[str, Any]) -> Submission
 
 def unwrap_document_conversion_payload (payload: Dict[str, str]) -> DocumentConversionPayload:
     data = _unwrap_pubsub_payload(payload)
+    identifier = Identifier(f"{data['paper_id']}v{data['version']}")
     return DocumentConversionPayload(
-        identifier=Identifier(f"{data['paper_id']}v{data['version']}"),
-        single_file=data['single_file']
+        identifier=identifier,
+        single_file=get_document_is_single_file(identifier),
+        is_latest=get_document_is_latest(identifier)
     )
 
 def unwrap_publish_payload (payload: Dict[str, str]) -> PublishPayload:
@@ -90,6 +92,7 @@ def process_full_corpus () -> Response:
     except Exception as e:
         print (f'PROCESS_FULL_CORPUS: Failed to parse payload for {request.get_json(silent=True)} with {e}')
         logger.warn(f'PROCESS_FULL_CORPUS: Failed to parse payload for {request.get_json(silent=True)} with {e}', exc_info=1)
+        return Response(status=202)
     print (doc_conversion_payload)
     process (doc_conversion_payload)
     return Response(status=200)
@@ -99,11 +102,18 @@ def process_full_corpus () -> Response:
 #     batch_process(*_unwrap_batch_conversion_payload(request.json))
 #     return '', 200
 
-# @blueprint.route('/single-convert', methods=['POST'])
-# def single_convert_route () -> Response:
-#     thread = FlaskThread(target=single_convert, args=_unwrap_single_conversion_payload(request.json))
-#     thread.start()
-#     return '', 200
+@blueprint.route('/single-convert', methods=['POST'])
+def single_convert_route () -> Response:
+    try:
+        doc_conversion_payload = unwrap_document_conversion_payload(request.json)
+    except Exception as e:
+        try:
+            logger.warn(f'PROCESS: Failed to parse payload for {request.json}')
+        except:
+            logger.warn(f'PROCESS: Failed to process due to malformed payload')
+        return Response(status=202)
+    process (doc_conversion_payload)
+    return '', 200
 
 # @blueprint.route('/reconvert-submission', methods=['POST'])
 # def reprocess_submission () -> Response:

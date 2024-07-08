@@ -35,7 +35,9 @@ def doc_src_path (payload: DocumentConversionPayload) -> str:
     src_ext = '.gz' if payload.single_file else '.tar.gz'
     path = abs_path_current_parent(payload.identifier) if payload.is_latest \
         else abs_path_orig_parent(payload.identifier)
-    return f'{path}/{payload.identifier.filename}{src_ext}'
+    fname = f'{payload.identifier.filename}{"" if payload.is_latest else ("v" + str(payload.identifier.version))}'
+    print (f'{path}/{fname}{src_ext}')
+    return f'{path}/{fname}{src_ext}'
 
 def _get_checksum (input_bytes: bytes) -> str:
     return hashlib.md5(input_bytes).hexdigest()
@@ -73,6 +75,7 @@ class FileManager:
 
         if isinstance(payload, DocumentConversionPayload):
             src = UngzippedFileObj(self.doc_src_store.to_obj(doc_src_path(payload)))
+            print (f'SOURCE_PATH: {doc_src_path(payload)}')
         else:
             assert isinstance(payload, SubmissionConversionPayload)
             src = UngzippedFileObj(self.sub_src_store.to_obj(sub_src_path(payload)))
@@ -98,7 +101,7 @@ class FileManager:
         print (f'MAIN SRC: {main_src}')
 
         main_src_obj = self.local_conversion_store.to_obj(os.path.relpath(f'{in_dir}/{main_src}', self.local_conversion_store.prefix))
-        print (f'MAIN SRC OBJ: {main_src_obj}, ID: {payload.name}')
+        print (f'MAIN SRC OBJ: {main_src_obj}, ID: {payload.identifier}')
         assert isinstance(main_src_obj, LocalFileObj)
 
         return checksum, main_src_obj
@@ -116,7 +119,8 @@ class FileManager:
         """
         src_dir = self._upload_dir_name(payload)
         if isinstance(payload, DocumentConversionPayload):
-            self.doc_converted_store.copy_local_dir(self.local_publish_store.prefix+payload.identifier.idv, '')
+            print (f'Uploading to bucket: {self.doc_converted_store.bucket}')
+            self.doc_converted_store.copy_local_dir(self.latexml_output_dir_name(payload), payload.name)
         else:
             destination_fname = f'{src_dir}{payload.name}.tar.gz'
             with tarfile.open(destination_fname, "w:gz") as tar:
@@ -175,4 +179,5 @@ class FileManager:
         # Upload directory back
         self.doc_converted_store.copy_local_dir(self.local_publish_store.prefix+payload.paper_id.idv,
                                                 payload.paper_id.idv)
+        print (f'successfully uploaded to bucket for {payload}')
 

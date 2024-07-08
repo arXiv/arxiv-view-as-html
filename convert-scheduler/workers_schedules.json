@@ -4,6 +4,6 @@
         "url": "127.0.0.1",
         "intervals": null,
         "override_days": null,
-        "concurrency": 32
+        "concurrency": 16
     }
 ]

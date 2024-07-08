@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
 
+# This dockerfile is for doing full corpus convert.
+# It needs to be run with the correct environment 
+# variables and google application credentials
+
 FROM ar5ivist-base
 
 ######## Install Python 3.11 ########
@@ -8,6 +12,14 @@ RUN apt install software-properties-common -y
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update -y
 RUN apt install python3.11 python3-pip -y
+
+######### Install Auth Proxy #########
+
+WORKDIR /cloudsql
+
+RUN apt-get -y install curl
+RUN curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.11.0/cloud-sql-proxy.linux.amd64
+RUN chmod +x cloud-sql-proxy
 
 ########## Everything Else ##########
 
@@ -26,5 +38,6 @@ RUN poetry install
 RUN mkdir /arxiv/extracted
 RUN mkdir /arxiv/publish
 RUN mkdir /arxiv/locks
+RUN chmod +x wrapper.sh
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "-w", "16", "--threads", "2", "entry_point:app"]
+CMD ["/arxiv/wrapper.sh"]

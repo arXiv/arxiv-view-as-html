@@ -30,7 +30,9 @@ class DocumentConversionPayload (ConversionPayload):
 
     @property
     def name (self) -> str:
-        return self.identifier.idv
+        return self.identifier.idv if \
+            not self.identifier.is_old_id else \
+            f'{self.identifier.filename}v{self.identifier.version}'
 
 @dataclass
 class LaTeXMLOutput:

@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from sqlalchemy.sql import select
 from sqlalchemy.sql.expression import func
 
-from arxiv.db.models import Metadata
+from arxiv.db.models import Metadata, DBLaTeXMLDocuments
 from arxiv.db import get_db, SessionLocal
 
 from config import settings
@@ -41,7 +41,8 @@ class ConvertData (BaseModel):
 
 class ConvertDataIterator:
 
-    def __init__ (self, starting_meta_id: Optional[int] = None):
+    def __init__ (self, starting_meta_id: Optional[int] = None, latexml_version: Optional[str] = None):
+        self.latexml_version = latexml_version
         if starting_meta_id is None:
             with get_db() as session:
                 self.current_meta_id = session.scalar(
@@ -69,10 +70,21 @@ class ConvertDataIterator:
                     if is_withdrawn or not 'tex' in source_format:
                         logger.info(f'Not converting {self.current_meta_id} - withdrawn or no TeX source')
                         continue
+                    if self.latexml_version:
+                        latexml_conversion = session.execute(
+                            select(DBLaTeXMLDocuments.conversion_status, DBLaTeXMLDocuments.latexml_version, DBLaTeXMLDocuments.publish_dt)
+                            .filter(DBLaTeXMLDocuments.paper_id == paper_id)
+                            .filter(DBLaTeXMLDocuments.document_version == version)
+                        ).first()
+                        if latexml_conversion:
+                            conversion_status, latexml_version, publish_dt = latexml_conversion._t
+                            if conversion_status == 1 and latexml_version == self.latexml_version and publish_dt is not None:
+                                logger.info(f'Not converting {self.current_meta_id} - already an existing conversion')
+                                continue
                     return ConvertData(
                         paper_id=paper_id,
                         version=version,
-                        single_file=('1' in source_flags),
+                        single_file=(('1' in source_flags) if source_flags else False),
                         is_latest=bool(is_current)
                     )
                 except Exception as e:
@@ -127,7 +139,7 @@ async def scheduler(args):
                 else:
                     await asyncio.sleep((now.replace(hour=min_next_hour, minute=0, second=0)-now).total_seconds())
 
-    iterator = ConvertDataIterator(args.start_meta_id)
+    iterator = ConvertDataIterator(args.start_meta_id, args.latexml_sha)
 
     with open('workers_schedules.json') as f:
         workers_schedules = loads(f.read())
@@ -178,6 +190,18 @@ if __name__=='__main__':
     parser.add_argument('-t', '--timing-test',
                         action='store_true',
                         help="If this is set, we will convert 1000 papers and time them")
+    parser.add_argument('-l', '--latexml-sha',
+                        type=str, default=None,
+                        help="If there already exists a conversion with this version, skip")
     args = parser.parse_args()
 
     asyncio.run(main(args))
+    # import requests
+    # import json
+    # res = requests.post('http://127.0.0.1:8000/process-full-corpus', json=json.dumps({
+    #     'paper_id': '1706.03762',
+    #     'version': 6,
+    #     'single_file': False,
+    #     'is_latest': False
+    # }))
+    # print (res.status_code)

@@ -17,6 +17,11 @@ steps:
       - './conversion-container/'
   - name: 'gcr.io/cloud-builders/docker'
     args:
+      - push
+      - '--all-tags'
+      - 'gcr.io/$PROJECT_ID/ar5ivist-base'
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
       - 'build'
       - '--cache-from'
       - 'gcr.io/$PROJECT_ID/html-conversion:latest'

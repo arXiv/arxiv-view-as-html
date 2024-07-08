@@ -1,17 +1,17 @@
 import logging
 import requests
 
-from flask import current_app
+from arxiv.identifier import Identifier
 
-def fastly_purge_abs (paper_id: str, version: int, fastly_key: str) -> None:
+def fastly_purge_abs (identifier: Identifier, fastly_key: str) -> None:
     headers = {
         "Fastly-Key": fastly_key,
         "Accept": "application/json",
     }
     domains = ["arxiv.org", "web3.arxiv.org", "www.arxiv.org"]
     for domain in domains:
-        _purge_url (f"https://{ domain }/abs/{ paper_id }", headers)
-        _purge_url (f"https://{ domain }/abs/{ paper_id }v{ version }", headers)
+        _purge_url (f"https://{ domain }/abs/{ identifier.id }", headers)
+        _purge_url (f"https://{ domain }/abs/{ identifier.idv }", headers)
 
 def _purge_url (url: str, headers: dict) -> None:
     response = requests.request("PURGE", url, headers=headers)

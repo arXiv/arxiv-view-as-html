@@ -23,4 +23,8 @@ COPY . .
 RUN apt remove python3-blinker -y
 RUN poetry install
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "-w", "16", "--threads", "2", "entry_point:app"]
+RUN mkdir /arxiv/extracted
+RUN mkdir /arxiv/publish
+RUN mkdir /arxiv/locks
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "-w", "2", "--threads", "4", "entry_point:app"]

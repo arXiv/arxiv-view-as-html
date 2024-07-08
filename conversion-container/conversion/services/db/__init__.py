@@ -110,6 +110,7 @@ def _write_success_doc (identifier: Identifier, checksum: str) -> None:
             obj.conversion_status != 1:
                 obj.conversion_status = 1
                 obj.conversion_end_time = now()
+                obj.publish_dt = datetime.utcnow()
 
 # @database_retry(5)
 def _write_success_sub (submission_id: int, checksum: str) -> None:
@@ -128,6 +129,7 @@ def _write_success_sub (submission_id: int, checksum: str) -> None:
 def write_success (payload: ConversionPayload, checksum: str) -> None:
     if isinstance(payload, DocumentConversionPayload):
         _write_success_doc(payload.identifier, checksum)
+        print (f'successfully wrote {payload}')
     elif isinstance(payload, SubmissionConversionPayload):
         _write_success_sub(payload.identifier, checksum)
     
@@ -217,3 +219,19 @@ def get_version_primary_category (identifier: Identifier) -> Optional[str]:
         .filter(Metadata.version == identifier.version)
     )
     return row.split(' ')[0] if row else None
+
+def get_document_is_single_file (identifier: Identifier) -> bool:
+    source_flags = session.scalar(
+        select(Metadata.source_flags)
+        .filter(Metadata.paper_id == identifier.id)
+        .filter(Metadata.version == identifier.version)
+    )
+    return '1' in source_flags if source_flags else False
+
+def get_document_is_latest (identifier: Identifier) -> bool:
+    latest = session.scalar(
+        select(Metadata.is_current)
+        .filter(Metadata.paper_id == identifier.id)
+        .filter(Metadata.version == identifier.version)
+    )
+    return latest if latest is not None else True

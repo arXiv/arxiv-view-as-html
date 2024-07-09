@@ -1,15 +1,5 @@
 """Module that handles the conversion process from LaTeX to HTML"""
-import os
-import re
-import shutil
-from typing import (
-    Any,
-    List,
-    Dict,
-    Optional
-)
 import logging
-import uuid
 import traceback
 from flask import current_app
 

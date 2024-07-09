@@ -1,0 +1,9 @@
+def test_publish_success ():
+    ...
+
+def test_publish_single_file_success ():
+    ...
+
+def test_publish_failure ():
+    ...
+

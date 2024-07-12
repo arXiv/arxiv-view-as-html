@@ -13,6 +13,7 @@ from conversion.domain.conversion import (
 )
 from conversion.services.latexml import list_missing_packages
 from conversion.services.files import FileManager
+from conversion.processes.convert import _write_extras
 
 LATEXML_DB_URI = 'sqlite:///:memory:?cache=latexml'
 CLASSIC_DATABASE_URI = 'sqlite:///:memory:'
@@ -45,6 +46,13 @@ def app():
     return app
 
 @pytest.fixture
+def mock_extras (mocker):
+    def return_args (*args):
+        return args
+    
+    mocker.patch('conversion.services.latexml._write_extras', side_effect=return_args)
+
+@pytest.fixture
 def mock_latexml(mocker):
     with open('tests/data/sample_latexml_stdout.txt') as f:
         output = f.read()
@@ -73,7 +81,7 @@ def mock_file_manager(mocker):
 @pytest.fixture
 def doc_payload_latest():
     return DocumentConversionPayload(
-        identifier=Identifier('2012.02198v2'),
+        identifier=Identifier('2407.04763v1'),
         is_latest=True,
         single_file=False
     )

@@ -5,6 +5,7 @@ import multiprocessing
 import time
 
 from conversion.locking import id_lock
+from conversion.processes.convert import process
 
 def test_id_lock():
     lock_dir = "./lock_dir"
@@ -25,7 +26,7 @@ def test_id_lock():
         except Exception as e:
             result_queue.put(f'{fail_output} with {str(e)}')    
 
-    result_queue1 = multiprocessing.Queue()
+    result_queue1 = multiprocessing.Queue() 
     result_queue2 = multiprocessing.Queue()
 
     proc1 = multiprocessing.Process(target=lock_function, args=(lock_id, lock_dir, timeout, result_queue1))
@@ -48,9 +49,15 @@ def test_id_lock():
     except Exception as e:
         print (f'Failed to delete {lock_dir} with {str(e)}')
 
-def test_convert_success ():
-    ...
+def test_convert_success (app, mock_latexml, mock_file_manager, doc_payload_latest):
+    # Test the convert 'process' function
 
+    with open('tests/data/document-conversions/2407.04763v1/__metadata.json') as f:
+        correct_metadata = f.read()
+    with open('tests/data/document-conversions/2407.04763v1/__metadata.json') as f:
+        correct_stdout = f.read()
+
+    
 def test_convert_success_single_file ():
     ...
 

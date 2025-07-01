@@ -10,7 +10,7 @@ from arxiv.files import LocalFileObj
 from ..files import get_file_manager
 from ...domain.conversion import ConversionPayload, LaTeXMLOutput
 
-MISSING_PACKAGE_RE = re.compile(r"Warning:missing_file:.+Can't\sfind\spackage\s(.+)\sat")
+MISSING_PACKAGE_RE = re.compile(r"Warning:missing_file:.+Can't\sfind\s(?:package|binding for class)\s(\S+)")
 
 def list_missing_packages (stdout: str) -> List[str]:
     matches = MISSING_PACKAGE_RE.finditer(stdout)
@@ -39,7 +39,7 @@ def latexml(payload: ConversionPayload, main_src: LocalFileObj) -> LaTeXMLOutput
                       f"--javascript={LATEXML_URL_BASE}/js/feedbackOverlay.js",
                       "--navigationtoc=context",
                       f"--source={main_src_path}", f"--dest={output_path}"]
-    
+
     completed_process = subprocess.run(
         latexml_config,
         stdout=subprocess.PIPE,
@@ -47,12 +47,12 @@ def latexml(payload: ConversionPayload, main_src: LocalFileObj) -> LaTeXMLOutput
         check=True,
         text=True,
         timeout=500)
-    
+
     return LaTeXMLOutput(
         output=completed_process.stdout,
         missing_packages=list_missing_packages(completed_process.stdout)
     )
-    
+
 def insert_base_tag (idv: str, html_file_path: str) -> None:
     """ This inserts the base tag into the html so we can use the /html/arxiv_id url """
     base_html = f'<base href="/html/{idv}/">'

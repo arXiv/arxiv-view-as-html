@@ -52,16 +52,22 @@ def clean_up_stale_assets(tmpdir: Path, stale_asset_expiration_sec: int) -> None
     now = time.time()
     # Always try to clean up old / unneeded files.
     for entry in os.listdir(tmpdir):
+        # exempt the cloudsql file, if it exists, we want to allow its reuse
+        if entry.endswith("csql"):
+            continue
         full_entry = os.path.join(tmpdir, entry)
         stat = os.stat(full_entry)
         # only consider old files this user owns.
         age = now - stat.st_mtime
         if stat.st_uid == UID and (age > stale_asset_expiration_sec):
             logging.warning(f"deleting stale temporary asset ({age}s): {full_entry}")
-            if os.path.isfile(full_entry):
-                os.remove(full_entry)
-            else:
-                shutil.rmtree(full_entry)
+            try:
+                if os.path.isfile(full_entry):
+                    os.remove(full_entry)
+                else:
+                    shutil.rmtree(full_entry)
+            except Exception as e:
+                logging.error(f"failed to delete stale temporary asset: {full_entry} ({e})")
 
 
 def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:

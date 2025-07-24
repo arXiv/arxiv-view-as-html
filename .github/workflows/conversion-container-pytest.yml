@@ -1,0 +1,45 @@
+# This workflow will install Python dependencies and run tests with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Conversion-container pytests
+
+on:
+  push:
+    branches: ["gcp-cd-arxiv-development"]
+  pull_request:
+    branches: ["gcp-cd-arxiv-development"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      LATEXML_COMMIT: 5e47b3b13a386826581a31464083086520ca2817
+      TMPDIR: /tmp
+    steps:
+      - name: Install a generic LaTeXML
+        run: |
+          sudo apt update
+          sudo apt install cpanminus libarchive-zip-perl libdb-dev libfile-which-perl \
+            libimage-magick-perl libimage-size-perl libio-string-perl libjson-xs-perl \
+            libparse-recdescent-perl libtext-unidecode-perl liburi-perl libuuid-tiny-perl \
+            libwww-perl libxml-libxml-perl libxml-libxslt-perl libxml2-dev libxslt1-dev
+          cpanm --sudo --notest --verbose https://github.com/brucemiller/LaTeXML/archive/${LATEXML_COMMIT}.zip
+
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          cd conversion-container
+          poetry install --all-extras
+      - name: Test with pytest
+        run: |
+          cd conversion-container
+          poetry run pytest

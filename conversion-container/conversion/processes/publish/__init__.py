@@ -1,20 +1,20 @@
-from typing import Dict, Tuple
+import json
 import logging
 import shutil
 from base64 import b64decode
-import json
-from flask import current_app
+from typing import Dict, Tuple
 
-
-from arxiv.identifier import Identifier
 from arxiv.files import LocalFileObj
+from arxiv.identifier import Identifier
+from flask import current_app
 
 from ...domain.publish import PublishPayload
 from ...services.db import get_submission_with_html, write_published_html
 from ...services.files import get_file_manager
+from ...services.latexml import insert_base_tag, replace_relative_anchors
+
 # from ..convert import insert_base_tag, replace_absolute_anchors_for_doc
 from ...services.latexml.metadata import generate_metadata_publish
-from ...services.latexml import insert_base_tag, replace_relative_anchors
 from .fastly_purge import fastly_purge_abs
 
 logger = logging.getLogger()
@@ -60,11 +60,11 @@ def publish (payload: PublishPayload) -> None:
         # Purge abs page from fastly so we can see it
         if not current_app.config['IS_DEV']:
             fastly_purge_abs(payload.paper_id, current_app.config['FASTLY_PURGE_KEY'])
-    except Exception as e:
+    except Exception:
         try:
             logger.warning(f'Error publishing {payload}', exc_info=True)
         except:
-            logger.warning(f'Error publishing unknown', exc_info=True)
+            logger.warning('Error publishing unknown', exc_info=True)
 
 
     

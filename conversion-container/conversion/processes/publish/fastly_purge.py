@@ -1,7 +1,8 @@
 import logging
-import requests
 
+import requests
 from arxiv.identifier import Identifier
+
 
 def fastly_purge_abs (identifier: Identifier, fastly_key: str) -> None:
     headers = {

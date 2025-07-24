@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from pytz import UTC
+
 
 def now() -> int:
     """Get the current epoch/unix time."""

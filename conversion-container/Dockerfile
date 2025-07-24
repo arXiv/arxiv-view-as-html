@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
 
-# This dockerfile is for doing full corpus convert.
-# It needs to be run with the correct environment 
+# DG: This dockerfile is deprecated.
+#
+# This dockerfile was for doing full corpus convert.
+# It needs to be run with the correct environment
 # variables and google application credentials
 
 FROM ar5ivist-base
@@ -28,7 +30,7 @@ WORKDIR /arxiv
 RUN apt-get install -y python3.11-dev pkg-config default-libmysqlclient-dev build-essential
 
 RUN python3.11 -m pip install --upgrade pip
-RUN python3.11 -m pip install poetry 
+RUN python3.11 -m pip install poetry
 RUN poetry config virtualenvs.create false
 
 COPY . .

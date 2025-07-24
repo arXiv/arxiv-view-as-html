@@ -48,9 +48,11 @@ def process(payload: ConversionPayload) -> None:
                     f'{current_app.config["VIEW_DOC_BASE"]}/html/{payload.identifier.idv}', main_html_file_path
                 )
                 logger.info(f"Successfully updated HTML for {payload}")
-
-            write_success(payload, checksum)
-            logger.info(f"Successfully wrote {payload} to announced DB")
+            if latexml_output.returncode == 0:
+                write_success(payload, checksum)
+                logger.info(f"Successfully wrote {payload} to announced DB")
+            else:
+                write_failure(payload, checksum)
 
             # Note: There is a gap between when the user would see that html is ready and when it is uploaded.
             # In my opinion, this is a smaller problem than the user seeing an incorrect version of their html

@@ -81,7 +81,7 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
     )
     LATEXML_PRELOADS = current_app.config.get("LATEXML_PRELOADS", ["ar5iv.sty"])
     LATEXML_LOG_FILE = current_app.config.get("LATEXML_LOG_FILE", "__stdout.txt")
-    LATEXML_TIMEOUT_SEC = int(current_app.config.get("LATEXML_TIMEOUT_SEC", 600))
+    LATEXML_TIMEOUT_SEC = int(current_app.config.get("LATEXML_TIMEOUT_SEC", 540))
     # Always clean up before executing the latexml call, this is too important
     # for service health, so we tightly couple it with this call.
     # (at least for now)
@@ -140,7 +140,7 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
     # Note: latexml will write the full conversion log at the path specified by `--log=[path]`,
     # so we can keep the current __stdout.txt convention for now by copying the deposited log.
     return LaTeXMLOutput(
-        missing_packages=list_missing_packages(Path(LATEXML_LOG_FILE)),
+        missing_packages=list_missing_packages(Path(log_path)),
         log=None,  # use the file from --log
         returncode=returncode,
     )

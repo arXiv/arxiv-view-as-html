@@ -56,7 +56,10 @@ def clean_up_stale_assets(tmpdir: Path, stale_asset_expiration_sec: int) -> None
         if entry.endswith("csql"):
             continue
         full_entry = os.path.join(tmpdir, entry)
-        stat = os.stat(full_entry)
+        try:
+            stat = os.stat(full_entry)
+        except FileNotFoundError:
+            continue  # likely got cleaned up in parallel
         # only consider old files this user owns.
         age = now - stat.st_mtime
         if stat.st_uid == UID and (age > stale_asset_expiration_sec):

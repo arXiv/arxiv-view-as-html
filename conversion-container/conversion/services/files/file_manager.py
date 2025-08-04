@@ -66,7 +66,7 @@ class FileManager:
         """Download the src files and return the main tex file."""
         src = self.source_payload_to_file_obj(payload)
         workdir = Path(self.local_conversion_store.prefix + payload.name)
-
+        os.makedirs(workdir, exist_ok=True)
         with src.open("rb") as ungzip_file:
             input_bytes = ungzip_file.read()
             checksum = _get_checksum(input_bytes)

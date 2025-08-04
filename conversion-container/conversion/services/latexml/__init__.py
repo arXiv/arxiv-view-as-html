@@ -99,7 +99,7 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
 
     latexml_config = [
         "latexmlc",
-        "--preload=[nobibtex,nobreakuntex,localrawstyles,mathlexemes,magnify=1.2,zoomout=1.2,tokenlimit=249999999,iflimit=3599999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
+        "--preload=[nobibtex,nobreakuntex,localrawstyles,magnify=1.2,zoomout=1.2,tokenlimit=249999999,iflimit=3599999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
         "--pmml",
         "--mathtex",
         "--noinvisibletimes",

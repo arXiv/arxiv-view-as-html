@@ -15,8 +15,7 @@ WORKDIR /arxiv
 
 RUN apt-get install -y python3.11-dev pkg-config default-libmysqlclient-dev build-essential
 
-RUN python3.11 -m pip install --upgrade pip
-RUN python3.11 -m pip install poetry 
+RUN python3.11 -m pip install cffi poetry
 RUN poetry config virtualenvs.create false
 
 COPY . .

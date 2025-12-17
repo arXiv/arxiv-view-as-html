@@ -3,11 +3,11 @@
 FROM gcr.io/arxiv-development/ar5ivist-base:latest
 
 ######## Install Python 3.11 ########
-
-RUN apt install software-properties-common -y
+RUN apt-get update -y
+RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update -y
-RUN apt install python3.11 python3-pip -y
+RUN apt-get install -y python3.11 python3-pip
 
 ########## Everything Else ##########
 

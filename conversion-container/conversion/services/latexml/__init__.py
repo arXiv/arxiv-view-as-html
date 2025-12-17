@@ -99,12 +99,10 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
 
     latexml_config = [
         "latexmlc",
-        "--preload=[nobibtex,nobreakuntex,rawstyles,magnify=1.2,zoomout=1.2,tokenlimit=249999999,iflimit=3599999,absorblimit=1299999,pushbacklimit=599999]latexml.sty",
         "--pmml",
         "--mathtex",
         "--noinvisibletimes",
         f"--timeout={LATEXML_TIMEOUT_SEC}",
-        "--nodefaultresources",
         "--format=html5",
         f"--css={LATEXML_URL_BASE}/css/arxiv-html-papers-20250916.css",
         "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",

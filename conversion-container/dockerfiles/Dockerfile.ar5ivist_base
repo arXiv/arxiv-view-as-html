@@ -67,7 +67,7 @@ RUN git reset --hard $AR5IV_BINDINGS_COMMIT
 # Install LaTeXML, at a fixed commit, via cpanminus
 RUN mkdir -p /opt/latexml
 WORKDIR /opt/latexml
-ENV LATEXML_COMMIT=b36bda7e6a677f5e232ec85eaef73c338e56669a
+ENV LATEXML_COMMIT=92c2631addc3e38e474abb5586e081b626dba678
 RUN cpanm --notest --verbose --build-args formats https://github.com/arXiv/LaTeXML/archive/${LATEXML_COMMIT}.zip
 
 # Enable imagemagick policy permissions for work with arXiv PDF/EPS files

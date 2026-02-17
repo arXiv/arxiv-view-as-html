@@ -3,7 +3,8 @@ from typing import List
 
 from sqlalchemy.sql import text
 
-from arxiv_auth.legacy.util import is_configured, current_session
+from arxiv.auth.legacy.util import is_configured
+from arxiv.auth.auth.sessions.store import SessionStore
 
 from .db.util import database_retry
 
@@ -11,13 +12,13 @@ from .exceptions import DBConnectionError, \
     DBConfigError, DeletedError, UnauthorizedError
 
 def is_editor (user_id: int) -> bool:
-    conn = current_session().connection()
+    conn = SessionStore.current_session().connection()
     query = text("SELECT user_id FROM tapir_users WHERE flag_edit_users = 1 and user_id=:user_id") \
         .bindparams(user_id=user_id)
     return conn.execute(query).scalar() is not None
 
 def is_moderator (user_id: int) -> bool:
-    conn = current_session().connection()
+    conn = SessionStore.current_session().connection()
     query = text("SELECT user_id FROM arXiv_moderators WHERE user_id=:user_id") \
         .bindparams(user_id=user_id)
     return conn.execute(query).scalar() is not None
@@ -42,7 +43,7 @@ def authorize_user_for_submission(user_id: str, submission_id: str):
     if is_configured():
         query = text("SELECT submitter_id, is_withdrawn, status FROM arXiv_submissions WHERE submission_id=:submission_id") \
             .bindparams(submission_id=submission_id)
-        row = current_session().connection().execute(query).first()
+        row = SessionStore.current_session().connection().execute(query).first()
 
         if row:
             submitter_id, is_withdrawn, status = row.tuple()

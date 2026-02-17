@@ -23,6 +23,8 @@ from .poll import poll_submission
 from .util import untar, clean_up
 from .exceptions import AuthError, DeletedError, UnauthorizedError
 
+from .scaffold import render_branded_html_paper
+
 blueprint = Blueprint('routes', __name__, '')
 
 def _get_google_auth () -> Tuple[Credentials, str, Client]:

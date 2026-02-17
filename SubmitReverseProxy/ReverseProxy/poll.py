@@ -3,9 +3,9 @@ import logging
 
 from flask import Response
 
-from arxiv_auth.legacy.models import db
+import arxiv.db
 
-from .db.models import DBLaTeXMLSubmissions
+from arxiv.db.models import DBLaTeXMLSubmissions
 from .db.util import database_retry
 from .exceptions import DBConnectionError
 # from flask_sqlalchemy import 

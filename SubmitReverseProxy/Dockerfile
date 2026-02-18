@@ -12,7 +12,7 @@ RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 google-cloud-pubsub googl
 ########## INSTALL ARXIV BASE AND GET BROWSE RESOURCES ##########
 
 WORKDIR /lib
-ENV ARXIV_BASE_COMMIT=a1fed38fcae2d8630acc9aa8b53c2f4a1776f5c5
+ENV ARXIV_BASE_COMMIT=dec16c16f78a4d45e0f93461486a3f541ba237a3
 RUN rm -rf /lib/arxiv-base
 RUN git clone https://github.com/arXiv/arxiv-base.git
 WORKDIR /lib/arxiv-base

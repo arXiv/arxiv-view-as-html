@@ -7,7 +7,7 @@ RUN python -m pip install --upgrade pip
 
 ########## INSTALL OTHER DEPENDENCIES ##########
 
-RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 pydantic==2.* google-cloud-pubsub google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
+RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 google-cloud-pubsub google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
 
 ########## INSTALL ARXIV BASE AND GET BROWSE RESOURCES ##########
 

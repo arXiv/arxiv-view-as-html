@@ -38,8 +38,12 @@ def _get_arxiv_user_id () -> int:
         raise AuthError from e
 
 def authorize (submission_id: int):
+    logging.warning(f"authorizing {submission_id}")
     user_id = _get_arxiv_user_id()
-    authorize_user_for_submission(user_id, submission_id)
+    logging.warning(f"authorizing request by {user_id}")
+    decision = authorize_user_for_submission(user_id, submission_id)
+    logging.warning(f"Authorization decision: {decision}")
+    return decision
     
 @blueprint.route('/<int:submission_id>/poll', methods=['GET', 'OPTIONS'])
 @cross_origin(supports_credentials=True)

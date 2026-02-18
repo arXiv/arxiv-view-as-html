@@ -1,6 +1,7 @@
 from datetime import timezone
 from email.utils import format_datetime
 from pathlib import Path
+import logging
 
 from arxiv.document.metadata import DocMetadata
 from arxiv.files import FileObj
@@ -10,6 +11,7 @@ from .scaffold import HTMLFileTransform, render_branded_html_paper
 
 
 def send_file_with_scaffold(path: Path, docmeta: DocMetadata) -> Response:
+    logging.warning(f"Sending file {path} with scaffold")
     file = FileObj(path)
     transformed = HTMLFileTransform(file, render_branded_html_paper, docmeta)
     # This logic matches the basics of arxiv-browse's

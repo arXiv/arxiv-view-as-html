@@ -5,14 +5,11 @@ FROM python:3.11.8-bookworm
 RUN apt-get update -y && apt-get install git -y
 RUN python -m pip install --upgrade pip
 
-########## INSTALL arxiv_auth ##########
+########## INSTALL OTHER DEPENDENCIES ##########
 
-WORKDIR /lib
+RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 pydantic==2.* google-cloud-pubsub google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
 
-# base needs to be new enough to handle scaffold use of metadata,
-# but old enough to not conflict with arxiv-auth. 
-# Messy. ideally we move everything to pydantic2 compat.
-# And even more ideally we would use the 2.0 submission system without tricks.
+########## INSTALL ARXIV BASE AND GET BROWSE RESOURCES ##########
 
 WORKDIR /lib
 ENV ARXIV_BASE_COMMIT=a1fed38fcae2d8630acc9aa8b53c2f4a1776f5c5
@@ -32,10 +29,8 @@ RUN git checkout $ARXIV_BROWSE_COMMIT
 RUN mkdir -p /source/templates/
 RUN cp -r /lib/arxiv-browse/browse/templates/dissemination/article_scaffold \
     /source/templates/
-########## INSTALL OTHER DEPENDENCIES ##########
 
-RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 pydantic==2.* google-cloud-pubsub google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
-########## COPY SOURCE ##########
+########## COPY PROXY APP SOURCE ##########
 
 WORKDIR /source
 

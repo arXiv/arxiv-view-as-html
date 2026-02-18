@@ -23,7 +23,7 @@ from .poll import poll_submission
 from .util import untar, clean_up
 from .exceptions import AuthError, DeletedError, UnauthorizedError
 
-from .scaffold import render_branded_html_paper
+from .scaffold_response import send_file_with_scaffold
 
 blueprint = Blueprint('routes', __name__, '')
 
@@ -72,7 +72,7 @@ def get (submission_id: int):
 
     logging.info(f'Successfully untarred to {abs_path}')
     
-    return send_from_directory (dir, f'{submission_id}.html')
+    return send_file_with_scaffold (Path(dir, f'{submission_id}.html'))
 
 @blueprint.route('/<int:submission_id>/<path:path>', methods=['GET'])
 @cross_origin(supports_credentials=True)

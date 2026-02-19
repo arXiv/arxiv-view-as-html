@@ -3,6 +3,7 @@ from functools import wraps
 import logging
 import os
 import json
+from pathlib import Path
 
 from flask import Blueprint, Request, \
     request, current_app, \
@@ -23,7 +24,7 @@ from .poll import poll_submission
 from .util import untar, clean_up
 from .exceptions import AuthError, DeletedError, UnauthorizedError
 
-from .scaffold_response import send_file_with_scaffold
+from .scaffold_response import send_file_with_scaffold, submission_scaffold_metadata
 
 blueprint = Blueprint('routes', __name__, '')
 
@@ -38,12 +39,8 @@ def _get_arxiv_user_id () -> int:
         raise AuthError from e
 
 def authorize (submission_id: int):
-    logging.warning(f"authorizing {submission_id}")
     user_id = _get_arxiv_user_id()
-    logging.warning(f"authorizing request by {user_id}")
-    decision = authorize_user_for_submission(user_id, submission_id)
-    logging.warning(f"Authorization decision: {decision}")
-    return decision
+    return authorize_user_for_submission(user_id, submission_id)
     
 @blueprint.route('/<int:submission_id>/poll', methods=['GET', 'OPTIONS'])
 @cross_origin(supports_credentials=True)
@@ -76,8 +73,8 @@ def get (submission_id: int):
 
     logging.info(f'Successfully untarred to {abs_path}')
     
-    return send_file_with_scaffold (Path(dir, f'{submission_id}.html'), \
-        submission_metadata(Path(dir, f'__metadata.json')))
+    return send_file_with_scaffold (Path(abs_path, f'{submission_id}.html'), \
+        submission_scaffold_metadata(submission_id, Path(abs_path, '__metadata.json')))
 
 @blueprint.route('/<int:submission_id>/<path:path>', methods=['GET'])
 @cross_origin(supports_credentials=True)

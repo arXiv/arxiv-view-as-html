@@ -23,27 +23,29 @@ RUN python -m pip install .
 
 RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 pydantic==1.10.13 google-cloud-pubsub google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
 
+########## COPY PROXY APP SOURCE ##########
+
+RUN rm -rf /source/ReverseProxy
+WORKDIR /source
+
+COPY . .
+
 ########## GET BROWSE TEMPLATE RESOURCES ##########
 
 WORKDIR /lib
-ENV ARXIV_BROWSE_COMMIT=430b3c7b8565a740fad74d7760c2ce1396a514b4
+ENV ARXIV_BROWSE_COMMIT=0af0acc8362f02a98845b4105bdf274d3b38616e
 RUN rm -rf /lib/arxiv-browse
 RUN git clone https://github.com/arXiv/arxiv-browse.git
 WORKDIR /lib/arxiv-browse
 RUN git checkout $ARXIV_BROWSE_COMMIT
 # We only need the templates and transformation pipeline here.
-RUN mkdir -p /source/templates/
+RUN mkdir -p /source/ReverseProxy/templates/dissemination
 RUN cp -r /lib/arxiv-browse/browse/templates/dissemination/article_scaffold \
-    /source/templates/
-
-########## COPY PROXY APP SOURCE ##########
-
-WORKDIR /source
-
-COPY . .
-
+    /source/ReverseProxy/templates/dissemination/
 RUN cp -r /lib/arxiv-browse/browse/services/html_processing/scaffold.py \
     /source/ReverseProxy/
 
 ########## RUN ##########
+WORKDIR /source
+
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-t", "600", "entry_point:app"]

@@ -76,7 +76,8 @@ def get (submission_id: int):
 
     logging.info(f'Successfully untarred to {abs_path}')
     
-    return send_file_with_scaffold (Path(dir, f'{submission_id}.html'))
+    return send_file_with_scaffold (Path(dir, f'{submission_id}.html'), \
+        submission_metadata(Path(dir, f'__metadata.json')))
 
 @blueprint.route('/<int:submission_id>/<path:path>', methods=['GET'])
 @cross_origin(supports_credentials=True)

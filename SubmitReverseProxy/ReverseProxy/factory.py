@@ -2,8 +2,8 @@ from flask import Flask
 import markupsafe
 import os
 
-from arxiv.auth import auth
-from arxiv.auth.auth.middleware import AuthMiddleware
+from arxiv_auth import auth
+from arxiv_auth.auth.middleware import AuthMiddleware
 from arxiv.base.middleware import wrap
 
 import google.cloud.logging

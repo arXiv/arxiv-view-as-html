@@ -5,22 +5,28 @@ FROM python:3.11.8-bookworm
 RUN apt-get update -y && apt-get install git -y
 RUN python -m pip install --upgrade pip
 
-########## INSTALL OTHER DEPENDENCIES ##########
 
-RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 google-cloud-pubsub google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
-
-########## INSTALL ARXIV BASE AND GET BROWSE RESOURCES ##########
+########## INSTALL arxiv_auth ##########
 
 WORKDIR /lib
-ENV ARXIV_BASE_COMMIT=dec16c16f78a4d45e0f93461486a3f541ba237a3
-RUN rm -rf /lib/arxiv-base
-RUN git clone https://github.com/arXiv/arxiv-base.git
-WORKDIR /lib/arxiv-base
-RUN git checkout $ARXIV_BASE_COMMIT
+
+ENV ARXIV_AUTH_COMMIT=6f5b3e7a61cceb35483badd3901056004ea3aa66
+RUN rm -rf /lib/arxiv-auth
+RUN git clone https://github.com/arXiv/arxiv-auth.git
+WORKDIR /lib/arxiv-auth
+RUN git reset --hard $ARXIV_AUTH_COMMIT
+
+WORKDIR /lib/arxiv-auth/arxiv-auth
 RUN python -m pip install .
 
+########## INSTALL OTHER DEPENDENCIES ##########
+
+RUN python -m pip install flask==2.2.5 werkzeug==2.3.7 pydantic==1.10.13 google-cloud-pubsub google-cloud-storage gunicorn google-cloud-logging flask_CORS pg8000
+
+########## GET BROWSE TEMPLATE RESOURCES ##########
+
 WORKDIR /lib
-ENV ARXIV_BROWSE_COMMIT=406f35e0000e6cee8ef82d09bcb576531f7c00d9
+ENV ARXIV_BROWSE_COMMIT=430b3c7b8565a740fad74d7760c2ce1396a514b4
 RUN rm -rf /lib/arxiv-browse
 RUN git clone https://github.com/arXiv/arxiv-browse.git
 WORKDIR /lib/arxiv-browse

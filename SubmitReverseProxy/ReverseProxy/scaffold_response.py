@@ -6,8 +6,6 @@ import logging
 from flask import Response, make_response, stream_with_context
 
 from arxiv.files import LocalFileObj
-from .db.models import DBLaTeXMLSubmissions
-
 from .scaffold import ArticleScaffoldMetadata, HTMLFileTransform, render_branded_html_paper
 
 
@@ -43,7 +41,7 @@ def submission_scaffold_metadata(submission_id : int, metadata_path : Path) -> A
             primary_category = data.get('primary_category',''),
             date_of_version = data.get('submission_timestamp',''))
     except Exception as e:
-        logging.error(f"Failed to read {metadata_path} for submission scaffold, returning default metadata")
+        logging.error(f"Failed to read {metadata_path} for submission scaffold, with {e}")
         return ArticleScaffoldMetadata(
             license = None,
             page_id = str(submission_id),

@@ -33,7 +33,7 @@ COPY . .
 ########## GET BROWSE TEMPLATE RESOURCES ##########
 
 WORKDIR /lib
-ENV ARXIV_BROWSE_COMMIT=0af0acc8362f02a98845b4105bdf274d3b38616e
+ENV ARXIV_BROWSE_COMMIT=7d404bbdc3571b33abd00b572cd7009570186d38
 RUN rm -rf /lib/arxiv-browse
 RUN git clone https://github.com/arXiv/arxiv-browse.git
 WORKDIR /lib/arxiv-browse

@@ -1,8 +1,8 @@
 import sys
-import ReverseProxy.files
-sys.modules["arxiv.files"] = ReverseProxy.files
 from ReverseProxy.scaffold_response import browse_urls_fallback
 from ReverseProxy.factory import create_web_app
+import ReverseProxy.files
+sys.modules["arxiv.files"] = ReverseProxy.files
 
 app = create_web_app()
 

@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from types import TracebackType
 import typing
-from typing import BinaryIO, Optional, Union
+from typing import BinaryIO, Optional
 
 class BinaryMinimalFile(typing.Protocol):
     """A minimal file `Protocol` for a python binary file."""

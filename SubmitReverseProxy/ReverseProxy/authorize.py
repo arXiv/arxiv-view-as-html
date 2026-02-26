@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from sqlalchemy.sql import text
 
@@ -7,8 +6,7 @@ from arxiv_auth.legacy.util import is_configured, current_session
 
 from .db.util import database_retry
 
-from .exceptions import DBConnectionError, \
-    DBConfigError, DeletedError, UnauthorizedError
+from .exceptions import DBConfigError, DeletedError, UnauthorizedError
 
 def is_editor (user_id: int) -> bool:
     conn = current_session().connection()

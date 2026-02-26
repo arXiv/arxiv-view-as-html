@@ -11,9 +11,8 @@ from flask import current_app
 from ...domain.publish import PublishPayload
 from ...services.db import get_submission_with_html, write_published_html
 from ...services.files import get_file_manager
-from ...services.latexml import insert_base_tag, replace_relative_anchors
+from ...services.latexml import add_prefix_to_relative_links
 
-# from ..convert import insert_base_tag, replace_absolute_anchors_for_doc
 from ...services.latexml.metadata import generate_metadata_publish
 from .fastly_purge import fastly_purge_abs
 
@@ -35,8 +34,7 @@ def publish (payload: PublishPayload) -> None:
 
         main_html_file_path = f'{get_file_manager().local_publish_store.prefix}{payload.paper_id.idv}/{payload.paper_id.idv}.html'
 
-        insert_base_tag(payload.paper_id.idv, main_html_file_path)        
-        replace_relative_anchors(f'{current_app.config["VIEW_DOC_BASE"]}/html/{payload.paper_id.idv}', main_html_file_path)
+        add_prefix_to_relative_links(payload.paper_id.idv, main_html_file_path)
         logger.info(f'Successfully updated HTML for {payload}')
         
         submission_metadata = get_file_manager().local_publish_store.to_obj(f'{payload.paper_id.idv}/__metadata.json')

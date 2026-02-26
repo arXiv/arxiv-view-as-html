@@ -1,10 +1,10 @@
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy.sql import text
 from sqlalchemy.exc import OperationalError
 
-from arxiv_auth.legacy.util import is_configured, current_session
+from arxiv_auth.legacy.util import current_session
 
 from .db.util import database_retry
 

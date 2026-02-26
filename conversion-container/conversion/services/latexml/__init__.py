@@ -74,7 +74,9 @@ def clean_up_stale_assets(tmpdir: Path, stale_asset_expiration_sec: int) -> None
 
 
 def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
-    LATEXML_URL_BASE = current_app.config["LATEXML_URL_BASE"]
+    LATEXML_URL_BASE = current_app.config.get("LATEXML_URL_BASE", "")
+    assert LATEXML_URL_BASE.startswith("/") or LATEXML_URL_BASE.startswith("http"), \
+        f"The base URL '{LATEXML_URL_BASE}' needs to be either absolute or relative to root, or it will get rewritten"
     LATEXML_PATHS = current_app.config.get(
         "LATEXML_PATHS",
         [
@@ -82,6 +84,9 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
             "/opt/ar5iv-bindings/supported_originals",
         ],
     )
+    # Note that the ar5iv.sty preload contains additional config that touches up the produced
+    # HTML output for a typical arXiv article, as well as adds typical resource limits internal to
+    # the conversion pass.
     LATEXML_PRELOADS = current_app.config.get("LATEXML_PRELOADS", ["ar5iv.sty"])
     LATEXML_LOG_FILE = current_app.config.get("LATEXML_LOG_FILE", "__stdout.txt")
     LATEXML_TIMEOUT_SEC = int(current_app.config.get("LATEXML_TIMEOUT_SEC", 540))
@@ -99,18 +104,15 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
 
     latexml_config = [
         "latexmlc",
+        "--whatsin=directory",
         "--pmml",
         "--mathtex",
         "--noinvisibletimes",
-        f"--timeout={LATEXML_TIMEOUT_SEC}",
         "--format=html5",
-        f"--css={LATEXML_URL_BASE}/css/arxiv-html-papers-20250916.css",
-        "--javascript=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js",
-        "--javascript=https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js",
-        f"--javascript={LATEXML_URL_BASE}/js/addons_new.js",
-        f"--javascript={LATEXML_URL_BASE}/js/feedbackOverlay.js",
         "--navigationtoc=context",
-        "--whatsin=directory",
+        f"--timeout={LATEXML_TIMEOUT_SEC}",
+        f"--css={LATEXML_URL_BASE}/css/arxiv-html-papers-20260131.css",
+        f"--javascript={LATEXML_URL_BASE}/js/arxiv-html-papers-20260131.js",
         f"--source={workdir}",
         f"--log={log_path}",
         f"--dest={output_path}",
@@ -143,27 +145,12 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
         returncode=returncode,
     )
 
+ANCHOR_REGEX = re.compile(r'\b(href|src|data)\s*=\s*"(?![/#])(?!http)(?!data:)', re.IGNORECASE)
 
-def insert_base_tag(idv: str, html_file_path: str) -> None:
-    """Insert the base tag into the html so we can use the /html/arxiv_id url."""
-    base_html = f'<base href="/html/{idv}/">'
-
+def add_prefix_to_relative_links(prefix: str, html_file_path: str) -> None:
+    """Add a given prefix to all relative links in an HTML file."""
     with open(html_file_path, "r+") as html:
-        soup = BeautifulSoup(html.read(), "html.parser")
-        if soup.head:
-            soup.head.append(BeautifulSoup(base_html, "html.parser"))
-            html.truncate(0)
-            html.seek(0)
-            html.write(str(soup))
-
-
-def replace_relative_anchors(absolute_base: str, html_file_path: str) -> None:
-    """Replace all the relative anchor tags with absolute anchors."""
-    # Note: If this causes bugs, use a SAX parser to do this more accurately
-    # while still not needing to completely rebuild the DOM in memory with bs4
-    ANCHOR_REGEX = re.compile(r'href="#')
-    with open(html_file_path, "r+") as html:
-        new_text = re.sub(ANCHOR_REGEX, f'href="{absolute_base}#', html.read())
+        new_text = re.sub(ANCHOR_REGEX, rf'\1="{prefix}/', html.read())
         html.truncate(0)
         html.seek(0)
         html.write(new_text)

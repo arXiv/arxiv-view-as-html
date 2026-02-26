@@ -1,5 +1,4 @@
 from flask import Flask
-import markupsafe
 import os
 
 from arxiv_auth import auth
@@ -35,10 +34,6 @@ def create_web_app() -> Flask:
         logging.warn(f"Failed to create SITES or TARS_DIR with {e}")
 
     app.register_blueprint(blueprint)
-
-    # include_raw jinja loader used in template.html
-    # app.jinja_env.globals['include_raw'] = lambda html_path : \
-    #     markupsafe.Markup(app.jinja_loader.get_source(app.jinja_env, html_path)[0])
     
     auth.Auth(app)
     wrap(app, [AuthMiddleware])

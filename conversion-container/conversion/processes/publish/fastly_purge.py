@@ -9,7 +9,7 @@ def fastly_purge_abs (identifier: Identifier, fastly_key: str) -> None:
         "Fastly-Key": fastly_key,
         "Accept": "application/json",
     }
-    domains = ["arxiv.org", "web3.arxiv.org", "www.arxiv.org"]
+    domains = ["arxiv.org", "www.arxiv.org"]
     for domain in domains:
         _purge_url (f"https://{ domain }/abs/{ identifier.id }", headers)
         _purge_url (f"https://{ domain }/abs/{ identifier.idv }", headers)

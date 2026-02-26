@@ -9,7 +9,6 @@ CLASSIC_DATABASE_URI = os.environ.get('CLASSIC_DATABASE_URI')
 CLASSIC_COOKIE_NAME = 'tapir_session'
 SESSION_DURATION = 36000
 
-# ARXIV_AUTH_DEBUG = 1
 AUTH_UPDATED_SESSION_REF = True
 
 """If not set, legacy database integrations will not be available."""

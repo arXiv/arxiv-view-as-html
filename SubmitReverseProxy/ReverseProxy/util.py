@@ -21,5 +21,5 @@ def clean_up (id: int) -> bool:
         shutil.rmtree(f'{SITES_DIR}{id}')
         os.remove(f'{TARS_DIR}{id}')
         return True
-    except:
+    except Exception:
         return False

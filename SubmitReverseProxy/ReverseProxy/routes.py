@@ -1,27 +1,25 @@
-from typing import Tuple, Optional, Callable, Any
-from functools import wraps
+from typing import Tuple
 import logging
 import os
 import json
+from pathlib import Path
 
-from flask import Blueprint, Request, \
-    request, current_app, \
-    send_from_directory, g, \
-    redirect
+from flask import Blueprint, request, current_app, \
+    send_from_directory
 from flask_cors import cross_origin
 from werkzeug.exceptions import BadRequest
 
 from google.cloud.storage import Client
 import google.auth
 from google.auth.credentials import Credentials
-from google.auth.transport import requests
 from google.cloud.pubsub_v1 import PublisherClient
 
 from .authorize import authorize_user_for_submission, is_editor, is_moderator
-from .db_queries import get_source_format
 from .poll import poll_submission
-from .util import untar, clean_up
+from .util import untar
 from .exceptions import AuthError, DeletedError, UnauthorizedError
+
+from .scaffold_response import send_file_with_scaffold, submission_scaffold_metadata
 
 blueprint = Blueprint('routes', __name__, '')
 
@@ -37,7 +35,7 @@ def _get_arxiv_user_id () -> int:
 
 def authorize (submission_id: int):
     user_id = _get_arxiv_user_id()
-    authorize_user_for_submission(user_id, submission_id)
+    return authorize_user_for_submission(user_id, submission_id)
     
 @blueprint.route('/<int:submission_id>/poll', methods=['GET', 'OPTIONS'])
 @cross_origin(supports_credentials=True)
@@ -66,11 +64,10 @@ def get (submission_id: int):
     logging.info(f'Successfully downloaded to {TARS_DIR}{submission_id}')
 
     abs_path = untar(submission_id)
-    dir = os.path.relpath(abs_path, current_app.root_path)
-
     logging.info(f'Successfully untarred to {abs_path}')
     
-    return send_from_directory (dir, f'{submission_id}.html')
+    return send_file_with_scaffold (Path(abs_path, f'{submission_id}.html'), \
+        submission_scaffold_metadata(submission_id, Path(abs_path, '__metadata.json')))
 
 @blueprint.route('/<int:submission_id>/<path:path>', methods=['GET'])
 @cross_origin(supports_credentials=True)

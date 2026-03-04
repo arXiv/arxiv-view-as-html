@@ -5,12 +5,16 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
+      - '--build-arg'
+      - 'CACHE_BUST=$BUILD_ID'
       - '--cache-from'
       - 'gcr.io/$PROJECT_ID/html-submit-reverse-proxy:latest'
       - '-t'
       - 'gcr.io/$PROJECT_ID/html-submit-reverse-proxy:$COMMIT_SHA'
       - '-t'
       - 'gcr.io/$PROJECT_ID/html-submit-reverse-proxy:latest'
+      - '-f'
+      - './SubmitReverseProxy/dockerfiles/Dockerfile.dev'
       - './SubmitReverseProxy/'
   - name: 'gcr.io/cloud-builders/docker'
     args:

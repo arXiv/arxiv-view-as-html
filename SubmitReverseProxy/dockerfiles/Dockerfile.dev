@@ -43,12 +43,16 @@ RUN cp /lib/arxiv-base/arxiv/files/__init__.py /source/ReverseProxy/files.py
 
 ########## GET BROWSE TEMPLATE RESOURCES ##########
 
+# We track the master branch which is deployed in production, where
+# where arxiv-browse has a workflow to redeploy this proxy service when master is updated.
+
+ENV BROWSE_DEV_BRANCH=develop
+ARG CACHE_BUST
+
 WORKDIR /lib
-ENV ARXIV_BROWSE_COMMIT=7d404bbdc3571b33abd00b572cd7009570186d38
 RUN rm -rf /lib/arxiv-browse
-RUN git clone https://github.com/arXiv/arxiv-browse.git
+RUN git clone -b $BROWSE_DEV_BRANCH --depth 1 https://github.com/arXiv/arxiv-browse.git
 WORKDIR /lib/arxiv-browse
-RUN git checkout $ARXIV_BROWSE_COMMIT
 # We only need the templates and transformation pipeline here.
 RUN mkdir -p /source/ReverseProxy/templates/dissemination
 RUN cp -r /lib/arxiv-browse/browse/templates/dissemination/article_scaffold \

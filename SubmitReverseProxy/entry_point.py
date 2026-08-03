@@ -12,20 +12,13 @@ import ReverseProxy.files
 #
 # ruff: noqa: E402
 sys.modules["arxiv.files"] = ReverseProxy.files 
-from arxiv.base.urls import register_external_urls
-from ReverseProxy.scaffold_response import browse_urls_fallback
+from ReverseProxy.scaffold_response import register_scaffold_urls
 from ReverseProxy.factory import create_web_app
 
 app = create_web_app()
 
-# The vendored arxiv-base `base/footer.html` links to the info site via named endpoints
-# (about, help, contact, ...) which only exist in arxiv-base's external URL map. This is the
-# part of `Base(app)` we need; the rest of that blueprint is too old here to be worth wiring.
-# It goes first so that `browse_urls_fallback` stays the handler of last resort, and can keep
-# logging the endpoints that nothing at all could build.
-register_external_urls(app)
-
-app.url_build_error_handlers.append(browse_urls_fallback)
+# tests/scaffold_smoke.py wires a bare app the same way, so keep this a single call.
+register_scaffold_urls(app)
 
 if __name__=='__main__':
     app.run(debug=False)

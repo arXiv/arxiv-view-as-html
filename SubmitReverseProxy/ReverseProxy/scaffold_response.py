@@ -5,8 +5,9 @@ from typing import Any, Dict, Optional, Tuple
 import json
 import logging
 import os
-from flask import Response, make_response, stream_with_context
+from flask import Flask, Response, make_response, stream_with_context
 
+from arxiv.base.urls import register_external_urls
 from arxiv.files import LocalFileObj
 from .scaffold import ArticleScaffoldMetadata, HTMLFileTransform, render_branded_html_paper
 
@@ -92,6 +93,19 @@ BROWSE_VERSION = os.environ.get('BROWSE_VERSION') or _vendored_version('browse',
 # arxiv-base serves the shared chrome from /static/base/<BASE_VERSION>, see arxiv/base/config.py,
 # where it defaults to the installed distribution version, i.e. the one in its pyproject.toml.
 ARXIV_BASE_VERSION = os.environ.get('ARXIV_BASE_VERSION') or _vendored_version('arxiv_base', '1.0.1')
+
+def register_scaffold_urls(app: Flask) -> None:
+    """Teach `app` to build every URL the vendored scaffold templates ask for.
+
+    The vendored arxiv-base `base/footer.html` links to the info site via named endpoints
+    (about, help, contact, ...) which only exist in arxiv-base's external URL map. That is the
+    part of `Base(app)` we need; the rest of that blueprint is too old here to be worth wiring.
+    It is registered first so `browse_urls_fallback` stays the handler of last resort, and can
+    keep logging only the endpoints that nothing at all could build.
+    """
+    register_external_urls(app)
+    app.url_build_error_handlers.append(browse_urls_fallback)
+
 
 def browse_urls_fallback(error: Exception, endpoint: str, values: Dict[str, Any]) -> Optional[str]:
     if endpoint == "static":

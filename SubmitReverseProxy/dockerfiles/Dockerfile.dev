@@ -79,6 +79,14 @@ RUN sed -n 's/^version *= *"\(.*\)"/\1/p' /lib/arxiv-base/pyproject.toml \
     | head -1 > /source/ReverseProxy/arxiv_base_version.txt \
     && test -s /source/ReverseProxy/arxiv_base_version.txt
 
+########## CHECK THE VENDORED SCAFFOLD STILL RENDERS ##########
+
+# Everything above is fetched from other repositories at build time, so this is the earliest
+# point an upstream change can be caught. Without it the breakage reaches the reader as a
+# truncated, unbranded, or blank page, since the response is streamed.
+WORKDIR /source
+RUN PYTHONPATH=/source python tests/scaffold_smoke.py
+
 ########## RUN ##########
 WORKDIR /source
 

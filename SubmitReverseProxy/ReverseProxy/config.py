@@ -33,3 +33,21 @@ REPROCESS_SUBMISSION_TOPIC = os.environ.get('REPROCESS_SUBMISSION_TOPIC', 'html-
 
 SITES_DIR = '/source/ReverseProxy/sites/'
 TARS_DIR = '/source/ReverseProxy/downloads/'
+
+# The shared `base/footer.html` is vendored from arxiv-base master (see dockerfiles/), but the
+# `arxiv-base` that `arxiv-auth` pins is old enough that its external URL map still sends these
+# to arxiv.org. Those still reach the reader, though only via a 301 to info.arxiv.org and then
+# a 404 page whose JS appends the `.html`. Master's table links straight at the final page, so
+# take it from there (arxiv/base/config.py URLS, with HELP_SERVER resolved) and render the
+# footer arxiv-browse renders. Only the endpoints that footer actually uses are listed.
+HELP_SERVER = 'info.arxiv.org'
+URLS = [
+    ('a11y', '/help/web_accessibility.html', HELP_SERVER),
+    ('about', '/about', HELP_SERVER),
+    ('acknowledgment', '/about/ourmembers.html', HELP_SERVER),
+    ('contact', '/help/contact.html', HELP_SERVER),
+    ('copyright', '/help/license/index.html', HELP_SERVER),
+    ('help', '/help', HELP_SERVER),
+    ('privacy_policy', '/help/policies/privacy_policy.html', HELP_SERVER),
+    ('subscribe', '/help/subscribe', HELP_SERVER),
+]

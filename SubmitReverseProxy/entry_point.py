@@ -12,12 +12,13 @@ import ReverseProxy.files
 #
 # ruff: noqa: E402
 sys.modules["arxiv.files"] = ReverseProxy.files 
-from ReverseProxy.scaffold_response import browse_urls_fallback
+from ReverseProxy.scaffold_response import register_scaffold_urls
 from ReverseProxy.factory import create_web_app
 
 app = create_web_app()
 
-app.url_build_error_handlers.append(browse_urls_fallback)
+# tests/scaffold_smoke.py wires a bare app the same way, so keep this a single call.
+register_scaffold_urls(app)
 
 if __name__=='__main__':
     app.run(debug=False)

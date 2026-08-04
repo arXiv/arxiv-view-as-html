@@ -59,6 +59,33 @@ RUN cp -r /lib/arxiv-browse/browse/templates/dissemination/article_scaffold \
     /source/ReverseProxy/templates/dissemination/
 RUN cp -r /lib/arxiv-browse/browse/services/html_processing/scaffold.py \
     /source/ReverseProxy/
+# Their CSS/JS/images are served off /static/browse/<APP_VERSION>, so take the version from
+# the very same checkout the templates come from, see BROWSE_VERSION in scaffold_response.py.
+RUN sed -n 's/^ *APP_VERSION *: *str *= *"\(.*\)"/\1/p' /lib/arxiv-browse/browse/config.py \
+    | head -1 > /source/ReverseProxy/browse_version.txt \
+    && test -s /source/ReverseProxy/browse_version.txt
+
+# The scaffold also includes arxiv-base's shared header/footer chrome
+# (`base/announcement_banner.html`, `base/footer.html`), which arxiv-browse gets from
+# `Base(app)`. The `arxiv-base` that `arxiv-auth` pins predates that chrome, so take it
+# from the clone above -- refreshed to master, which arxiv-browse pins on develop too, so
+# scaffold and chrome always come from the pair of commits browse itself renders with.
+WORKDIR /lib/arxiv-base
+RUN git fetch --depth 1 origin master && git checkout -f FETCH_HEAD
+RUN cp -r /lib/arxiv-base/arxiv/base/templates/base /source/ReverseProxy/templates/
+# Their CSS/JS/images are served off static.arxiv.org under this version, see
+# ARXIV_BASE_VERSION in scaffold_response.py.
+RUN sed -n 's/^version *= *"\(.*\)"/\1/p' /lib/arxiv-base/pyproject.toml \
+    | head -1 > /source/ReverseProxy/arxiv_base_version.txt \
+    && test -s /source/ReverseProxy/arxiv_base_version.txt
+
+########## CHECK THE VENDORED SCAFFOLD STILL RENDERS ##########
+
+# Everything above is fetched from other repositories at build time, so this is the earliest
+# point an upstream change can be caught. Without it the breakage reaches the reader as a
+# truncated, unbranded, or blank page, since the response is streamed.
+WORKDIR /source
+RUN PYTHONPATH=/source python tests/scaffold_smoke.py
 
 ########## RUN ##########
 WORKDIR /source

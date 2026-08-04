@@ -31,11 +31,11 @@ class DocumentConversionPayload(ConversionPayload):
 
     @property
     def name(self) -> str:
-        return (
-            self.identifier.idv
-            if not self.identifier.is_old_id
-            else f"{self.identifier.filename}v{self.identifier.version}"
-        )
+        # Archive-qualified serving key (arxiv-base latexml_html_path convention): squashedv keeps
+        # the archive for old-style ids (astro-ph0310571v2) — bare old-style filenames are
+        # per-archive sequences that collide across archives (astro-ph/9711200 vs hep-th/9711200
+        # are different papers). squashedv == idv for new-style ids, so those keys are unchanged.
+        return self.identifier.squashedv
 
 
 @dataclass

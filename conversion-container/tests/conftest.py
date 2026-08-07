@@ -15,7 +15,7 @@ CLASSIC_DATABASE_URI = "sqlite:///:memory:"
 TESTING_CONFIG = {
     "QA_BUCKET_SUB": "",
     "QA_BUCKET_DOC": f"{package_path}/tests/data/",
-    "LATEXML_COMMIT": "test_commit_version",
+    "LATEXML_OXIDE_VERSION": "test_commit_version",
     "LATEXML_DB_URI": LATEXML_DB_URI,
     "LOCK_DIR": "/arxiv/locks",
     "SUBMISSION_SOURCE_BUCKET": f"{package_path}/tests/data/",

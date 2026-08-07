@@ -58,6 +58,10 @@ steps:
       - '--memory=8Gi'
       - '--concurrency=1'
       - '--execution-environment=gen2'
+      # /tmp is in-RAM on Cloud Run, so oxide's disk-spill can't free memory;
+      # disable streaming so the 6 GiB RSS watchdog is the single clean ceiling.
+      # --update-env-vars (merge) not --set-env-vars, which would wipe the rest.
+      - '--update-env-vars=LATEXML_STREAMING=false'
       - '--quiet'
     id: Deploy
     entrypoint: gcloud

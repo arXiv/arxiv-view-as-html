@@ -86,7 +86,7 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
     # internal to the conversion pass.
     LATEXML_PRELOADS = current_app.config.get("LATEXML_PRELOADS", ["ar5iv.sty"])
     LATEXML_LOG_FILE = current_app.config.get("LATEXML_LOG_FILE", "__stdout.txt")
-    LATEXML_TIMEOUT_SEC = int(current_app.config.get("LATEXML_TIMEOUT_SEC", 540))
+    LATEXML_TIMEOUT_SEC = int(current_app.config.get("LATEXML_TIMEOUT_SEC", 180))
     LATEXML_MEM_LIMIT_BYTES = int(current_app.config.get("LATEXML_MEM_LIMIT_BYTES", 6 * 1024**3))
     # Always clean up before executing the latexml call, this is too important
     # for service health, so we tightly couple it with this call.

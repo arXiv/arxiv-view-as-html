@@ -139,7 +139,7 @@ async def scheduler(args):
                 else:
                     await asyncio.sleep((now.replace(hour=min_next_hour, minute=0, second=0)-now).total_seconds())
 
-    iterator = ConvertDataIterator(args.start_meta_id, args.latexml_sha)
+    iterator = ConvertDataIterator(args.start_meta_id, args.latexml_version)
 
     with open('workers_schedules.json') as f:
         workers_schedules = loads(f.read())
@@ -190,9 +190,12 @@ if __name__=='__main__':
     parser.add_argument('-t', '--timing-test',
                         action='store_true',
                         help="If this is set, we will convert 1000 papers and time them")
-    parser.add_argument('-l', '--latexml-sha',
+    parser.add_argument('-l', '--latexml-version', '--latexml-sha',
                         type=str, default=None,
-                        help="If there already exists a conversion with this version, skip")
+                        help="Converter version to dedup against (pass the worker's "
+                             "LATEXML_OXIDE_VERSION, e.g. 0.7.5): skip papers already successfully "
+                             "converted at this version, (re)convert everything else. "
+                             "--latexml-sha is a deprecated alias.")
     args = parser.parse_args()
 
     asyncio.run(main(args))

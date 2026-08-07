@@ -28,16 +28,6 @@ def get_license_for_submission(submission_id: int) -> str:
     return license_url_to_str_mapping(license_raw)
 
 
-def has_doc_been_tried(identifier: Identifier) -> bool:
-    rec = (
-        session.query(DBLaTeXMLDocuments)
-        .filter(DBLaTeXMLDocuments.paper_id == identifier.id)
-        .filter(DBLaTeXMLDocuments.document_version == identifier.version)
-        .first()
-    )
-    return rec is not None
-
-
 # @database_retry(5)
 def _write_start_doc(identifier: Identifier, checksum: str) -> None:
     paper_id = identifier.id
@@ -54,14 +44,14 @@ def _write_start_doc(identifier: Identifier, checksum: str) -> None:
                 paper_id=paper_id,
                 document_version=version,
                 conversion_status=0,  # 0 for in progress, 1 for success, 2 for failure
-                latexml_version=current_app.config["LATEXML_COMMIT"],
+                latexml_version=current_app.config["LATEXML_OXIDE_VERSION"],
                 tex_checksum=checksum,
                 conversion_start_time=now(),
             )
             session.add(rec)
         else:
             rec.conversion_status = 0
-            rec.latexml_version = current_app.config["LATEXML_COMMIT"]
+            rec.latexml_version = current_app.config["LATEXML_OXIDE_VERSION"]
             rec.tex_checksum = checksum
             rec.conversion_start_time = now()
 
@@ -74,14 +64,14 @@ def _write_start_sub(submission_id: int, checksum: str) -> None:
             rec = DBLaTeXMLSubmissions(
                 submission_id=submission_id,
                 conversion_status=0,  # 0 for in progress, 1 for success, 2 for failure
-                latexml_version=current_app.config["LATEXML_COMMIT"],
+                latexml_version=current_app.config["LATEXML_OXIDE_VERSION"],
                 tex_checksum=checksum,
                 conversion_start_time=now(),
             )
             session.add(rec)
         else:
             rec.conversion_status = 0
-            rec.latexml_version = current_app.config["LATEXML_COMMIT"]
+            rec.latexml_version = current_app.config["LATEXML_OXIDE_VERSION"]
             rec.tex_checksum = checksum
             rec.conversion_start_time = now()
 
@@ -104,7 +94,6 @@ def _write_success_doc(identifier: Identifier, checksum: str) -> None:
         )
         if (
             obj.tex_checksum == checksum
-            and obj.latexml_version == current_app.config["LATEXML_COMMIT"]
             and obj.conversion_status != 1
         ):
             obj.conversion_status = 1
@@ -119,7 +108,6 @@ def _write_success_sub(submission_id: int, checksum: str) -> None:
         obj = obj
         if (
             obj.tex_checksum == checksum
-            and obj.latexml_version == current_app.config["LATEXML_COMMIT"]
             and obj.conversion_status != 1
         ):
             obj.conversion_status = 1
@@ -149,7 +137,7 @@ def _write_failure_doc(identifier: Identifier, checksum: Optional[str], bucket_c
                     paper_id=identifier.id,
                     document_version=identifier.version,
                     conversion_status=2,
-                    latexml_version=current_app.config["LATEXML_COMMIT"],
+                    latexml_version=current_app.config["LATEXML_OXIDE_VERSION"],
                     tex_checksum=checksum,
                     conversion_start_time=now(),
                     conversion_end_time=now(),
@@ -162,7 +150,7 @@ def _write_failure_doc(identifier: Identifier, checksum: Optional[str], bucket_c
         obj.conversion_status = 2
         obj.conversion_end_time = now()
         obj.tex_checksum = checksum
-        obj.latexml_version = current_app.config["LATEXML_COMMIT"]
+        obj.latexml_version = current_app.config["LATEXML_OXIDE_VERSION"]
 
 
 # @database_retry(5)
@@ -174,7 +162,7 @@ def _write_failure_sub(submission_id: int, checksum: Optional[str], bucket_clobb
                 DBLaTeXMLSubmissions(
                     submission_id=submission_id,
                     conversion_status=2,
-                    latexml_version=current_app.config["LATEXML_COMMIT"],
+                    latexml_version=current_app.config["LATEXML_OXIDE_VERSION"],
                     tex_checksum=checksum,
                     conversion_start_time=now(),
                     conversion_end_time=now(),
@@ -186,7 +174,7 @@ def _write_failure_sub(submission_id: int, checksum: Optional[str], bucket_clobb
         obj.conversion_status = 2
         obj.conversion_end_time = now()
         obj.tex_checksum = checksum
-        obj.latexml_version = current_app.config["LATEXML_COMMIT"]
+        obj.latexml_version = current_app.config["LATEXML_OXIDE_VERSION"]
 
 
 def write_failure(payload: ConversionPayload, checksum: Optional[str], bucket_clobbered: bool = False) -> None:

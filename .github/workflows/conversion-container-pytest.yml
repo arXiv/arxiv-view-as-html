@@ -20,14 +20,21 @@ jobs:
       TMPDIR: /tmp
     steps:
       - name: Install latexml-oxide
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
           # The .deb is a self-contained binary; apt pulls its texlive + graphics
           # dependencies (texlive-latex-base/-extra/-science, ghostscript,
           # imagemagick, poppler-utils, mupdf-tools, dvipng, dvisvgm).
-          sudo apt-get update
+          # Hardened against GitHub-runner flakiness: DEBIAN_FRONTEND=noninteractive
+          # so no debconf prompt can hang the job, and DPkg::Lock::Timeout so we wait
+          # out the runner's background unattended-upgrades holding the dpkg lock
+          # instead of stalling. --no-install-recommends keeps it lean (the tests
+          # only exercise plain-TeX conversions).
+          sudo apt-get -o DPkg::Lock::Timeout=600 update
           curl -fsSL -o /tmp/latexml-oxide.deb \
             "https://github.com/dginev/latexml-oxide/releases/download/${LATEXML_OXIDE_VERSION}/latexml-oxide_${LATEXML_OXIDE_VERSION}-1_amd64.deb"
-          sudo apt-get install -y /tmp/latexml-oxide.deb
+          sudo apt-get -o DPkg::Lock::Timeout=600 install -y --no-install-recommends /tmp/latexml-oxide.deb
           latexml_oxide --version
 
       - uses: actions/checkout@v3

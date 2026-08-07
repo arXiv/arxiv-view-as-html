@@ -9,7 +9,7 @@ from ...domain.conversion import ConversionPayload, DocumentConversionPayload
 from ...locking import id_lock
 from ...services.db import write_failure, write_start, write_success
 from ...services.files import get_file_manager
-from ...services.latexml import latexml, add_prefix_to_relative_links
+from ...services.latexml import latexml, normalize_html_links
 from ...services.latexml.metadata import generate_metadata_convert
 
 logger = logging.getLogger()
@@ -44,7 +44,7 @@ def process(payload: ConversionPayload) -> None:
 
             if isinstance(payload, DocumentConversionPayload):
                 main_html_file_path = f"{get_file_manager().latexml_output_dir_name(payload)}{payload.name}.html"
-                add_prefix_to_relative_links(
+                normalize_html_links(
                     payload.identifier.idv, main_html_file_path
                 )
                 logger.info(f"Successfully updated HTML for {payload}")

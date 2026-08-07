@@ -16,6 +16,13 @@ class Settings(BaseSettings):
     LATEXML_COMMIT: str
 
     LATEXML_URL_BASE: str
+    # latexml-oxide resource ceilings, env-overridable. Declared here (not just
+    # read via config.get) so `app.config.from_object(Settings())` populates them
+    # -- otherwise the env vars never reach app.config. Size LATEXML_MEM_LIMIT_BYTES
+    # below the host RAM so oxide's --max-memory watchdog aborts gracefully first.
+    LATEXML_MEM_LIMIT_BYTES: int = 6 * 1024**3
+    LATEXML_TIMEOUT_SEC: int = 180
+
     VIEW_SUB_BASE: str
     VIEW_DOC_BASE: str
 

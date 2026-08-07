@@ -16,17 +16,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      LATEXML_COMMIT: 5e47b3b13a386826581a31464083086520ca2817
+      LATEXML_OXIDE_VERSION: "0.7.5"
       TMPDIR: /tmp
     steps:
-      - name: Install a generic LaTeXML
+      - name: Install latexml-oxide
         run: |
-          sudo apt update
-          sudo apt install cpanminus libarchive-zip-perl libdb-dev libfile-which-perl \
-            libimage-magick-perl libimage-size-perl libio-string-perl libjson-xs-perl \
-            libparse-recdescent-perl libtext-unidecode-perl liburi-perl libuuid-tiny-perl \
-            libwww-perl libxml-libxml-perl libxml-libxslt-perl libxml2-dev libxslt1-dev
-          cpanm --sudo --notest --verbose https://github.com/brucemiller/LaTeXML/archive/${LATEXML_COMMIT}.zip
+          # The .deb is a self-contained binary; apt pulls its texlive + graphics
+          # dependencies (texlive-latex-base/-extra/-science, ghostscript,
+          # imagemagick, poppler-utils, mupdf-tools, dvipng, dvisvgm).
+          sudo apt-get update
+          curl -fsSL -o /tmp/latexml-oxide.deb \
+            "https://github.com/dginev/latexml-oxide/releases/download/${LATEXML_OXIDE_VERSION}/latexml-oxide_${LATEXML_OXIDE_VERSION}-1_amd64.deb"
+          sudo apt-get install -y /tmp/latexml-oxide.deb
+          latexml_oxide --version
 
       - uses: actions/checkout@v3
       - name: Set up Python

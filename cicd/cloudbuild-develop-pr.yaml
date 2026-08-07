@@ -50,6 +50,14 @@ steps:
       - >-
         --labels=commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID
       - '--region=$_DEPLOY_REGION'
+      # Container resources: one 6 GiB latexml-oxide conversion per instance
+      # (--concurrency=1), with headroom below the --max-memory watchdog so a
+      # graceful abort beats a Cloud Run OOM-kill; gen2 for the 8 GiB tier and
+      # the gs/mutool/pdftocairo/ImageMagick graphics subprocesses.
+      - '--cpu=4'
+      - '--memory=8Gi'
+      - '--concurrency=1'
+      - '--execution-environment=gen2'
       - '--quiet'
     id: Deploy
     entrypoint: gcloud

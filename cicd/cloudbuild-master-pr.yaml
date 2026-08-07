@@ -62,6 +62,9 @@ steps:
       # disable streaming so the 6 GiB RSS watchdog is the single clean ceiling.
       # --update-env-vars (merge) not --set-env-vars, which would wipe the rest.
       - '--update-env-vars=LATEXML_STREAMING=false'
+      # Drop the vestigial Perl-era LATEXML_COMMIT env; the worker now reads the
+      # LATEXML_OXIDE_VERSION Settings (default 0.7.5). Safe if already absent.
+      - '--remove-env-vars=LATEXML_COMMIT'
       - '--quiet'
     id: Deploy
     entrypoint: gcloud

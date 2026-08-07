@@ -77,16 +77,13 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
     LATEXML_URL_BASE = current_app.config.get("LATEXML_URL_BASE", "")
     assert LATEXML_URL_BASE.startswith("/") or LATEXML_URL_BASE.startswith("http"), \
         f"The base URL '{LATEXML_URL_BASE}' needs to be either absolute or relative to root, or it will get rewritten"
-    LATEXML_PATHS = current_app.config.get(
-        "LATEXML_PATHS",
-        [
-            "/opt/ar5iv-bindings/bindings",
-            "/opt/ar5iv-bindings/supported_originals",
-        ],
-    )
-    # Note that the ar5iv.sty preload contains additional config that touches up the produced
-    # HTML output for a typical arXiv article, as well as adds typical resource limits internal to
-    # the conversion pass.
+    # latexml-oxide compiles the ar5iv/arXiv bindings into the binary, so the
+    # external ar5iv-bindings tree (and its --path entries) is no longer needed;
+    # default to no extra search paths. Config may still supply some if required.
+    LATEXML_PATHS = current_app.config.get("LATEXML_PATHS", [])
+    # Note that the ar5iv.sty preload activates the bundled ar5iv profile, which touches up the
+    # produced HTML output for a typical arXiv article, as well as adds typical resource limits
+    # internal to the conversion pass.
     LATEXML_PRELOADS = current_app.config.get("LATEXML_PRELOADS", ["ar5iv.sty"])
     LATEXML_LOG_FILE = current_app.config.get("LATEXML_LOG_FILE", "__stdout.txt")
     LATEXML_TIMEOUT_SEC = int(current_app.config.get("LATEXML_TIMEOUT_SEC", 540))
@@ -104,16 +101,22 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
     log_path = f"{output_dirname}{LATEXML_LOG_FILE}"
 
     latexml_config = [
-        "prlimit", f"--as={LATEXML_MEM_LIMIT_BYTES}", "--",
-        "latexmlc",
+        "latexml_oxide",
         "--whatsin=directory",
         "--pmml",
         "--mathtex",
         "--noinvisibletimes",
         "--format=html5",
         "--navigationtoc=context",
+        # latexml-oxide ships built-in default CSS/JS; suppress them so the arXiv
+        # ar5iv assets linked below are the only stylesheets/scripts referenced.
+        "--nodefaultresources",
         f"--timeout={LATEXML_TIMEOUT_SEC}",
-        f"--css={LATEXML_URL_BASE}/css/arxiv-html-papers-20260131.css",
+        # Native memory budget (MiB): the engine spills completed subtrees to
+        # TMPDIR as it approaches the ceiling, then a watchdog aborts (exit 137)
+        # at it. Replaces the previous external `prlimit --as` address-space cap.
+        f"--max-memory={LATEXML_MEM_LIMIT_BYTES // 1024**2}",
+        f"--css={LATEXML_URL_BASE}/css/arxiv-html-papers-20260807.css",
         f"--javascript={LATEXML_URL_BASE}/js/arxiv-html-papers-20260131.js",
         f"--source={workdir}",
         f"--log={log_path}",

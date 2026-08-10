@@ -127,6 +127,10 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
         latexml_config.append(f"--preload={preload}")
     for path in LATEXML_PATHS:
         latexml_config.append(f"--path={path}")
+    # Force streaming off via the subprocess env (oxide has no CLI flag for it); on
+    # Cloud Run's in-RAM TMPDIR, streaming's disk-spill defeats the --max-memory
+    # watchdog. See LATEXML_STREAMING in config.py.
+    latexml_env = {**os.environ, "LATEXML_STREAMING": str(current_app.config.get("LATEXML_STREAMING", "false"))}
     try:
         completed_process = subprocess.run(
             latexml_config,
@@ -135,6 +139,7 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
             check=False,
             text=True,
             timeout=LATEXML_TIMEOUT_SEC + 5,
+            env=latexml_env,
         )
         returncode = completed_process.returncode
         if returncode != 0:
@@ -219,7 +224,9 @@ def rewrite_link(prefix: str, value: str) -> str:
         return value
     if URI_SCHEME_REGEX.match(value):
         return value
-    if EMAIL_REGEX.match(value):
+    # `logo@2x.png` (retina asset) matches the email shape but is an in-paper file;
+    # a servable extension means it is a local asset, never a mailto.
+    if EMAIL_REGEX.match(value) and _extension(value) not in LOCAL_FILE_EXTENSIONS:
         return "mailto:" + value
     if DOI_REGEX.match(value):
         return "https://doi.org/" + value

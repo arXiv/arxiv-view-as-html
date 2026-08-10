@@ -27,6 +27,12 @@ class Settings(BaseSettings):
     # below the host RAM so oxide's --max-memory watchdog aborts gracefully first.
     LATEXML_MEM_LIMIT_BYTES: int = 6 * 1024**3
     LATEXML_TIMEOUT_SEC: int = 180
+    # Force oxide's subtree streaming OFF. 0.7.5 streams (spills completed subtrees
+    # to TMPDIR) by default, but on Cloud Run TMPDIR is tmpfs (in-RAM), so spilling
+    # consumes RAM and defeats the --max-memory watchdog. There is no oxide CLI flag
+    # for this, so the worker injects it into the conversion subprocess env -- the
+    # guarantee lives here, not only in the Cloud Run env var.
+    LATEXML_STREAMING: str = "false"
 
     VIEW_SUB_BASE: str
     VIEW_DOC_BASE: str

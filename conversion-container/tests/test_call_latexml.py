@@ -76,6 +76,42 @@ def test_latexml_timeout_terminates(app: Flask, caplog: pytest.LogCaptureFixture
     assert result.returncode == 1
 
 
+def test_latexml_forces_streaming_off_in_subprocess_env(
+    app: Flask, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The converter must hand oxide LATEXML_STREAMING=false in its env.
+
+    oxide 0.7.5 streams (spills to TMPDIR) by default; on Cloud Run's in-RAM
+    TMPDIR that defeats the --max-memory watchdog. The guarantee lives in the
+    worker, not only in the deploy env, so a non-YAML deploy can't drop it.
+    """
+    captured: dict[str, Any] = {}
+
+    class _Result:
+        returncode = 0
+
+    def fake_run(cmd: list[str], **kwargs: Any) -> _Result:
+        captured["cmd"] = cmd
+        captured["env"] = kwargs.get("env")
+        return _Result()
+
+    monkeypatch.setattr("conversion.services.latexml.subprocess.run", fake_run)
+    with app.app_context():
+        with tempfile.TemporaryDirectory() as workdir:
+            app.config["LOCAL_CONVERSION_DIR"] = workdir
+            app.config["LOCAL_PUBLISH_DIR"] = f"{workdir}/html"
+            app.config["LATEXML_PATHS"] = []
+            app.config["LATEXML_PRELOADS"] = []
+            payload = SubmissionConversionPayload(identifier=123, single_file=None)
+            latexml(payload, Path(workdir))
+
+    assert captured["env"] is not None
+    assert captured["env"]["LATEXML_STREAMING"] == "false"
+    assert captured["cmd"][0] == "latexml_oxide"
+    assert any(a.startswith("--max-memory=") for a in captured["cmd"])
+    assert "--nodefaultresources" in captured["cmd"]
+
+
 @pytest.mark.call_latexml_tests
 def test_clean_up_stale_assets(app: Flask) -> None:
     with tempfile.TemporaryDirectory() as workdir:

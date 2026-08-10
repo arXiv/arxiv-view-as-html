@@ -65,6 +65,8 @@ PREFIXED = [
     "diagram.svg",
     "report.html",       # in-paper sub-page report (host-less .html)
     "sub/page.html",
+    "logo@2x.png",       # retina asset: email-shaped but a servable in-paper file
+    "fig@3x.jpg",
 ]
 
 

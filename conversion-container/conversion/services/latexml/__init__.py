@@ -6,6 +6,7 @@ import subprocess
 import time
 from pathlib import Path
 
+from arxiv.identifier import Identifier
 from bs4 import BeautifulSoup
 from flask import current_app
 
@@ -227,6 +228,21 @@ def rewrite_link(prefix: str, value: str) -> str:
     if _extension(value) in LOCAL_FILE_EXTENSIONS:
         return f"{prefix}/{value}"
     return "https://" + value
+
+
+def html_asset_prefix(identifier: Identifier) -> str:
+    """Relative URL prefix for in-paper assets served under ``/html/<id>/``.
+
+    The HTML page is served at ``/html/<idv>`` -- and for old-style ids ``idv``
+    keeps the archive slash (``/html/astro-ph/0303073v1``). A browser resolves a
+    *relative* asset link against the page's parent path (``/html/astro-ph/``),
+    so the prefix must be the bare version-qualified filename (``0303073v1``):
+    ``0303073v1/BBNfig1.png`` -> ``/html/astro-ph/0303073v1/BBNfig1.png`` which
+    browse serves. Using ``idv`` (``astro-ph/0303073v1``) instead double-counts
+    the archive -> ``/html/astro-ph/astro-ph/0303073v1/BBNfig1.png`` -> 404.
+    For new-style ids ``filename`` carries no archive, so this equals ``idv``.
+    """
+    return f"{identifier.filename}v{identifier.version}"
 
 
 def normalize_html_links(prefix: str, html_file_path: str) -> None:

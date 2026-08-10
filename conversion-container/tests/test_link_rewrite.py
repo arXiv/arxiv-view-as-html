@@ -9,8 +9,13 @@ import tempfile
 from pathlib import Path
 
 import pytest
+from arxiv.identifier import Identifier
 
-from conversion.services.latexml import normalize_html_links, rewrite_link
+from conversion.services.latexml import (
+    html_asset_prefix,
+    normalize_html_links,
+    rewrite_link,
+)
 
 ID = "2608.05281v1"
 
@@ -76,6 +81,44 @@ def test_absolutised(value: str, expected: str) -> None:
 @pytest.mark.parametrize("value", PREFIXED)
 def test_prefixed(value: str) -> None:
     assert rewrite_link(ID, value) == f"{ID}/{value}"
+
+
+# --- old-style ids: asset prefix must drop the archive ---------------------
+#   Regression: /html/astro-ph/0303073v1 rendered but its figures 404'd. The
+#   in-paper link prefix was the archive-qualified idv ("astro-ph/0303073v1"),
+#   so "BBNfig1.png" -> "astro-ph/0303073v1/BBNfig1.png", which a browser
+#   resolves relative to the page's parent (/html/astro-ph/) into the doubled
+#   "/html/astro-ph/astro-ph/0303073v1/BBNfig1.png". The prefix must be the bare
+#   version-qualified filename ("0303073v1"); new-style ids are unaffected.
+@pytest.mark.parametrize(
+    "idv,expected",
+    [
+        ("astro-ph/0303073v1", "0303073v1"),   # old-style: archive dropped
+        ("hep-th/9711200v3", "9711200v3"),     # old-style, later version
+        ("cond-mat/0102536v1", "0102536v1"),   # old-style, hyphenated archive
+        ("2608.05281v1", "2608.05281v1"),      # new-style: unchanged (== idv)
+    ],
+)
+def test_html_asset_prefix(idv: str, expected: str) -> None:
+    assert html_asset_prefix(Identifier(idv)) == expected
+
+
+def test_old_style_figure_link_resolves_under_html_id() -> None:
+    """Old-style figure links must resolve under ``/html/<id>/``, not double the archive.
+
+    After normalisation the link is ``<filename>v<ver>/<asset>`` -- which resolves
+    to ``/html/<id>/<asset>`` -- and never re-introduces the archive (the
+    doubled-``astro-ph`` 404).
+    """
+    arxiv_id = Identifier("astro-ph/0303073v1")
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "paper.html"
+        p.write_text('<img src="BBNfig1.png"><img src="figs/plot.png">')
+        normalize_html_links(html_asset_prefix(arxiv_id), str(p))
+        out = p.read_text()
+    assert 'src="0303073v1/BBNfig1.png"' in out
+    assert 'src="0303073v1/figs/plot.png"' in out
+    assert "astro-ph" not in out  # archive must not leak into the relative link
 
 
 def test_normalize_html_file_roundtrip() -> None:

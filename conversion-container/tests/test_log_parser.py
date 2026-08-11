@@ -8,7 +8,7 @@ from conversion.services.latexml import list_missing_packages
 
 
 @pytest.mark.logparser_unit_tests
-def test_find_package_and_class():
+def test_find_package_and_class() -> None:
     latexml_log = b"""
 Warning:missing_file:imsart Can't find binding for class imsart (using OmniBus)
 Warning:missing_file:xifthen Can't find package xifthen

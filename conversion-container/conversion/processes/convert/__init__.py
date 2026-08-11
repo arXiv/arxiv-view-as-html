@@ -9,13 +9,14 @@ from ...domain.conversion import ConversionPayload, DocumentConversionPayload
 from ...locking import id_lock
 from ...services.db import write_failure, write_start, write_success
 from ...services.files import get_file_manager
-from ...services.latexml import latexml, add_prefix_to_relative_links
+from ...services.latexml import html_asset_prefix, latexml, normalize_html_links
 from ...services.latexml.metadata import generate_metadata_convert
 
 logger = logging.getLogger()
 
 
 def process(payload: ConversionPayload) -> None:
+    checksum: str | None = None
     try:
         if isinstance(payload.identifier, int):
             lock_str = str(payload.identifier)
@@ -43,15 +44,17 @@ def process(payload: ConversionPayload) -> None:
 
             if isinstance(payload, DocumentConversionPayload):
                 main_html_file_path = f"{get_file_manager().latexml_output_dir_name(payload)}{payload.name}.html"
-                add_prefix_to_relative_links(
-                    payload.identifier.idv, main_html_file_path
+                normalize_html_links(
+                    html_asset_prefix(payload.identifier), main_html_file_path
                 )
                 logger.info(f"Successfully updated HTML for {payload}")
             if latexml_output.returncode == 0:
                 write_success(payload, checksum)
                 logger.info(f"Successfully wrote {payload} to announced DB")
             else:
-                write_failure(payload, checksum)
+                # upload_latexml below will overwrite the previously-published HTML in the
+                # bucket with this run's broken output, so the DB must reflect the failure.
+                write_failure(payload, checksum, bucket_clobbered=True)
 
             # Note: There is a gap between when the user would see that html is ready and when it is uploaded.
             # In my opinion, this is a smaller problem than the user seeing an incorrect version of their html
@@ -61,6 +64,9 @@ def process(payload: ConversionPayload) -> None:
         print(traceback.format_exc())
         logger.info(f"conversion unsuccessful for {payload.identifier}", exc_info=True)
         try:
-            write_failure(payload, checksum)
+            write_failure(payload, checksum, bucket_clobbered=True)
+            logger.info(
+                f"recorded failure in DB for {payload.identifier} (checksum={'unknown' if checksum is None else checksum})"
+            )
         except Exception as e:
-            logger.warning(f"failed to write failure for {payload.identifier}: {e}", exc_info=True)
+            logger.error(f"failed to write failure for {payload.identifier}: {e}", exc_info=True)

@@ -166,3 +166,8 @@ transition_converted.py
 credentials
 
 .VSCodeCounter/
+# Vendored into SubmitReverseProxy at image build time (see dockerfiles/Dockerfile.*)
+SubmitReverseProxy/ReverseProxy/files.py
+SubmitReverseProxy/ReverseProxy/scaffold.py
+SubmitReverseProxy/ReverseProxy/*_version.txt
+SubmitReverseProxy/ReverseProxy/templates/

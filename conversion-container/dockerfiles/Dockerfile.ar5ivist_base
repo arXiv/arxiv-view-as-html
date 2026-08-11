@@ -1,18 +1,16 @@
-## Dockerfile for ar5ivist-base, using a fixed LaTeXML commit
+## Dockerfile for ar5ivist-base, using the latexml-oxide release binary
+## (the Rust reimplementation of LaTeXML; https://github.com/dginev/latexml-oxide).
 ##
 ## build with
 ##
 ## $ docker build --tag ar5ivist-base:latest .
 ##
-## run with the main ar5ivist Dockerfile:
-##
-## $ docker run -v "$(pwd)":/docdir -w /docdir \
-##              --user "$(id -u):$(id -g)" \
-##              ar5ivist:latest --source=main.tex --destination=html/main.html
+## The image name is kept as `ar5ivist-base` for CI/CD compatibility
+## (gcr.io/$PROJECT_ID/ar5ivist-base:latest); the engine is now latexml-oxide.
 
 FROM ubuntu:24.04
 
-# Install the texlive toolchain first (v2021 in Ubuntu 22.04)
+# Install the texlive toolchain first (v2023 in Ubuntu 24.04)
 # as it largely stays constant in the background.
 ENV DEBIAN_FRONTEND=noninteractive
 RUN set -ex && apt-get update -qq && apt-get install -qy --no-install-recommends tzdata
@@ -25,50 +23,34 @@ RUN set -ex && apt-get update -qq && apt-get install -qy \
   texlive-science \
   texlive-pictures \
   texlive-pstricks \
-  texlive-publishers
-
-# latexml dependencies
-RUN set -ex && apt-get update -qq && apt-get install -qy \
-  build-essential \
-  git \
+  texlive-publishers \
+  ghostscript \
   imagemagick \
-  libarchive-zip-perl \
-  libdb-dev \
-  libfile-which-perl \
-  libimage-magick-perl \
-  libimage-size-perl \
-  libio-string-perl \
-  libjson-xs-perl \
-  libparse-recdescent-perl \
-  libtext-unidecode-perl \
-  liburi-perl \
-  libuuid-tiny-perl \
-  libwww-perl \
-  libxml-libxml-perl \
-  libxml-libxslt-perl \
-  libxml2-dev \
-  libxslt1-dev \
-  liblocal-lib-perl \
-  make \
-  perl-doc \
-  cpanminus
+  poppler-utils \
+  mupdf-tools \
+  dvipng \
+  dvisvgm
 
-# make sure perl paths are OK
-RUN eval $(perl -I$HOME/perl5/lib -Mlocal::lib)
-RUN echo 'eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"' >> ~/.bashrc
-
-# Collect the extended ar5iv-bindings files
-ENV AR5IV_BINDINGS_COMMIT=82e0b50779c13a95f61fb2aa5b56e80908a1f9b5
-RUN rm -rf /opt/ar5iv-bindings
-RUN git clone https://github.com/dginev/ar5iv-bindings /opt/ar5iv-bindings
-WORKDIR /opt/ar5iv-bindings
-RUN git reset --hard $AR5IV_BINDINGS_COMMIT
-
-# Install LaTeXML, at a fixed commit, via cpanminus
-RUN mkdir -p /opt/latexml
-WORKDIR /opt/latexml
-ENV LATEXML_COMMIT=9b6a4cc5ff262ffd1850091ee4c89a6929802ec4
-RUN cpanm --notest --verbose --build-args formats https://github.com/arXiv/LaTeXML/archive/${LATEXML_COMMIT}.zip
+# Install latexml-oxide from its released Debian package. The binary is
+# self-contained (it embeds its kernel dumps + XSLT/CSS/schema), so at convert
+# time it only needs the texlive + graphics tools installed above. The ar5iv
+# and arXiv bindings are compiled into the binary, so no external bindings tree
+# is cloned any longer -- `--preload=ar5iv.sty` activates the bundled profile.
+#
+# A hello-world smoke test fails the build if the binary cannot convert, so a
+# broken base image never ships (cf. the "fail the build" convention in-repo).
+ARG LATEXML_OXIDE_VERSION=0.7.5
+RUN set -ex && apt-get update -qq \
+  && apt-get install -qy --no-install-recommends curl ca-certificates \
+  && curl -fsSL -o /tmp/latexml-oxide.deb \
+       "https://github.com/dginev/latexml-oxide/releases/download/${LATEXML_OXIDE_VERSION}/latexml-oxide_${LATEXML_OXIDE_VERSION}-1_amd64.deb" \
+  && apt-get install -qy --no-install-recommends /tmp/latexml-oxide.deb \
+  && rm -f /tmp/latexml-oxide.deb \
+  && latexml_oxide --version \
+  && printf '\\documentclass{article}\\begin{document}oxide-ok\\end{document}\n' > /tmp/hello.tex \
+  && latexml_oxide --dest=/tmp/hello.html /tmp/hello.tex \
+  && grep -q 'oxide-ok' /tmp/hello.html \
+  && rm -f /tmp/hello.tex /tmp/hello.html
 
 # Enable imagemagick policy permissions for work with arXiv PDF/EPS files
 RUN perl -pi.bak -e 's/rights="none" pattern="([XE]?PS\d?|PDF)"/rights="read|write" pattern="$1"/g' /etc/ImageMagick-6/policy.xml

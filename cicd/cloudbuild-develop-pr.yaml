@@ -50,6 +50,21 @@ steps:
       - >-
         --labels=commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID
       - '--region=$_DEPLOY_REGION'
+      # Container resources: one 6 GiB latexml-oxide conversion per instance
+      # (--concurrency=1), with headroom below the --max-memory watchdog so a
+      # graceful abort beats a Cloud Run OOM-kill; gen2 for the 8 GiB tier and
+      # the gs/mutool/pdftocairo/ImageMagick graphics subprocesses.
+      - '--cpu=4'
+      - '--memory=8Gi'
+      - '--concurrency=1'
+      - '--execution-environment=gen2'
+      # /tmp is in-RAM on Cloud Run, so oxide's disk-spill can't free memory;
+      # disable streaming so the 6 GiB RSS watchdog is the single clean ceiling.
+      # --update-env-vars (merge) not --set-env-vars, which would wipe the rest.
+      - '--update-env-vars=LATEXML_STREAMING=false'
+      # Drop the vestigial Perl-era LATEXML_COMMIT env; the worker now reads the
+      # LATEXML_OXIDE_VERSION Settings (default 0.7.5). Safe if already absent.
+      - '--remove-env-vars=LATEXML_COMMIT'
       - '--quiet'
     id: Deploy
     entrypoint: gcloud

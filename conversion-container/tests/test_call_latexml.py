@@ -20,7 +20,6 @@ def call_bare_latexml(app: Flask, config: dict[str, Any]) -> LaTeXMLOutput:
             app.config["LOCAL_PUBLISH_DIR"] = f"{workdir}/html"
             app.config["LATEXML_LOG_FILE"] = "__stdout.txt"
             # Empty, we do not have the dockerized ar5iv additions here
-            app.config["LATEXML_PATHS"] = []
             app.config["LATEXML_PRELOADS"] = []
             for key, value in config.items():
                 app.config[key] = value
@@ -100,7 +99,6 @@ def test_latexml_forces_streaming_off_in_subprocess_env(
         with tempfile.TemporaryDirectory() as workdir:
             app.config["LOCAL_CONVERSION_DIR"] = workdir
             app.config["LOCAL_PUBLISH_DIR"] = f"{workdir}/html"
-            app.config["LATEXML_PATHS"] = []
             app.config["LATEXML_PRELOADS"] = []
             payload = SubmissionConversionPayload(identifier=123, single_file=None)
             latexml(payload, Path(workdir))

@@ -79,9 +79,8 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
     assert LATEXML_URL_BASE.startswith("/") or LATEXML_URL_BASE.startswith("http"), \
         f"The base URL '{LATEXML_URL_BASE}' needs to be either absolute or relative to root, or it will get rewritten"
     # latexml-oxide compiles the ar5iv/arXiv bindings into the binary, so the
-    # external ar5iv-bindings tree (and its --path entries) is no longer needed;
-    # default to no extra search paths. Config may still supply some if required.
-    LATEXML_PATHS = current_app.config.get("LATEXML_PATHS", [])
+    # external ar5iv-bindings tree (and its --path search entries) is no longer
+    # needed; the vestigial LATEXML_PATHS/--path plumbing has been removed.
     # Note that the ar5iv.sty preload activates the bundled ar5iv profile, which touches up the
     # produced HTML output for a typical arXiv article, as well as adds typical resource limits
     # internal to the conversion pass.
@@ -125,8 +124,6 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
     ]
     for preload in LATEXML_PRELOADS:
         latexml_config.append(f"--preload={preload}")
-    for path in LATEXML_PATHS:
-        latexml_config.append(f"--path={path}")
     # Force streaming off via the subprocess env (oxide has no CLI flag for it); on
     # Cloud Run's in-RAM TMPDIR, streaming's disk-spill defeats the --max-memory
     # watchdog. See LATEXML_STREAMING in config.py.

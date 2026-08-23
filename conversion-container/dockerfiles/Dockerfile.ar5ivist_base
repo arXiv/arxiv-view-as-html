@@ -39,7 +39,7 @@ RUN set -ex && apt-get update -qq && apt-get install -qy \
 #
 # A hello-world smoke test fails the build if the binary cannot convert, so a
 # broken base image never ships (cf. the "fail the build" convention in-repo).
-ARG LATEXML_OXIDE_VERSION=0.7.5
+ARG LATEXML_OXIDE_VERSION=0.7.6
 RUN set -ex && apt-get update -qq \
   && apt-get install -qy --no-install-recommends curl ca-certificates \
   && curl -fsSL -o /tmp/latexml-oxide.deb \

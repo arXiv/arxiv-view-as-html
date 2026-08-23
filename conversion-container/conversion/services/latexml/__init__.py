@@ -117,7 +117,7 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
         # TMPDIR as it approaches the ceiling, then a watchdog aborts (exit 137)
         # at it. Replaces the previous external `prlimit --as` address-space cap.
         f"--max-memory={LATEXML_MEM_LIMIT_BYTES // 1024**2}",
-        f"--css={LATEXML_URL_BASE}/css/arxiv-html-papers-20260807.css",
+        f"--css={LATEXML_URL_BASE}/css/arxiv-html-papers-20260823.css",
         f"--javascript={LATEXML_URL_BASE}/js/arxiv-html-papers-20260131.js",
         f"--source={workdir}",
         f"--log={log_path}",

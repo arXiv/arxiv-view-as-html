@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # Was LATEXML_COMMIT (a Perl LaTeXML git SHA); now the oxide version. Defaults
     # to the pinned version so a missing env can't block boot -- keep in step with
     # LATEXML_OXIDE_VERSION in Dockerfile.ar5ivist_base, or override via the env.
-    LATEXML_OXIDE_VERSION: str = "0.7.5"
+    LATEXML_OXIDE_VERSION: str = "0.7.6"
 
     LATEXML_URL_BASE: str
     # latexml-oxide resource ceilings, env-overridable. Declared here (not just

@@ -16,7 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      LATEXML_OXIDE_VERSION: "0.7.5"
+      LATEXML_OXIDE_VERSION: "0.7.6"
       TMPDIR: /tmp
     steps:
       - name: Install latexml-oxide

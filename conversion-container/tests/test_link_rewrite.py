@@ -28,7 +28,7 @@ UNTOUCHED = [
     "tel:+1234567890",
     "data:image/png;base64,AAA",
     "/abs/1234",
-    "/static/browse/0.3.4/css/arxiv-html-papers-20260807.css",
+    "/static/browse/0.3.4/css/arxiv-html-papers-20260823.css",
     "#S1",
     "//cdn.example.com/x",
     "?q=1",

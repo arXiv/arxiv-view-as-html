@@ -143,10 +143,16 @@ def latexml(payload: ConversionPayload, workdir: Path) -> LaTeXMLOutput:
         )
         returncode = completed_process.returncode
         if returncode != 0:
-            logging.error(
+            # Surface oxide's own output (captured combined via stderr=STDOUT) so a
+            # crash/OOM is diagnosable; it was previously discarded on failure. Tail it
+            # to keep a runaway log bounded. A negative rc is a signal death (SIGSEGV -11).
+            msg = (
                 f"LaTeXML conversion failed rc={returncode} "
                 f"(mem_limit={LATEXML_MEM_LIMIT_BYTES}) for {payload.identifier}"
             )
+            if output_tail := (completed_process.stdout or "")[-4000:]:
+                msg += f"; oxide output tail:\n{output_tail}"
+            logging.error(msg)
     except subprocess.TimeoutExpired as e:
         logging.warning(f"LaTeXML conversion timed out after {e.timeout} seconds")
         returncode = 1

@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     IS_DEV: bool = True
     IS_FULL_CORPUS_CONVERT_MACHINE: bool = False
 
+    # When True, a transient conversion failure (the converter killed by a signal,
+    # e.g. a cold-start-contention SIGSEGV -- arXiv/arxiv-view-as-html#248) makes the
+    # push route return 503 so Pub/Sub redelivers and a retry can succeed, instead of
+    # acking and silently dropping the paper. Leave False until the push subscription
+    # has a dead-letter policy with maxDeliveryAttempts: without one, a paper that
+    # crashes deterministically would redeliver forever. Permanent failures (orderly
+    # nonzero exit, timeout, unexpected exception) always ack regardless of this flag.
+    NACK_ON_TRANSIENT_FAILURE: bool = False
+
     LOCAL_CONVERSION_DIR: str = "/arxiv/extracted/"
     LOCAL_PUBLISH_DIR: str = "/arxiv/publish/"
     LOCK_DIR: str = "/arxiv/locks/"

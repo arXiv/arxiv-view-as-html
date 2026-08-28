@@ -13,13 +13,27 @@ from flask import Blueprint, Response, current_app, request
 # from ..publish import publish
 from ..domain.conversion import DocumentConversionPayload, SubmissionConversionPayload
 from ..domain.publish import PublishPayload
-from ..processes.convert import process
+from ..processes.convert import ConversionOutcome, process
 from ..processes.publish import publish
 from ..services.db import get_document_is_latest, get_document_is_single_file
 
 logger = logging.getLogger()
 
 blueprint = Blueprint("routes", __name__)
+
+
+def _conversion_response(outcome: ConversionOutcome) -> Response:
+    """Map a conversion outcome to the Pub/Sub push ack/nack disposition.
+
+    A 5xx makes Pub/Sub redeliver; a 2xx acks. We nack only a TRANSIENT_FAILURE
+    (a signal-killed converter, e.g. the cold-start SIGSEGV of #248) and only when
+    NACK_ON_TRANSIENT_FAILURE is enabled -- which requires a dead-letter policy on
+    the subscription, or a deterministically-crashing paper would redeliver forever.
+    Success and permanent failures always ack.
+    """
+    if outcome is ConversionOutcome.TRANSIENT_FAILURE and current_app.config.get("NACK_ON_TRANSIENT_FAILURE", False):
+        return Response(status=503)
+    return Response(status=200)
 
 
 def _unwrap_pubsub_payload(payload: dict[str, Any]) -> Any:
@@ -72,8 +86,7 @@ def process_route() -> Response:
         return Response(status=202)
     # thread = FlaskThread(target=process, args=(sub_conversion_payload,)) # This requires cpu allocation always on in cloud run
     # thread.start()
-    process(sub_conversion_payload)
-    return Response(status=200)
+    return _conversion_response(process(sub_conversion_payload))
 
 
 @blueprint.route("/process-full-corpus", methods=["POST"])
@@ -94,8 +107,7 @@ def process_full_corpus() -> Response:
         )
         return Response(status=202)
     print(doc_conversion_payload)
-    process(doc_conversion_payload)
-    return Response(status=200)
+    return _conversion_response(process(doc_conversion_payload))
 
 
 # @blueprint.route('/batch-convert', methods=['POST'])
@@ -114,8 +126,7 @@ def single_convert_route() -> Response:
         except Exception:
             logger.warn("PROCESS: Failed to process due to malformed payload")
         return Response(status=202)
-    process(doc_conversion_payload)
-    return Response(status=200)
+    return _conversion_response(process(doc_conversion_payload))
 
 
 # @blueprint.route('/reconvert-submission', methods=['POST'])

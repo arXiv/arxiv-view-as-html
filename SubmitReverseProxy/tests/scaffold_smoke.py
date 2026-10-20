@@ -7,7 +7,7 @@ as a silently truncated paper rather than a 500 -- which is how it went unnotice
 
 Run as a `RUN` step in dockerfiles/Dockerfile.*, this turns that class of breakage into a
 failed build. It deliberately uses the same wiring as entry_point.py, via
-`register_scaffold_urls`, so a misordered or missing URL handler fails here too.
+`init_scaffold`, so a missing template or URL handler fails here too.
 """
 import logging
 import sys
@@ -19,7 +19,7 @@ sys.modules["arxiv.files"] = ReverseProxy.files
 
 from flask import Flask, render_template
 from ReverseProxy.scaffold import ArticleScaffoldMetadata
-from ReverseProxy.scaffold_response import register_scaffold_urls, safe_render_branded_html_paper
+from ReverseProxy.scaffold_response import init_scaffold, safe_render_branded_html_paper
 
 FIXTURE = Path(__file__).parent / 'fixtures' / 'latexml_paper.html'
 TEMPLATES = ['head_mixins.html', 'header.html', 'callout_license.html', 'footer.html']
@@ -42,7 +42,7 @@ def main() -> int:
     app = Flask('ReverseProxy', static_folder=None)
     app.config.from_pyfile('config.py')
     app.config['SERVER_NAME'] = None
-    register_scaffold_urls(app)
+    init_scaffold(app)
 
     # What routes.py builds for a submission preview, which is the only case this service has.
     meta = ArticleScaffoldMetadata(license='CC BY 4.0', page_id='7750266', published=False,

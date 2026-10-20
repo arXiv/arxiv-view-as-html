@@ -7,7 +7,7 @@ import logging
 import os
 from flask import Flask, Response, make_response, stream_with_context
 
-from arxiv.base.urls import register_external_urls
+import arxiv_brand
 from arxiv.files import LocalFileObj
 from .scaffold import ArticleScaffoldMetadata, HTMLFileTransform, render_branded_html_paper
 
@@ -75,11 +75,9 @@ def submission_scaffold_metadata(submission_id : int, metadata_path : Path) -> A
 def _vendored_version(name: str, fallback: str) -> str:
     """The release the vendored `name` templates were copied from.
 
-    Both projects serve their assets from a versioned path, so the Dockerfile bakes the
-    version out of the very same checkout it copies the templates from -- markup and assets
-    then cannot drift apart. It has to come from the checkout rather than from
-    `importlib.metadata`, because the `arxiv-base` actually installed here is the older one
-    `arxiv-auth` pins, not the one the templates came from.
+    Its assets are served from a versioned path, so the Dockerfile bakes the version out of
+    the very same checkout it copies the templates from -- markup and assets then cannot
+    drift apart. It has to come from the checkout, since `name` itself is not installed here.
     """
     try:
         version = Path(__file__).with_name(f'{name}_version.txt').read_text().strip()
@@ -90,20 +88,18 @@ def _vendored_version(name: str, fallback: str) -> str:
 
 # arxiv-browse serves its own assets from /static/browse/<APP_VERSION>, see browse/config.py.
 BROWSE_VERSION = os.environ.get('BROWSE_VERSION') or _vendored_version('browse', '0.3.4')
-# arxiv-base serves the shared chrome from /static/base/<BASE_VERSION>, see arxiv/base/config.py,
-# where it defaults to the installed distribution version, i.e. the one in its pyproject.toml.
-ARXIV_BASE_VERSION = os.environ.get('ARXIV_BASE_VERSION') or _vendored_version('arxiv_base', '1.0.1')
 
-def register_scaffold_urls(app: Flask) -> None:
-    """Teach `app` to build every URL the vendored scaffold templates ask for.
+def init_scaffold(app: Flask) -> None:
+    """Set `app` up to render the vendored scaffold templates.
 
-    The vendored arxiv-base `base/footer.html` links to the info site via named endpoints
-    (about, help, contact, ...) which only exist in arxiv-base's external URL map. That is the
-    part of `Base(app)` we need; the rest of that blueprint is too old here to be worth wiring.
-    It is registered first so `browse_urls_fallback` stays the handler of last resort, and can
-    keep logging only the endpoints that nothing at all could build.
+    They include the shared arXiv chrome (`arxiv_brand/*.html`), installed at the
+    design-system commit arxiv-browse locks (see dockerfiles/) and set up from the config, as
+    arxiv-browse's factory does -- minus its member-institution slot, which nothing fills
+    here, and with no BRAND_STATIC_BASE, so both environments use the production asset route.
+    Their own asset URLs come from `browse_urls_fallback`, which logs any endpoint it cannot
+    build.
     """
-    register_external_urls(app)
+    arxiv_brand.init_app(app)
     app.url_build_error_handlers.append(browse_urls_fallback)
 
 
@@ -111,11 +107,6 @@ def browse_urls_fallback(error: Exception, endpoint: str, values: Dict[str, Any]
     if endpoint == "static":
         # `services.arxiv.org` does route /static/browse/, so keep this one relative.
         return f"/static/browse/{BROWSE_VERSION}/{values.get('filename')}"
-    elif endpoint == "base.static":
-        # It does not route /static/base/ though, and this service never registers the
-        # arxiv-base blueprint that would serve it -- so link the shared chrome assets off
-        # the static host, the same one the conversion pipeline already uses.
-        return f"https://static.arxiv.org/static/base/{ARXIV_BASE_VERSION}/{values.get('filename')}"
     else:
         logging.error(f"URL build error for endpoint {endpoint} with values {values}")
         return None

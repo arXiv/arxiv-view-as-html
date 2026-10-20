@@ -65,19 +65,12 @@ RUN sed -n 's/^ *APP_VERSION *: *str *= *"\(.*\)"/\1/p' /lib/arxiv-browse/browse
     | head -1 > /source/ReverseProxy/browse_version.txt \
     && test -s /source/ReverseProxy/browse_version.txt
 
-# The scaffold also includes arxiv-base's shared header/footer chrome
-# (`base/announcement_banner.html`, `base/footer.html`), which arxiv-browse gets from
-# `Base(app)`. The `arxiv-base` that `arxiv-auth` pins predates that chrome, so take it
-# from the clone above -- refreshed to master, which arxiv-browse pins on develop too, so
-# scaffold and chrome always come from the pair of commits browse itself renders with.
-WORKDIR /lib/arxiv-base
-RUN git fetch --depth 1 origin master && git checkout -f FETCH_HEAD
-RUN cp -r /lib/arxiv-base/arxiv/base/templates/base /source/ReverseProxy/templates/
-# Their CSS/JS/images are served off static.arxiv.org under this version, see
-# ARXIV_BASE_VERSION in scaffold_response.py.
-RUN sed -n 's/^version *= *"\(.*\)"/\1/p' /lib/arxiv-base/pyproject.toml \
-    | head -1 > /source/ReverseProxy/arxiv_base_version.txt \
-    && test -s /source/ReverseProxy/arxiv_base_version.txt
+# The scaffold also includes the shared arXiv chrome (`arxiv_brand/*.html`), which
+# arxiv-browse installs from the design system. Install the very commit its lock pins, so
+# scaffold and chrome always come from the pair browse itself renders with.
+RUN sha=$(sed -n 's/.*design-system\.git?subdirectory=templates[^#]*#\([0-9a-f]\{40\}\).*/\1/p' \
+        /lib/arxiv-browse/uv.lock | head -1) && test -n "$sha" \
+    && python -m pip install "git+https://github.com/arXiv/design-system.git@$sha#subdirectory=templates"
 
 ########## CHECK THE VENDORED SCAFFOLD STILL RENDERS ##########
 
